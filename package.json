@@ -1,0 +1,84 @@
+{
+  "name": "@dougborg/katana-sheets-toolkit",
+  "version": "0.1.0",
+  "description": "Katana MRP API client and Google Sheets integration bindings for Google Apps Script projects.",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./katana": {
+      "types": "./src/katanaClient.ts",
+      "default": "./src/katanaClient.ts"
+    },
+    "./katana.generated": {
+      "types": "./src/katana.generated.d.ts"
+    },
+    "./config": {
+      "types": "./src/ConfigProvider.ts",
+      "default": "./src/ConfigProvider.ts"
+    },
+    "./bomDiff": {
+      "types": "./src/bomDiff.ts",
+      "default": "./src/bomDiff.ts"
+    },
+    "./constants": {
+      "types": "./src/constants.ts",
+      "default": "./src/constants.ts"
+    }
+  },
+  "files": [
+    "src",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false,
+  "keywords": [
+    "google-apps-script",
+    "gas",
+    "katana",
+    "katana-mrp",
+    "google-sheets",
+    "typescript"
+  ],
+  "author": "Doug Borg <doug@spotbikes.com>",
+  "license": "MIT",
+  "peerDependencies": {
+    "@types/google-apps-script": "^1.0.0 || ^2.0.0"
+  },
+  "dependencies": {
+    "@dougborg/gas-utils": "^0.1.0",
+    "@dougborg/gas-sheets-orm": "^0.1.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.4.13",
+    "@types/google-apps-script": "^2.0.0",
+    "typescript": "^6.0.0",
+    "vitest": "^4.0.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check",
+    "lint:fix": "biome check --fix",
+    "test": "vitest run",
+    "quality": "npm run typecheck && npm run lint && npm run test",
+    "prepublishOnly": "npm run build"
+  },
+  "overrides": {
+    "typescript": "$typescript"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dougborg/katana-sheets-toolkit.git"
+  },
+  "volta": {
+    "node": "22.22.0",
+    "npm": "11.12.1"
+  }
+}
