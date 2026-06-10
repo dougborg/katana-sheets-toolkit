@@ -52,12 +52,14 @@
     "@types/google-apps-script": "^1.0.0 || ^2.0.0"
   },
   "dependencies": {
-    "@dougborg/gas-utils": "^0.1.0",
-    "@dougborg/gas-sheets-orm": "^0.1.0"
+    "@dougborg/gas-sheets-orm": "^0.1.0",
+    "@dougborg/gas-utils": "^0.1.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.13",
     "@types/google-apps-script": "^2.0.0",
+    "openapi-typescript": "^7.13.0",
+    "prettier": "^3.8.4",
     "typescript": "^6.0.0",
     "vitest": "^4.0.0"
   },
@@ -66,9 +68,12 @@
     "typecheck": "tsc --noEmit",
     "lint": "biome check",
     "lint:fix": "biome check --fix",
-    "test": "vitest run",
+    "test": "vitest run --passWithNoTests",
     "quality": "npm run typecheck && npm run lint && npm run test",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "fetch:spec": "curl -fsSL https://raw.githubusercontent.com/dougborg/katana-openapi-client/main/docs/katana-openapi.yaml -o spec/katana-openapi.yaml",
+    "generate:types": "openapi-typescript spec/katana-openapi.yaml -o src/katana.generated.d.ts && prettier --single-quote --write src/katana.generated.d.ts",
+    "generate": "npm run fetch:spec && npm run generate:types"
   },
   "overrides": {
     "typescript": "$typescript"
