@@ -53,7 +53,8 @@ export interface paths {
     };
     /**
      * List current batch stock
-     * @description Returns a list for current batch stock. The inventory is returned in sorted order, based on location_id ASC, variant_id ASC, and batch_id DESC.
+     * @description Returns a list for current batch stock. The inventory is returned in sorted order, based on location_id ASC,
+     *     variant_id ASC, and batch_id DESC.
      */
     get: operations['getBatchStock'];
     put?: never;
@@ -64,7 +65,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/batch_stocks/{batch_id}': {
+  '/batch_stocks/{id}': {
     parameters: {
       query?: never;
       header?: never;
@@ -79,9 +80,37 @@ export interface paths {
     head?: never;
     /**
      * Update batch details
-     * @description Updates the specified batch details by setting the values of the parameters passed. Any parameters not provided will be left unchanged.
+     * @description Updates the specified batch details by setting the values of the parameters passed. Any parameters not provided
+     *     will be left unchanged.
      */
     patch: operations['updateBatchStock'];
+    trace?: never;
+  };
+  '/bin_inventory': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List bin inventory levels
+     * @description Returns per-bin inventory levels at the chosen granularity. `granularity=VARIANT` (default) returns
+     *     one row per (location, variant, bin); `BATCH` and `SERIAL_NUMBER` break rows down further by the
+     *     matching traceability axis. Each row carries three decimal-string quantities: `quantity_in_stock`,
+     *     `quantity_committed`, and `quantity_expected`.
+     *
+     *     A null `bin_location_id`, `batch_id`, or `serial_number_id` denotes stock whose traceability on that
+     *     axis has not been set (unassigned bin, unbatched stock, untraced serial). Pass `?<param>=null` to
+     *     target those rows. Bin inventory levels are computed asynchronously and are eventually consistent.
+     */
+    get: operations['getBinInventory'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
     trace?: never;
   };
   '/bin_locations': {
@@ -93,11 +122,16 @@ export interface paths {
     };
     /**
      * List all storage bins
-     * @description Returns a list of storage bins you've previously created. The storage bins are returned in sorted order, with the most recent storage bin appearing first.
+     * @description Returns a list of storage bins you've previously created. The storage bins are returned in sorted order, with
+     *     the most recent storage bin appearing first.
      */
     get: operations['getAllStorageBins'];
     put?: never;
-    post?: never;
+    /**
+     * Create a storage bin
+     * @description Creates a new storage bin at the specified location.
+     */
+    post: operations['createStorageBin'];
     delete?: never;
     options?: never;
     head?: never;
@@ -123,9 +157,136 @@ export interface paths {
     head?: never;
     /**
      * Update a storage bin
-     * @description Updates the specified storage bin by setting the values of the parameters passed. Any parameters not provided will be left unchanged.
+     * @description Updates the specified storage bin by setting the values of the parameters passed. Any parameters not provided
+     *     will be left unchanged.
      */
     patch: operations['updateDefaultStorageBin'];
+    trace?: never;
+  };
+  '/bin_transfers': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List all bin transfers
+     * @description Returns a list of bin transfers.
+     */
+    get: operations['getAllBinTransfers'];
+    put?: never;
+    /**
+     * Create a bin transfer
+     * @description Creates a bin transfer, optionally with rows and per-row traceability in one
+     *     call. Bin transfers move stock between bin locations within a single location.
+     *     New transfers start in `CREATED`; status changes go through the status endpoint.
+     */
+    post: operations['createBinTransfer'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/bin_transfers/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get a bin transfer
+     * @description Returns a single bin transfer by id.
+     */
+    get: operations['getBinTransfer'];
+    put?: never;
+    post?: never;
+    /**
+     * Delete a bin transfer
+     * @description Deletes a bin transfer.
+     */
+    delete: operations['deleteBinTransfer'];
+    options?: never;
+    head?: never;
+    /**
+     * Update a bin transfer
+     * @description Updates a bin transfer's header fields.
+     */
+    patch: operations['updateBinTransfer'];
+    trace?: never;
+  };
+  '/bin_transfers/{id}/status': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update bin transfer status
+     * @description Updates the status of a bin transfer.
+     */
+    patch: operations['updateBinTransferStatus'];
+    trace?: never;
+  };
+  '/bin_transfer_rows': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List all bin transfer rows
+     * @description Returns a list of bin transfer rows.
+     */
+    get: operations['getAllBinTransferRows'];
+    put?: never;
+    /**
+     * Create a bin transfer row
+     * @description Adds a row to an existing bin transfer.
+     */
+    post: operations['createBinTransferRow'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/bin_transfer_rows/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get a bin transfer row
+     * @description Returns a single bin transfer row by id.
+     */
+    get: operations['getBinTransferRow'];
+    put?: never;
+    post?: never;
+    /**
+     * Delete a bin transfer row
+     * @description Deletes a bin transfer row.
+     */
+    delete: operations['deleteBinTransferRow'];
+    options?: never;
+    head?: never;
+    /**
+     * Update a bin transfer row
+     * @description Updates a bin transfer row.
+     */
+    patch: operations['updateBinTransferRow'];
     trace?: never;
   };
   '/inventory': {
@@ -137,7 +298,8 @@ export interface paths {
     };
     /**
      * List current inventory
-     * @description Returns a list for current inventory. The inventory is returned in sorted order, with the oldest locations appearing first.
+     * @description Returns a list for current inventory. The inventory is returned in sorted order, with the oldest locations
+     *     appearing first.
      */
     get: operations['getAllInventoryPoint'];
     put?: never;
@@ -157,7 +319,8 @@ export interface paths {
     };
     /**
      * List all inventory movements
-     * @description Returns a list of inventory movements created by your Katana resources. The inventory movements are returned in sorted order, with the most recent movements appearing first.
+     * @description Returns a list of inventory movements created by your Katana resources. The inventory movements are returned in
+     *     sorted order, with the most recent movements appearing first.
      */
     get: operations['getAllInventoryMovements'];
     put?: never;
@@ -178,8 +341,8 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Update the safety stock level
-     * @description Update an item's safety stock level within a certain location and variant combination.
+     * Create or update the safety stock level
+     * @description Create or update an item's safety stock level within a certain location and variant combination.
      */
     post: operations['createInventorySafetyStockLevel'];
     delete?: never;
@@ -197,7 +360,8 @@ export interface paths {
     };
     /**
      * List all locations
-     * @description Returns a list of locations you've previously created. The locations are returned in sorted order, with the most recent locations appearing first.
+     * @description Returns a list of locations you've previously created. The locations are returned in sorted order, with the most
+     *     recent locations appearing first.
      */
     get: operations['getAllLocations'];
     put?: never;
@@ -238,7 +402,8 @@ export interface paths {
     /**
      * List all manufacturing orders
      * @description Returns a list of manufacturing orders you've previously created.
-     *       The manufacturing orders are returned in sorted order, with the most recent manufacturing orders appearing first.
+     *       The manufacturing orders are returned in sorted order, with the most recent manufacturing orders appearing
+     *       first.
      */
     get: operations['getAllManufacturingOrders'];
     put?: never;
@@ -333,7 +498,8 @@ export interface paths {
     /**
      * List all manufacturing orders
      * @description Returns a list of manufacturing orders you've previously created.
-     *       The manufacturing orders are returned in sorted order, with the most recent manufacturing orders appearing first.
+     *       The manufacturing orders are returned in sorted order, with the most recent manufacturing orders appearing
+     *       first.
      */
     get: operations['getAllManufacturingOrderProductions'];
     put?: never;
@@ -393,7 +559,8 @@ export interface paths {
     /**
      * Update a manufacturing order production ingredient
      * @description Updates the specified manufacturing order production ingredient by setting the values of the parameters passed.
-     *       Any parameters not provided will be left unchanged. Manufacturing order production ingredient cannot be updated when
+     *       Any parameters not provided will be left unchanged. Manufacturing order production ingredient cannot be
+     *       updated when
      *       the manufacturing order status is DONE.
      */
     patch: operations['updateManufacturingOrderProductionIngredient'];
@@ -466,7 +633,8 @@ export interface paths {
     /**
      * List all manufacturing order recipe rows
      * @description Returns a list of manufacturing order recipe rows you've previously created. The manufacturing order
-     *       recipe rows are returned in sorted order, with the most recent manufacturing order recipe rows appearing first.
+     *       recipe rows are returned in sorted order, with the most recent manufacturing order recipe rows appearing
+     *       first.
      */
     get: operations['getAllManufacturingOrderRecipeRows'];
     put?: never;
@@ -1043,7 +1211,7 @@ export interface paths {
      *     In case the default storage bin doesn't yet exist, it will be created and linked to the variant.
      *     This endpoint can also be used for changing existing links of the variants to different storage bins.
      *
-     *     The endpoint accepts up to 500 variant storage bin objects.
+     *     The request body is always an array, even when linking a single variant.
      */
     post: operations['linkVariantDefaultStorageBins'];
     delete?: never;
@@ -1158,7 +1326,8 @@ export interface paths {
     };
     /**
      * List all sales returns
-     * @description Returns a list of sales returns you've previously created. The sales returns are returned in sorted order, with the most recent sales return appearing first.
+     * @description Returns a list of sales returns you've previously created. The sales returns are returned in sorted order, with
+     *     the most recent sales return appearing first.
      */
     get: operations['getAllSalesReturns'];
     put?: never;
@@ -1196,7 +1365,8 @@ export interface paths {
     head?: never;
     /**
      * Update a sales return
-     * @description Updates the specified sales return by setting the values of the parameters passed. Any parameters not provided will be left unchanged.
+     * @description Updates the specified sales return by setting the values of the parameters passed. Any parameters not provided
+     *     will be left unchanged.
      */
     patch: operations['updateSalesReturn'];
     trace?: never;
@@ -1210,7 +1380,8 @@ export interface paths {
     };
     /**
      * List all sales return rows
-     * @description Returns a list of sales return rows you've previously created. The sales return rows are returned in sorted order, with the most recent sales return row appearing first.
+     * @description Returns a list of sales return rows you've previously created. The sales return rows are returned in sorted
+     *     order, with the most recent sales return row appearing first.
      */
     get: operations['getAllSalesReturnRows'];
     put?: never;
@@ -1310,10 +1481,32 @@ export interface paths {
     /**
      * Create recipes
      * @deprecated
-     * @description Create one or many new recipe rows for a product. The endpoint accepts up to 150 recipe rows and processes them in bulk. This endpoint is deprecated in favor of BOM rows.
+     * @description Create one or many new recipe rows for a product. The endpoint accepts up to 150 recipe rows and processes them
+     *     in bulk. This endpoint is deprecated in favor of BOM rows.
      */
     post: operations['createRecipes'];
     delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/recipes/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Delete a recipe
+     * @deprecated
+     * @description Deletes all recipe rows for a product by ID. This endpoint is deprecated in favor of BOM rows.
+     */
+    delete: operations['deleteRecipe'];
     options?: never;
     head?: never;
     patch?: never;
@@ -1345,6 +1538,26 @@ export interface paths {
     patch: operations['updateRecipeRow'];
     trace?: never;
   };
+  '/user_info': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get current user info
+     * @description Returns information about the currently authenticated user.
+     */
+    get: operations['getUserInfo'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/users': {
     parameters: {
       query?: never;
@@ -1374,7 +1587,8 @@ export interface paths {
     };
     /**
      * Get All Services
-     * @description Retrieve a list of all Service objects. (See: [Get All Services](https://developer.katanamrp.com/reference/getallservices))
+     * @description Retrieve a list of all Service objects. (See: [Get All
+     *     Services](https://developer.katanamrp.com/reference/getallservices))
      */
     get: operations['getAllServices'];
     put?: never;
@@ -1469,6 +1683,32 @@ export interface paths {
     patch: operations['updateSalesOrder'];
     trace?: never;
   };
+  '/sales_orders/search': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Search sales orders
+     * @description Searches sales orders using a structured filter body with nested
+     *     logical operators (``and`` / ``or``) and per-field comparators.
+     *     Only the fields in the request schema may appear in ``where`` /
+     *     ``order``; unknown fields return 422. Custom field values are
+     *     addressable via ``custom_fields.<uuid>`` nested paths. Returns the
+     *     same shape as ``GET /sales_orders`` — a paginated list of
+     *     ``SalesOrder`` records.
+     */
+    post: operations['searchSalesOrders'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/sales_orders/{id}/returnable_items': {
     parameters: {
       query?: never;
@@ -1532,9 +1772,38 @@ export interface paths {
     head?: never;
     /**
      * Update a customer
-     * @description Updates the specified customer by setting the values of the parameters passed. Any parameters not provided will be left unchanged.
+     * @description Updates the specified customer by setting the values of the parameters passed. Any parameters not provided will
+     *     be left unchanged.
      */
     patch: operations['updateCustomer'];
+    trace?: never;
+  };
+  '/demand_forecasts': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List planned demand forecast for variant in location
+     * @description Returns planned forecasted demand for a variant in given location.
+     */
+    get: operations['getDemandForecasts'];
+    put?: never;
+    /**
+     * Add planned demand forecast to variant
+     * @description Add planned demand forecast for a variant in location for the specified periods.
+     */
+    post: operations['createDemandForecast'];
+    /**
+     * Clear planned demand forecast to variant
+     * @description Clears planned demand forecast for a variant in location for the specified periods.
+     */
+    delete: operations['clearDemandForecast'];
+    options?: never;
+    head?: never;
+    patch?: never;
     trace?: never;
   };
   '/stock_adjustments': {
@@ -1580,7 +1849,8 @@ export interface paths {
     head?: never;
     /**
      * Update a stock adjustment
-     * @description Updates the specified stock adjustment by setting the values of the parameters passed. Any parameters not provided will be left unchanged.
+     * @description Updates the specified stock adjustment by setting the values of the parameters passed. Any parameters not
+     *     provided will be left unchanged.
      */
     patch: operations['updateStockAdjustment'];
     trace?: never;
@@ -1677,6 +1947,32 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/sales_order_rows/search': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Search sales order rows
+     * @description Search sales order rows using a structured filter body. Unlike
+     *     ``GET /sales_order_rows`` (which uses simple query parameters), this
+     *     endpoint accepts a rich ``filter`` object with per-field
+     *     comparators and ``and`` / ``or`` composition. Only the fields in
+     *     the request schema may appear in ``where`` / ``order``; unknown
+     *     fields return 422. Custom field values are addressable via
+     *     ``custom_fields.<uuid>`` nested paths.
+     */
+    post: operations['searchSalesOrderRows'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/sales_order_rows/{id}': {
     parameters: {
       query?: never;
@@ -1700,7 +1996,8 @@ export interface paths {
     head?: never;
     /**
      * Update a sales order row
-     * @description Updates the specified sales order row by setting the values of the parameters passed. Any parameters not provided will be left unchanged.
+     * @description Updates the specified sales order row by setting the values of the parameters passed. Any parameters not
+     *     provided will be left unchanged.
      */
     patch: operations['updateSalesOrderRow'];
     trace?: never;
@@ -1748,7 +2045,8 @@ export interface paths {
     head?: never;
     /**
      * Update a sales order address
-     * @description Updates the specified sales order address by setting the values of the parameters passed. Any parameters not provided will be left unchanged.
+     * @description Updates the specified sales order address by setting the values of the parameters passed. Any parameters not
+     *     provided will be left unchanged.
      */
     patch: operations['updateSalesOrderAddress'];
     trace?: never;
@@ -1900,7 +2198,8 @@ export interface paths {
     head?: never;
     /**
      * Update a price list
-     * @description Updates the specified price list by setting the values of the parameters passed. Any parameters not provided will be left unchanged.
+     * @description Updates the specified price list by setting the values of the parameters passed. Any parameters not provided
+     *     will be left unchanged.
      */
     patch: operations['updatePriceList'];
     trace?: never;
@@ -1952,7 +2251,8 @@ export interface paths {
     head?: never;
     /**
      * Update a price list row
-     * @description Updates the specified price list row by setting the values of the parameters passed. Any parameters not provided will be left unchanged.
+     * @description Updates the specified price list row by setting the values of the parameters passed. Any parameters not provided
+     *     will be left unchanged.
      */
     patch: operations['updatePriceListRow'];
     trace?: never;
@@ -2004,7 +2304,8 @@ export interface paths {
     head?: never;
     /**
      * Update a price list customer assignment
-     * @description Updates the specified price list customer assignment by setting the values of the parameters passed. Any parameters not provided will be left unchanged.
+     * @description Updates the specified price list customer assignment by setting the values of the parameters passed. Any
+     *     parameters not provided will be left unchanged.
      */
     patch: operations['updatePriceListCustomer'];
     trace?: never;
@@ -2018,7 +2319,8 @@ export interface paths {
     };
     /**
      * List all BOM rows
-     * @description Returns a list of BOM (Bill of Materials) rows you've previously created. Product variant BOM consists of ingredient variants and their quantities.
+     * @description Returns a list of BOM (Bill of Materials) rows you've previously created. Product variant BOM consists of
+     *     ingredient variants and their quantities.
      */
     get: operations['getAllBomRows'];
     put?: never;
@@ -2072,7 +2374,8 @@ export interface paths {
     head?: never;
     /**
      * Update a BOM row
-     * @description Updates the specified BOM row by setting the values of the parameters passed. Any parameters not provided will be left unchanged.
+     * @description Updates the specified BOM row by setting the values of the parameters passed. Any parameters not provided will
+     *     be left unchanged.
      */
     patch: operations['updateBomRow'];
     trace?: never;
@@ -2120,7 +2423,8 @@ export interface paths {
     head?: never;
     /**
      * Update a stocktake
-     * @description Updates the specified stocktake by setting the values of the parameters passed. Any parameters not provided will be left unchanged.
+     * @description Updates the specified stocktake by setting the values of the parameters passed. Any parameters not provided will
+     *     be left unchanged.
      */
     patch: operations['updateStocktake'];
     trace?: never;
@@ -2168,7 +2472,8 @@ export interface paths {
     head?: never;
     /**
      * Update a stocktake row
-     * @description Updates the specified stocktake row by setting the values of the parameters passed. Any parameters not provided will be left unchanged.
+     * @description Updates the specified stocktake row by setting the values of the parameters passed. Any parameters not provided
+     *     will be left unchanged.
      */
     patch: operations['updateStocktakeRow'];
     trace?: never;
@@ -2182,20 +2487,90 @@ export interface paths {
     };
     /**
      * List serial numbers
-     * @description Returns a list of serial numbers.
+     * @description Returns a list of serial numbers, optionally filtered by
+     *     ``resource_type`` and/or ``resource_id``.
+     *
+     *     **Filter behavior** (verified live 2026-05-19):
+     *
+     *     - Both filters set → results scoped to that exact ``(type, id)``.
+     *     - ``resource_type`` alone → ALL serial numbers of that type
+     *       across all resources (paginated, never 422).
+     *     - ``resource_id`` alone → narrows to that resource regardless of
+     *       type.
+     *     - Neither filter → all serial numbers in the tenant (paginated).
+     *     - Page beyond data → 200 with an empty ``data`` array, not 404.
      */
     get: operations['getAllSerialNumbers'];
     put?: never;
     /**
      * Create serial numbers
-     * @description Creates new serial numbers for a resource.
+     * @description Mints new or transfers existing serial numbers to a resource.
+     *
+     *     **Write semantics differ by ``resource_type``** (see
+     *     ``CreateSerialNumberResourceType``):
+     *
+     *     - **Mint** (``ManufacturingOrder``, ``PurchaseOrderRow``) — the
+     *       serial-number string doesn't need to pre-exist. The API creates a
+     *       new record and links it to the target resource.
+     *     - **Transfer** (``SalesOrderRow``, ``StockTransferRow``,
+     *       ``StockAdjustmentRow``) — the serial-number string MUST already
+     *       exist (typically attached to a ManufacturingOrder output). The
+     *       API moves the linkage from its current resource to the target.
+     *       If the string isn't anywhere yet, the entry lands in ``failed``
+     *       with ``reason: MISSING`` — the call still returns 200.
+     *
+     *     **Partial failure is the norm, not the exception.** The response
+     *     carries ``successful`` AND ``failed`` arrays; consumers must
+     *     handle both. A 200 status does NOT mean every input was applied —
+     *     check ``failed`` to learn which strings the API rejected.
+     *
+     *     **422 cases:** non-existent ``resource_id`` returns
+     *     ``422 UnprocessableEntityError`` with detail ``No entity found``
+     *     (not 404). Invalid ``resource_type`` (e.g. ``Production``)
+     *     returns 422 with an Ajv-style validation detail.
+     *
+     *     **Transfer response quirks:** on a successful transfer the moved
+     *     record's ``transaction_id`` may be the literal string
+     *     ``undefined`` and ``resource_id`` may be ``null`` — re-fetch via
+     *     ``GET /serial_numbers`` to confirm the landing state.
      */
     post: operations['createSerialNumbers'];
     /**
      * Delete serial numbers
      * @description Deletes serial numbers for a resource.
+     *
+     *     **DELETE is unconditionally idempotent.** Empirically (live-API
+     *     probes 2026-05-19) the endpoint returns 204 No Content for every
+     *     request variant tested: valid id, already-deleted id, mixed
+     *     valid+invalid id batches, pure-invalid id, and ``resource_id``
+     *     mismatch between body and the SN's actual parent. The endpoint
+     *     does NOT validate the request body — callers cannot detect
+     *     ``id didn't exist`` or ``id belongs to wrong resource`` via
+     *     the response. If strong confirmation is needed, follow up with a
+     *     ``GET /serial_numbers`` filtered by ``resource_id`` and verify
+     *     the deleted ids are absent.
      */
     delete: operations['deleteSerialNumbers'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/serial_numbers/serial_numbers_stock': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List serial number stock (alternate path)
+     * @description Returns a list of serial number stock. This is an alternate path for the /serial_numbers_stock endpoint.
+     */
+    get: operations['getSerialNumbersStockAlt'];
+    put?: never;
+    post?: never;
+    delete?: never;
     options?: never;
     head?: never;
     patch?: never;
@@ -2279,6 +2654,61 @@ export interface paths {
     options?: never;
     head?: never;
     patch?: never;
+    trace?: never;
+  };
+  '/custom_field_definitions': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List custom field definitions
+     * @description Returns a paginated list of custom field definitions. Each definition
+     *     configures a custom field that callers can attach to a resource (sales
+     *     order, service, product, etc.) via the resource's ``custom_fields``
+     *     property.
+     */
+    get: operations['getAllCustomFieldDefinitions'];
+    put?: never;
+    /**
+     * Create a custom field definition
+     * @description Creates a new custom field definition.
+     */
+    post: operations['createCustomFieldDefinition'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/custom_field_definitions/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Retrieve a custom field definition
+     * @description Retrieves a single custom field definition by ID.
+     */
+    get: operations['getCustomFieldDefinition'];
+    put?: never;
+    post?: never;
+    /**
+     * Delete a custom field definition
+     * @description Deletes an existing custom field definition.
+     */
+    delete: operations['deleteCustomFieldDefinition'];
+    options?: never;
+    head?: never;
+    /**
+     * Update a custom field definition
+     * @description Updates an existing custom field definition.
+     */
+    patch: operations['updateCustomFieldDefinition'];
     trace?: never;
   };
   '/inventory_reorder_points': {
@@ -2585,7 +3015,8 @@ export interface webhooks {
      * Manufacturing Order Events
      * @description Webhook events for manufacturing orders. Supports all manufacturing order lifecycle events:
      *     - manufacturing_order.created: When a new manufacturing order is created
-     *     - manufacturing_order.updated: When a manufacturing order is updated (except ingredient_availability, total_planned_time, total_actual_time, and cost-related fields)
+     *     - manufacturing_order.updated: When a manufacturing order is updated (except ingredient_availability,
+     *     total_planned_time, total_actual_time, and cost-related fields)
      *     - manufacturing_order.deleted: When a manufacturing order is deleted
      *     - manufacturing_order.in_progress: When status gets marked as IN_PROGRESS
      *     - manufacturing_order.blocked: When status gets marked as BLOCKED
@@ -2640,7 +3071,8 @@ export interface webhooks {
      *     - manufacturing_order_recipe_row.created: When a recipe row is added to a manufacturing order
      *     - manufacturing_order_recipe_row.updated: When a recipe row is updated in a manufacturing order
      *     - manufacturing_order_recipe_row.deleted: When a recipe row is deleted from a manufacturing order
-     *     - manufacturing_order_recipe_row.ingredients_in_stock: When the ingredient availability of a manufacturing order recipe row is updated to IN_STOCK
+     *     - manufacturing_order_recipe_row.ingredients_in_stock: When the ingredient availability of a manufacturing order
+     *     recipe row is updated to IN_STOCK
      */
     post: operations['manufacturingOrderRecipeRowEventsWebhook'];
     delete?: never;
@@ -2663,8 +3095,10 @@ export interface webhooks {
      * @description Webhook events for current inventory changes. Supports all inventory monitoring events:
      *     - current_inventory.product_updated: When a product's current stock level or average cost is updated
      *     - current_inventory.material_updated: When a material's current stock level or average cost is updated
-     *     - current_inventory.product_out_of_stock: When a product's current stock level is below the optimal level (quantity_missing_or_excess <= 0)
-     *     - current_inventory.material_out_of_stock: When a material's current stock level is below the optimal level (quantity_missing_or_excess <= 0)
+     *     - current_inventory.product_out_of_stock: When a product's current stock level is below the optimal level
+     *     (quantity_missing_or_excess <= 0)
+     *     - current_inventory.material_out_of_stock: When a material's current stock level is below the optimal level
+     *     (quantity_missing_or_excess <= 0)
      */
     post: operations['currentInventoryEventsWebhook'];
     delete?: never;
@@ -2824,7 +3258,8 @@ export interface webhooks {
     put?: never;
     /**
      * Outsourced Purchase Order Recipe Row Events
-     * @description Webhook events for outsourced purchase order recipe rows. Supports all outsourced purchase order recipe row lifecycle events:
+     * @description Webhook events for outsourced purchase order recipe rows. Supports all outsourced purchase order recipe row
+     *     lifecycle events:
      *     - outsourced_purchase_order_recipe_row.created: When an outsourced purchase order recipe row is created
      *     - outsourced_purchase_order_recipe_row.updated: When an outsourced purchase order recipe row is updated
      *     - outsourced_purchase_order_recipe_row.deleted: When an outsourced purchase order recipe row is deleted
@@ -2849,7 +3284,7 @@ export interface components {
       message?: string;
     };
     /** @description Error response with an additional application-specific error code for detailed error handling */
-    CodedErrorResponse: WithRequired<components['schemas']['ErrorResponse'], 'statusCode' | 'name' | 'message'> & {
+    CodedErrorResponse: components['schemas']['ErrorResponse'] & {
       /** @description Application-specific error code */
       code?: string | null;
     };
@@ -2858,18 +3293,343 @@ export interface components {
       /** @description Detailed validation error information */
       details?: components['schemas']['ValidationErrorDetail'][];
     };
-    /** @description Individual validation error detail */
-    ValidationErrorDetail: {
-      /** @description JSON path to the field with the error */
+    /**
+     * @description Ajv-style validation error detail. Katana's API uses Ajv (the de facto
+     *     Node.js JSON Schema validator) under the hood; every detail item maps
+     *     to an Ajv ``ErrorObject``: ``path`` ↔ ``instancePath``, ``code`` ↔
+     *     ``keyword``, ``info`` ↔ ``params``. The shape of ``info`` is keyword-
+     *     specific — see each typed subtype.
+     *
+     *     **No discriminator on purpose.** Each typed variant locks its ``code``
+     *     to a specific Ajv keyword via ``Literal[<keyword>]``; deserializers
+     *     try each variant and the first match wins. ``GenericValidationError``
+     *     accepts any unknown ``code`` value, so future Ajv keywords (or
+     *     custom user-defined ones) fall through gracefully instead of raising.
+     *     A discriminator-based union here would lock the schema to today's
+     *     keyword set and break on any new code Katana ships.
+     */
+    ValidationErrorDetail:
+      | components['schemas']['AdditionalPropertiesValidationError']
+      | components['schemas']['ConstValidationError']
+      | components['schemas']['DependenciesValidationError']
+      | components['schemas']['EnumValidationError']
+      | components['schemas']['ExclusiveMaximumValidationError']
+      | components['schemas']['ExclusiveMinimumValidationError']
+      | components['schemas']['FormatValidationError']
+      | components['schemas']['MaxItemsValidationError']
+      | components['schemas']['MaxLengthValidationError']
+      | components['schemas']['MaximumValidationError']
+      | components['schemas']['MinItemsValidationError']
+      | components['schemas']['MinLengthValidationError']
+      | components['schemas']['MinimumValidationError']
+      | components['schemas']['MultipleOfValidationError']
+      | components['schemas']['OneOfValidationError']
+      | components['schemas']['PatternValidationError']
+      | components['schemas']['RequiredValidationError']
+      | components['schemas']['TypeValidationError']
+      | components['schemas']['UniqueItemsValidationError']
+      | components['schemas']['GenericValidationError'];
+    /**
+     * @description Common fields shared by every validation error detail. Maps to the
+     *     non-keyword-specific portion of an Ajv ``ErrorObject``.
+     */
+    BaseValidationError: {
+      /**
+       * @description JSON path to the field with the error (Ajv's ``instancePath``).
+       *     Format depends on Ajv config: leading ``/`` for JSON Pointer style
+       *     or leading ``.`` / dotted style for legacy ``dataPath``.
+       */
       path: string;
-      /** @description Validation error code */
+      /** @description Ajv keyword that failed (e.g. ``maxLength``, ``required``, ``type``) */
       code: string;
       /** @description Human-readable validation error message */
-      message?: string;
-      /** @description Additional validation context */
-      info?: {
-        [key: string]: unknown;
+      message: string;
+    };
+    /**
+     * @description Ajv ``additionalProperties`` keyword: an object includes a property
+     *     not permitted by the schema. ``info.additionalProperty`` names the
+     *     offending key.
+     */
+    AdditionalPropertiesValidationError: components['schemas']['BaseValidationError'] & {
+      /** @enum {string} */
+      code?: 'additionalProperties';
+      /** @description Keyword-specific metadata for ``additionalProperties`` */
+      info: {
+        /** @description The disallowed property name */
+        additionalProperty: string;
       };
+    };
+    /**
+     * @description Ajv ``const`` keyword: the value must equal the schema's constant.
+     *     ``info.allowedValue`` is the required value (any JSON type).
+     */
+    ConstValidationError: components['schemas']['BaseValidationError'] & {
+      /** @enum {string} */
+      code?: 'const';
+      /** @description Keyword-specific metadata for ``const`` */
+      info: {
+        /** @description The required constant value (any JSON type) */
+        allowedValue: unknown;
+      };
+    };
+    /**
+     * @description Ajv ``dependencies`` / ``dependentRequired`` keyword: presence of one
+     *     property requires others. ``info`` carries the offending property,
+     *     the missing dependent, and the full dependency list.
+     */
+    DependenciesValidationError: components['schemas']['BaseValidationError'] & {
+      /** @enum {string} */
+      code?: 'dependencies';
+      /** @description Keyword-specific metadata for ``dependencies`` */
+      info: {
+        /** @description The property whose presence triggered the dependency check */
+        property: string;
+        /** @description The dependent property that is missing */
+        missingProperty: string;
+        /** @description Comma-separated list of all required dependents */
+        deps?: string;
+        /** @description Total count of required dependents */
+        depsCount?: number;
+      };
+    };
+    /**
+     * @description Ajv ``enum`` keyword: the value is not in the allowed set.
+     *     ``info.allowedValues`` is the schema's enum list.
+     */
+    EnumValidationError: components['schemas']['BaseValidationError'] & {
+      /** @enum {string} */
+      code?: 'enum';
+      /** @description Keyword-specific metadata for ``enum`` */
+      info: {
+        /** @description The schema's enum list (items can be any JSON type) */
+        allowedValues: unknown[];
+      };
+    };
+    /**
+     * @description Ajv ``exclusiveMaximum`` keyword: the value must be strictly less than
+     *     ``info.limit``.
+     */
+    ExclusiveMaximumValidationError: components['schemas']['BaseValidationError'] & {
+      /** @enum {string} */
+      code?: 'exclusiveMaximum';
+      /** @description Keyword-specific metadata for ``exclusiveMaximum`` */
+      info: {
+        /** @description Exclusive upper bound */
+        limit: number;
+        /**
+         * @description Ajv's comparison operator marker (always ``<``)
+         * @enum {string}
+         */
+        comparison?: '<';
+      };
+    };
+    /**
+     * @description Ajv ``exclusiveMinimum`` keyword: the value must be strictly greater
+     *     than ``info.limit``.
+     */
+    ExclusiveMinimumValidationError: components['schemas']['BaseValidationError'] & {
+      /** @enum {string} */
+      code?: 'exclusiveMinimum';
+      /** @description Keyword-specific metadata for ``exclusiveMinimum`` */
+      info: {
+        /** @description Exclusive lower bound */
+        limit: number;
+        /**
+         * @description Ajv's comparison operator marker (always ``>``)
+         * @enum {string}
+         */
+        comparison?: '>';
+      };
+    };
+    /**
+     * @description Ajv ``format`` keyword (e.g. ``email``, ``date-time``, ``uri``). The
+     *     expected format name lives in ``info.format``.
+     */
+    FormatValidationError: components['schemas']['BaseValidationError'] & {
+      /** @enum {string} */
+      code?: 'format';
+      /** @description Keyword-specific metadata for ``format`` */
+      info: {
+        /** @description Expected format name (``email``, ``date-time``, ``uri``, etc.) */
+        format: string;
+      };
+    };
+    /** @description Ajv ``maxItems`` keyword: the array exceeds its maximum length. */
+    MaxItemsValidationError: components['schemas']['BaseValidationError'] & {
+      /** @enum {string} */
+      code?: 'maxItems';
+      /** @description Keyword-specific metadata for ``maxItems`` */
+      info: {
+        /** @description Maximum allowed array length */
+        limit: number;
+      };
+    };
+    /**
+     * @description Ajv ``maxLength`` keyword: the string exceeds its maximum length.
+     *     The limit lives in ``info.limit`` (not as a sibling of ``code``).
+     */
+    MaxLengthValidationError: components['schemas']['BaseValidationError'] & {
+      /** @enum {string} */
+      code?: 'maxLength';
+      /** @description Keyword-specific metadata for ``maxLength`` */
+      info: {
+        /** @description Maximum allowed string length */
+        limit: number;
+      };
+    };
+    /** @description Ajv ``maximum`` keyword: the value exceeds its inclusive upper bound. */
+    MaximumValidationError: components['schemas']['BaseValidationError'] & {
+      /** @enum {string} */
+      code?: 'maximum';
+      /** @description Keyword-specific metadata for ``maximum`` */
+      info: {
+        /** @description Inclusive upper bound */
+        limit: number;
+        /**
+         * @description Ajv's comparison operator marker (always ``<=``)
+         * @enum {string}
+         */
+        comparison?: '<=';
+      };
+    };
+    /**
+     * @description Ajv ``minItems`` keyword: the array is shorter than the schema's
+     *     minimum length.
+     */
+    MinItemsValidationError: components['schemas']['BaseValidationError'] & {
+      /** @enum {string} */
+      code?: 'minItems';
+      /** @description Keyword-specific metadata for ``minItems`` */
+      info: {
+        /** @description Minimum required array length */
+        limit: number;
+      };
+    };
+    /**
+     * @description Ajv ``minLength`` keyword: the string is shorter than the schema's
+     *     minimum length. Parallel to ``MaxLengthValidationError`` — the limit
+     *     lives in ``info.limit``.
+     */
+    MinLengthValidationError: components['schemas']['BaseValidationError'] & {
+      /** @enum {string} */
+      code?: 'minLength';
+      /** @description Keyword-specific metadata for ``minLength`` */
+      info: {
+        /** @description Minimum required string length */
+        limit: number;
+      };
+    };
+    /** @description Ajv ``minimum`` keyword: the value is below its inclusive lower bound. */
+    MinimumValidationError: components['schemas']['BaseValidationError'] & {
+      /** @enum {string} */
+      code?: 'minimum';
+      /** @description Keyword-specific metadata for ``minimum`` */
+      info: {
+        /** @description Inclusive lower bound */
+        limit: number;
+        /**
+         * @description Ajv's comparison operator marker (always ``>=``)
+         * @enum {string}
+         */
+        comparison?: '>=';
+      };
+    };
+    /**
+     * @description Ajv ``multipleOf`` keyword: the value is not a multiple of
+     *     ``info.multipleOf``.
+     */
+    MultipleOfValidationError: components['schemas']['BaseValidationError'] & {
+      /** @enum {string} */
+      code?: 'multipleOf';
+      /** @description Keyword-specific metadata for ``multipleOf`` */
+      info: {
+        /** @description Required divisor */
+        multipleOf: number;
+      };
+    };
+    /**
+     * @description Ajv ``oneOf`` keyword: the value matched zero or multiple branches of
+     *     the schema's ``oneOf``. ``info.passingSchemas`` is the array of
+     *     matched branch indices when more than one matched, or ``null`` when
+     *     none matched.
+     */
+    OneOfValidationError: components['schemas']['BaseValidationError'] & {
+      /** @enum {string} */
+      code?: 'oneOf';
+      /** @description Keyword-specific metadata for ``oneOf`` */
+      info: {
+        /** @description Indices of branches that matched (``null`` when none matched) */
+        passingSchemas: number[] | null;
+      };
+    };
+    /**
+     * @description Ajv ``pattern`` keyword: the string does not match the schema's
+     *     regex. The pattern lives in ``info.pattern``.
+     */
+    PatternValidationError: components['schemas']['BaseValidationError'] & {
+      /** @enum {string} */
+      code?: 'pattern';
+      /** @description Keyword-specific metadata for ``pattern`` */
+      info: {
+        /** @description Regular expression that must be matched */
+        pattern: string;
+      };
+    };
+    /**
+     * @description Ajv ``required`` keyword: an object is missing a required property.
+     *     ``info.missingProperty`` names the missing field.
+     */
+    RequiredValidationError: components['schemas']['BaseValidationError'] & {
+      /** @enum {string} */
+      code?: 'required';
+      /** @description Keyword-specific metadata for ``required`` */
+      info: {
+        /** @description Name of the required property that is missing */
+        missingProperty: string;
+      };
+    };
+    /**
+     * @description Ajv ``type`` keyword: the value's type does not match the schema's
+     *     ``type``. ``info.type`` names the expected type.
+     */
+    TypeValidationError: components['schemas']['BaseValidationError'] & {
+      /** @enum {string} */
+      code?: 'type';
+      /** @description Keyword-specific metadata for ``type`` */
+      info: {
+        /** @description Expected type (``string``, ``number``, ``integer``, ``boolean``, ``array``, ``object``, ``null``) */
+        type: string;
+      };
+    };
+    /**
+     * @description Ajv ``uniqueItems`` keyword: the array contains duplicate items.
+     *     ``info.i`` and ``info.j`` are the indices of the duplicate pair.
+     */
+    UniqueItemsValidationError: components['schemas']['BaseValidationError'] & {
+      /** @enum {string} */
+      code?: 'uniqueItems';
+      /** @description Keyword-specific metadata for ``uniqueItems`` */
+      info: {
+        /** @description Index of the first duplicate */
+        i: number;
+        /** @description Index of the second duplicate */
+        j: number;
+      };
+    };
+    /**
+     * @description Permissive fallback for any Ajv keyword we haven't yet typed. The
+     *     ``code`` field is unconstrained (just ``string``), so any wire value
+     *     validates here when none of the typed variants match.
+     *     ``BaseValidationError`` fields (``path``, ``code``, ``message``) are
+     *     guaranteed; any keyword-specific ``info`` lives in
+     *     ``additional_properties``.
+     *
+     *     Listed last in ``ValidationErrorDetail.oneOf`` so deserializers try
+     *     the typed variants first and only land here for unknown keywords.
+     */
+    GenericValidationError: components['schemas']['BaseValidationError'] & {
+      /** @description Ajv keyword that failed (any value not covered by typed subtypes) */
+      code?: string;
     };
     /**
      * @description Status of ingredients required for outsourced purchase order production
@@ -2880,7 +3640,324 @@ export interface components {
       | 'IN_STOCK'
       | 'NOT_AVAILABLE'
       | 'EXPECTED'
-      | 'NO_RECIPE';
+      | 'NO_RECIPE'
+      | 'NOT_APPLICABLE';
+    /**
+     * @description Type classification of a variant
+     * @enum {string}
+     */
+    VariantType: 'product' | 'material' | 'service';
+    /**
+     * @description ABC inventory classification of the variant. Categorizes items by relative
+     *     value and consumption importance.
+     * @enum {string}
+     */
+    AbcClassification: 'A' | 'B' | 'C';
+    /**
+     * @description Address type - billing for invoicing, shipping for delivery
+     * @enum {string}
+     */
+    AddressEntityType: 'billing' | 'shipping';
+    /**
+     * @description Production status of a manufacturing order
+     * @enum {string}
+     */
+    ManufacturingOrderStatus:
+      | 'NOT_STARTED'
+      | 'BLOCKED'
+      | 'IN_PROGRESS'
+      | 'PARTIALLY_COMPLETED'
+      | 'DONE';
+    /**
+     * @description Method for distributing additional costs across purchase order items
+     * @enum {string}
+     */
+    CostDistributionMethod: 'BY_VALUE' | 'NON_DISTRIBUTED';
+    /**
+     * @description Type of purchase order - regular for materials or outsourced for subcontracted work
+     * @enum {string}
+     */
+    PurchaseOrderEntityType: 'regular' | 'outsourced';
+    /**
+     * @description Current status of a stocktake process
+     * @enum {string}
+     */
+    StocktakeStatus: 'NOT_STARTED' | 'IN_PROGRESS' | 'COUNTED' | 'COMPLETED';
+    /**
+     * @description Processing status of a sales return
+     * @enum {string}
+     */
+    SalesReturnStatus: 'NOT_RETURNED' | 'RETURNED_ALL' | 'RESTOCKED_ALL';
+    /**
+     * @description Refund status of a sales return
+     * @enum {string}
+     */
+    SalesReturnRefundStatus: 'NOT_REFUNDED' | 'REFUNDED' | 'PARTIALLY_REFUNDED';
+    /**
+     * @description Operator's primary working area in the shop
+     * @enum {string}
+     */
+    OperatorWorkingArea: 'shopFloor' | 'warehouse';
+    /**
+     * @description Availability status of a product for order fulfillment
+     * @enum {string}
+     */
+    ProductAvailability:
+      | 'IN_STOCK'
+      | 'EXPECTED'
+      | 'PICKED'
+      | 'NOT_AVAILABLE'
+      | 'NOT_APPLICABLE';
+    /**
+     * @description Availability status of ingredients for production
+     * @enum {string}
+     */
+    IngredientAvailability:
+      | 'PROCESSED'
+      | 'IN_STOCK'
+      | 'NOT_AVAILABLE'
+      | 'EXPECTED'
+      | 'NO_RECIPE'
+      | 'NOT_APPLICABLE';
+    /**
+     * @description Item type discriminator for products and materials
+     * @enum {string}
+     */
+    InventoryItemType: 'product' | 'material';
+    /**
+     * @description Item type discriminator for materials
+     * @enum {string}
+     */
+    MaterialType: 'material';
+    /**
+     * @description Item type discriminator for products
+     * @enum {string}
+     */
+    ProductType: 'product';
+    /**
+     * @description Item type discriminator for services
+     * @enum {string}
+     */
+    ServiceType: 'service';
+    /**
+     * @description Cost calculation method for product operations
+     * @enum {string}
+     */
+    ProductOperationType: 'process' | 'setup' | 'perUnit' | 'fixed';
+    /**
+     * @description Status of a manufacturing order operation row
+     * @enum {string}
+     */
+    ManufacturingOperationStatus:
+      | 'NOT_STARTED'
+      | 'BLOCKED'
+      | 'IN_PROGRESS'
+      | 'PAUSED'
+      | 'COMPLETED';
+    /**
+     * @description Type of operation defining how time and cost are calculated
+     * @enum {string}
+     */
+    ManufacturingOperationType: 'process' | 'setup' | 'perUnit' | 'fixed';
+    /**
+     * @description Fulfillment status of a purchase order
+     * @enum {string}
+     */
+    PurchaseOrderStatus:
+      | 'DRAFT'
+      | 'NOT_RECEIVED'
+      | 'PARTIALLY_RECEIVED'
+      | 'RECEIVED';
+    /**
+     * @description Initial status when creating a purchase order
+     * @enum {string}
+     */
+    CreatePurchaseOrderInitialStatus: 'DRAFT' | 'NOT_RECEIVED';
+    /**
+     * @description Billing status through accounting integration
+     * @enum {string}
+     */
+    PurchaseOrderBillingStatus: 'BILLED' | 'NOT_BILLED' | 'PARTIALLY_BILLED';
+    /**
+     * @description Status of the last document e-mail sent
+     * @enum {string}
+     */
+    DocumentSendStatus: 'NOT_SENT' | 'SENDING' | 'FAILED' | 'SENT';
+    /**
+     * @description Fulfillment status of a sales order. ``PENDING`` is the initial
+     *     status assigned to newly-created sales orders before they
+     *     progress to ``NOT_SHIPPED``. The ``PARTIALLY_*`` states are
+     *     server-computed; clients should not attempt to set them.
+     * @enum {string}
+     */
+    SalesOrderStatus:
+      | 'NOT_SHIPPED'
+      | 'PENDING'
+      | 'PARTIALLY_PACKED'
+      | 'PARTIALLY_DELIVERED'
+      | 'PACKED'
+      | 'DELIVERED';
+    /**
+     * @description Production status of a sales order
+     * @enum {string}
+     */
+    SalesOrderProductionStatus:
+      | 'NOT_STARTED'
+      | 'NONE'
+      | 'NOT_APPLICABLE'
+      | 'IN_PROGRESS'
+      | 'BLOCKED'
+      | 'DONE';
+    /**
+     * @description Initial status when creating a sales order
+     * @enum {string}
+     */
+    CreateSalesOrderStatus: 'NOT_SHIPPED' | 'PENDING';
+    /**
+     * @description Status of a sales order fulfillment
+     * @enum {string}
+     */
+    SalesOrderFulfillmentStatus: 'PACKED' | 'DELIVERED';
+    /**
+     * @description Invoice status of a sales order fulfillment
+     * @enum {string}
+     */
+    SalesOrderFulfillmentInvoiceStatus:
+      | 'NOT_INVOICED'
+      | 'INVOICED'
+      | 'PARTIALLY_INVOICED';
+    /**
+     * @description Sales-order-level invoicing status, rolled up across the order's
+     *     fulfillments. The wire format differs from
+     *     ``SalesOrderFulfillmentInvoiceStatus``: the order-level field uses
+     *     camelCase (``invoiced``) while the fulfillment-level field uses
+     *     SCREAMING_SNAKE_CASE (``INVOICED``).
+     * @enum {string}
+     */
+    SalesOrderInvoicingStatus: 'notInvoiced' | 'partiallyInvoiced' | 'invoiced';
+    /**
+     * @description Allowed status values when updating a sales order
+     * @enum {string}
+     */
+    UpdateSalesOrderStatus: 'NOT_SHIPPED' | 'PENDING' | 'PACKED' | 'DELIVERED';
+    /**
+     * @description Status of a stock transfer. Note the camelCase ``inTransit``.
+     * @enum {string}
+     */
+    StockTransferStatus: 'draft' | 'received' | 'inTransit';
+    /**
+     * @description Type of resource that caused an inventory movement
+     * @enum {string}
+     */
+    InventoryMovementResourceType:
+      | 'Production'
+      | 'PurchaseOrderRow'
+      | 'PurchaseOrderRecipeRow'
+      | 'SalesOrderRow'
+      | 'ManufacturingOrderRecipeRow'
+      | 'StockAdjustmentRow'
+      | 'StockTransferRow'
+      | 'ManufacturingOrder'
+      | 'SystemGenerated'
+      | 'ProductionIngredient';
+    /**
+     * @description Resource types accepted by the `GET /inventory_movements` `resource_type` filter. A subset of InventoryMovementResourceType (the response enum): the gateway does not allow filtering by ManufacturingOrder or ManufacturingOrderRecipeRow even though movements can reference them.
+     * @enum {string}
+     */
+    InventoryMovementResourceTypeFilter:
+      | 'Production'
+      | 'ProductionIngredient'
+      | 'PurchaseOrderRecipeRow'
+      | 'PurchaseOrderRow'
+      | 'SalesOrderRow'
+      | 'StockAdjustmentRow'
+      | 'StockTransferRow'
+      | 'SystemGenerated';
+    /**
+     * @description Type of resource associated with a serial number
+     * @enum {string}
+     */
+    SerialNumberResourceType:
+      | 'ManufacturingOrder'
+      | 'Production'
+      | 'StockAdjustmentRow'
+      | 'StockTransferRow'
+      | 'PurchaseOrderRow'
+      | 'SalesOrderRow'
+      | 'SalesOrderFulfillmentRow';
+    /**
+     * @description Allowed resource types when creating serial numbers via
+     *     ``POST /serial_numbers``. Note: ``Production`` is valid when
+     *     *retrieving* serial numbers (see ``SerialNumberResourceType``) but
+     *     is not accepted as input here — the API rejects it with 422.
+     *
+     *     **Write semantics differ by resource type:**
+     *
+     *     - **Mint** (create new serial-number strings) — ``ManufacturingOrder``
+     *       and ``PurchaseOrderRow``. The supplied string doesn't need to
+     *       pre-exist anywhere.
+     *     - **Transfer** (move an existing serial number to this resource) —
+     *       ``SalesOrderRow``, ``StockTransferRow``, and ``StockAdjustmentRow``.
+     *       The supplied string MUST already exist (typically attached to a
+     *       ManufacturingOrder output). If it doesn't, the response surfaces
+     *       it in ``failed`` with ``reason: MISSING`` — the call still returns
+     *       200, not 422.
+     * @enum {string}
+     */
+    CreateSerialNumberResourceType:
+      | 'ManufacturingOrder'
+      | 'StockAdjustmentRow'
+      | 'StockTransferRow'
+      | 'PurchaseOrderRow'
+      | 'SalesOrderRow';
+    /**
+     * @description Per-string failure reason when ``POST /serial_numbers`` partial-fails.
+     *
+     *     - ``DUPLICATE`` — string is already attached to the target resource
+     *       (mint path) and the API refuses to re-attach it.
+     *     - ``MISSING`` — string doesn't exist anywhere in the tenant, so a
+     *       transfer to ``SalesOrderRow`` / ``StockTransferRow`` /
+     *       ``StockAdjustmentRow`` can't move it.
+     *
+     *     Other reasons may exist but have not been observed via the
+     *     live-API probe. Consumers should treat unknown values as
+     *     forward-compatible failures rather than 422s.
+     * @enum {string}
+     */
+    CreateSerialNumberFailureReason: 'DUPLICATE' | 'MISSING';
+    /**
+     * @description Type of business object a custom fields collection applies to
+     * @enum {string}
+     */
+    CustomFieldCollectionResourceType:
+      | 'product'
+      | 'material'
+      | 'variant'
+      | 'customer'
+      | 'sales_order'
+      | 'purchase_order'
+      | 'stocktake';
+    /**
+     * @description Method used for price list adjustments
+     * @enum {string}
+     */
+    PriceListAdjustmentMethod: 'fixed' | 'percentage' | 'markup';
+    /**
+     * @description Type of accounting system integration
+     * @enum {string}
+     */
+    AccountingIntegrationType: 'xero' | 'quickBooks' | 'sage' | 'custom';
+    /**
+     * @description Ingredient availability for outsourced purchase order recipe rows
+     * @enum {string}
+     */
+    OutsourcedRecipeIngredientAvailability:
+      | 'PROCESSED'
+      | 'IN_STOCK'
+      | 'NOT_AVAILABLE'
+      | 'EXPECTED'
+      | 'NO_RECIPE'
+      | 'NOT_APPLICABLE';
     /**
      * @description Base entity with unique identifier
      * @example {
@@ -2914,6 +3991,7 @@ export interface components {
     /**
      * @description Common fields for entities that can be archived
      * @example {
+     *       "id": 12345,
      *       "created_at": "2020-10-23T10:37:05.085Z",
      *       "updated_at": "2020-10-23T10:37:05.085Z",
      *       "archived_at": null
@@ -2939,6 +4017,7 @@ export interface components {
     /**
      * @description Common fields for entities that can be deleted
      * @example {
+     *       "id": 12345,
      *       "created_at": "2020-10-23T10:37:05.085Z",
      *       "updated_at": "2020-10-23T10:37:05.085Z",
      *       "deleted_at": null
@@ -2982,9 +4061,15 @@ export interface components {
        * @description Timestamp when the entity was last updated
        */
       updated_at?: string;
-      /** @description Nullable archive timestamp */
+      /**
+       * Format: date-time
+       * @description Nullable archive timestamp
+       */
       archived_at?: string | null;
-      /** @description Nullable deletion timestamp */
+      /**
+       * Format: date-time
+       * @description Nullable deletion timestamp
+       */
       deleted_at?: string | null;
     };
     /**
@@ -3032,7 +4117,8 @@ export interface components {
       material_id?: number | null;
     };
     /**
-     * @description Additional cost types that can be applied to purchase orders and manufacturing orders (e.g., shipping, taxes, duties)
+     * @description Additional cost types that can be applied to purchase orders and manufacturing orders (e.g., shipping, taxes,
+     *     duties)
      * @example {
      *       "id": 1,
      *       "name": "Shipping Cost",
@@ -3139,7 +4225,7 @@ export interface components {
      *           "location_id": 1,
      *           "variant_id": 1002,
      *           "quantity_in_stock": "50.00000",
-     *           "batch_barcode": 318
+     *           "batch_barcode": "0318"
      *         }
      *       ]
      *     }
@@ -3185,7 +4271,8 @@ export interface components {
      *       "batch_barcode": "0317"
      *     }
      */
-    BatchResponse: components['schemas']['Batch'] & components['schemas']['UpdatableEntity'];
+    BatchResponse: components['schemas']['Batch'] &
+      components['schemas']['UpdatableEntity'];
     /**
      * @description Represents a quantity transaction for a specific batch in manufacturing, sales, or inventory operations
      * @example {
@@ -3202,12 +4289,14 @@ export interface components {
     /**
      * @description Core storage bin business properties
      * @example {
-     *       "bin_name": "A-01-SHELF-1",
-     *       "location_id": 1
+     *       "bin_name": "Bin-2",
+     *       "location_id": 12346
      *     }
      */
     StorageBin: {
-      /** @description Name of the storage bin */
+      /** @description Name of the storage bin (returned by list endpoint) */
+      name?: string;
+      /** @description Name of the storage bin (used in create/update requests and individual responses) */
       bin_name: string;
       /** @description Unique identifier of the location where storage bin is located */
       location_id: number;
@@ -3216,53 +4305,410 @@ export interface components {
      * @description Complete storage bin record with location details and system metadata for warehouse organization
      * @example {
      *       "id": 12345,
-     *       "bin_name": "A-01-SHELF-1",
-     *       "location_id": 1,
+     *       "name": "Bin-2",
+     *       "bin_name": "Bin-2",
+     *       "location_id": 12346,
      *       "created_at": "2020-10-23T10:37:05.085Z",
      *       "updated_at": "2020-10-23T10:37:05.085Z",
      *       "deleted_at": null
      *     }
      */
-    StorageBinResponse: components['schemas']['StorageBin'] & components['schemas']['DeletableEntity'];
+    StorageBinResponse: components['schemas']['StorageBin'] &
+      components['schemas']['DeletableEntity'];
     /**
-     * @description Storage bin fields for update operations (all optional for PATCH)
+     * @description Storage bin fields for update operations
      * @example {
-     *       "bin_name": "A-01-SHELF-2",
-     *       "location_id": 2
+     *       "bin_name": "A-01-SHELF-2"
      *     }
      */
     StorageBinUpdate: {
       /** @description Name of the storage bin */
-      bin_name?: string;
-      /** @description Unique identifier of the location where storage bin is located */
-      location_id?: number;
+      bin_name: string;
     };
     /**
-     * @description List of storage bin records showing all warehouse storage locations and their organization structure
+     * @description Storage bin fields for create operations
+     * @example {
+     *       "bin_name": "A-01-SHELF-2",
+     *       "location_id": 12346
+     *     }
+     */
+    StorageBinCreate: {
+      /** @description Name of the storage bin */
+      bin_name: string;
+      /** @description ID of the location the storage bin belongs to */
+      location_id: number;
+    };
+    /**
+     * @description Lifecycle status of a bin transfer. New transfers start in `CREATED`; status
+     *     changes are applied through the dedicated status endpoint.
+     * @enum {string}
+     */
+    BinTransferStatus: 'CREATED' | 'IN_TRANSIT' | 'DONE';
+    /**
+     * @description Row granularity for a bin inventory query. `VARIANT` returns one row per
+     *     (location, variant, bin); `BATCH` and `SERIAL_NUMBER` break rows down further
+     *     by the matching traceability axis.
+     * @default VARIANT
+     * @enum {string}
+     */
+    BinInventoryGranularity: 'VARIANT' | 'BATCH' | 'SERIAL_NUMBER';
+    /**
+     * @description Traceability allocation on a bin transfer row, pinning the moved quantity to a
+     *     specific batch and/or serial number. A null axis means that axis is unset.
+     */
+    BinTransferTraceability: {
+      /** @description ID of the batch this quantity is drawn from, or null when unbatched. */
+      batch_id?: number | null;
+      /** @description ID of the serial number this quantity is drawn from, or null when untraced. */
+      serial_number_id?: number | null;
+      /** @description Quantity allocated to this traceability axis, as a decimal string. */
+      quantity?: string;
+    };
+    /**
+     * @description Line item in a bin transfer — the variant, quantity, and source/target bins the
+     *     stock moves between, with optional batch/serial traceability.
+     */
+    BinTransferRow: {
+      /** @description Unique identifier for the bin transfer row. */
+      id: number;
+      /** @description ID of the parent bin transfer. */
+      bin_transfer_id: number;
+      /** @description ID of the location the transfer occurs within. */
+      location_id?: number;
+      /** @description ID of the product or material variant being moved. */
+      variant_id: number;
+      /** @description Quantity being moved, as a decimal string. */
+      quantity: string;
+      /** @description ID of the bin the stock moves from, or null when unassigned. */
+      source_bin_location_id?: number | null;
+      /** @description ID of the bin the stock moves to, or null when unassigned. */
+      target_bin_location_id?: number | null;
+      /** @description Batch/serial allocations for the moved quantity. */
+      traceability?: components['schemas']['BinTransferTraceability'][];
+      /**
+       * Format: date-time
+       * @description Date the parent transfer was created (mirrored onto the row).
+       */
+      created_date?: string | null;
+      /**
+       * Format: date-time
+       * @description Timestamp the stock departed the source bin.
+       */
+      departed_at?: string | null;
+      /**
+       * Format: date-time
+       * @description Timestamp the stock arrived at the target bin.
+       */
+      arrived_at?: string | null;
+    } & components['schemas']['DeletableEntity'];
+    /**
+     * @description A movement of stock between bins within a single location, optionally carrying
+     *     per-row batch/serial traceability.
+     * @example {
+     *       "id": 1,
+     *       "bin_transfer_number": "BT-1",
+     *       "location_id": 1,
+     *       "status": "IN_TRANSIT",
+     *       "created_date": "2026-05-22T10:00:00.000Z",
+     *       "departed_at": "2026-05-22T11:00:00.000Z",
+     *       "arrived_at": null,
+     *       "additional_info": "urgent transfer",
+     *       "bin_transfer_rows": [
+     *         {
+     *           "id": 11,
+     *           "bin_transfer_id": 1,
+     *           "location_id": 1,
+     *           "variant_id": 42,
+     *           "quantity": "3",
+     *           "source_bin_location_id": 7,
+     *           "target_bin_location_id": 9,
+     *           "traceability": [
+     *             {
+     *               "batch_id": 100,
+     *               "serial_number_id": null,
+     *               "quantity": "3"
+     *             }
+     *           ],
+     *           "created_at": "2026-05-22T10:00:00.000Z",
+     *           "updated_at": "2026-05-22T10:00:00.000Z",
+     *           "deleted_at": null
+     *         }
+     *       ],
+     *       "created_at": "2026-05-22T10:00:00.000Z",
+     *       "updated_at": "2026-05-22T10:00:00.000Z",
+     *       "deleted_at": null
+     *     }
+     */
+    BinTransfer: {
+      /** @description Unique identifier for the bin transfer. */
+      id: number;
+      /** @description Human-readable reference number for the transfer. */
+      bin_transfer_number: string;
+      /** @description ID of the location the transfer occurs within. */
+      location_id: number;
+      /** @description Current lifecycle status of the transfer. */
+      status?: components['schemas']['BinTransferStatus'];
+      /**
+       * Format: date-time
+       * @description Date the transfer was created.
+       */
+      created_date?: string | null;
+      /**
+       * Format: date-time
+       * @description Timestamp the transfer left the source bins.
+       */
+      departed_at?: string | null;
+      /**
+       * Format: date-time
+       * @description Timestamp the transfer reached the target bins.
+       */
+      arrived_at?: string | null;
+      /** @description Optional free-text note about the transfer. */
+      additional_info?: string | null;
+      /** @description Line items detailing the variants and quantities being moved. */
+      bin_transfer_rows?: components['schemas']['BinTransferRow'][];
+    } & components['schemas']['DeletableEntity'];
+    /**
+     * @description Paginated list of bin transfer records.
      * @example {
      *       "data": [
      *         {
-     *           "id": 12345,
-     *           "bin_name": "A-01-SHELF-1",
+     *           "id": 1,
+     *           "bin_transfer_number": "BT-1",
      *           "location_id": 1,
-     *           "created_at": "2020-10-23T10:37:05.085Z",
-     *           "updated_at": "2020-10-23T10:37:05.085Z",
-     *           "deleted_at": null
-     *         },
-     *         {
-     *           "id": 12346,
-     *           "bin_name": "A-02-SHELF-1",
-     *           "location_id": 1,
-     *           "created_at": "2020-10-23T10:37:05.085Z",
-     *           "updated_at": "2020-10-23T10:37:05.085Z",
+     *           "status": "CREATED",
+     *           "created_date": "2026-05-22T10:00:00.000Z",
+     *           "departed_at": null,
+     *           "arrived_at": null,
+     *           "additional_info": "urgent transfer",
+     *           "bin_transfer_rows": [],
+     *           "created_at": "2026-05-22T10:00:00.000Z",
+     *           "updated_at": "2026-05-22T10:00:00.000Z",
      *           "deleted_at": null
      *         }
      *       ]
      *     }
      */
-    StorageBinListResponse: {
-      /** @description Array of storage bin records with location and identification details */
-      data?: components['schemas']['StorageBinResponse'][];
+    BinTransferListResponse: {
+      /** @description Array of bin transfer records. */
+      data?: components['schemas']['BinTransfer'][];
+    };
+    /**
+     * @description Paginated list of bin transfer rows.
+     * @example {
+     *       "data": [
+     *         {
+     *           "id": 11,
+     *           "bin_transfer_id": 1,
+     *           "location_id": 1,
+     *           "variant_id": 42,
+     *           "quantity": "3",
+     *           "source_bin_location_id": 7,
+     *           "target_bin_location_id": 9,
+     *           "traceability": [
+     *             {
+     *               "batch_id": 100,
+     *               "serial_number_id": null,
+     *               "quantity": "3"
+     *             }
+     *           ],
+     *           "created_at": "2026-05-22T10:00:00.000Z",
+     *           "updated_at": "2026-05-22T10:00:00.000Z",
+     *           "deleted_at": null
+     *         }
+     *       ]
+     *     }
+     */
+    BinTransferRowListResponse: {
+      /** @description Array of bin transfer row records. */
+      data?: components['schemas']['BinTransferRow'][];
+    };
+    /**
+     * @description Per-bin inventory position at the requested granularity. Quantities are decimal
+     *     strings. A null `bin_location_id`, `batch_id`, or `serial_number_id` denotes
+     *     stock whose traceability on that axis is unset. Rows reaching zero across all
+     *     three quantities are removed, so absence implies zero.
+     */
+    BinInventory: {
+      /** @description ID of the location. */
+      location_id?: number;
+      /** @description ID of the variant. */
+      variant_id?: number;
+      /** @description ID of the bin, or null for stock with no bin assignment. */
+      bin_location_id?: number | null;
+      /** @description ID of the batch (present at `BATCH` granularity), or null. */
+      batch_id?: number | null;
+      /** @description ID of the serial number (present at `SERIAL_NUMBER` granularity), or null. */
+      serial_number_id?: number | null;
+      /** @description On-hand quantity in this position, as a decimal string. */
+      quantity_in_stock?: string;
+      /** @description Quantity committed to orders, as a decimal string. */
+      quantity_committed?: string;
+      /** @description Quantity expected from inbound receipts, as a decimal string. */
+      quantity_expected?: string;
+    };
+    /**
+     * @description Paginated list of per-bin inventory positions.
+     * @example {
+     *       "data": [
+     *         {
+     *           "location_id": 1,
+     *           "variant_id": 42,
+     *           "bin_location_id": 7,
+     *           "batch_id": null,
+     *           "serial_number_id": null,
+     *           "quantity_in_stock": "12.0000000000",
+     *           "quantity_committed": "2.0000000000",
+     *           "quantity_expected": "5.0000000000"
+     *         }
+     *       ]
+     *     }
+     */
+    BinInventoryListResponse: {
+      /** @description Array of per-bin inventory positions. */
+      data?: components['schemas']['BinInventory'][];
+    };
+    /** @description Batch/serial allocation supplied on a bin transfer row. */
+    BinTransferTraceabilityRequest: {
+      /** @description ID of the batch to draw from, or null. */
+      batch_id?: number | null;
+      /** @description ID of the serial number to draw from, or null. */
+      serial_number_id?: number | null;
+      /** @description Quantity to allocate to this axis, as a decimal string. */
+      quantity?: string;
+    };
+    /** @description A bin transfer row supplied inline when creating a bin transfer. */
+    BinTransferRowCreateNested: {
+      /** @description ID of the variant to move. */
+      variant_id: number;
+      /** @description Quantity to move, as a decimal string. */
+      quantity: string;
+      /** @description ID of the bin to move stock from, or null. */
+      source_bin_location_id?: number | null;
+      /** @description ID of the bin to move stock to, or null. */
+      target_bin_location_id?: number | null;
+      /** @description Optional batch/serial allocations for the moved quantity. */
+      traceability?: components['schemas']['BinTransferTraceabilityRequest'][];
+    };
+    /**
+     * @description Request payload for creating a bin transfer, optionally with rows and per-row
+     *     traceability in a single call.
+     * @example {
+     *       "location_id": 1,
+     *       "bin_transfer_number": "BT-1",
+     *       "additional_info": "urgent transfer",
+     *       "bin_transfer_rows": [
+     *         {
+     *           "variant_id": 42,
+     *           "quantity": "3",
+     *           "source_bin_location_id": 7,
+     *           "target_bin_location_id": 9,
+     *           "traceability": [
+     *             {
+     *               "batch_id": 100,
+     *               "quantity": "3"
+     *             }
+     *           ]
+     *         }
+     *       ]
+     *     }
+     */
+    CreateBinTransferRequest: {
+      /** @description ID of the location the transfer occurs within. */
+      location_id: number;
+      /** @description Human-readable reference number for the transfer. */
+      bin_transfer_number?: string;
+      /** @description Optional free-text note about the transfer. */
+      additional_info?: string | null;
+      /**
+       * Format: date-time
+       * @description Date the transfer was created. Defaults to now when omitted.
+       */
+      created_date?: string;
+      /** @description Line items to create together with the transfer. */
+      bin_transfer_rows?: components['schemas']['BinTransferRowCreateNested'][];
+    };
+    /**
+     * @description Request payload for updating a bin transfer's header fields.
+     * @example {
+     *       "bin_transfer_number": "BT-1",
+     *       "additional_info": "updated note"
+     *     }
+     */
+    UpdateBinTransferRequest: {
+      /** @description Updated reference number. */
+      bin_transfer_number?: string;
+      /** @description Updated location ID. */
+      location_id?: number;
+      /** @description Updated free-text note. */
+      additional_info?: string | null;
+      /**
+       * Format: date-time
+       * @description Updated creation date.
+       */
+      created_date?: string | null;
+      /**
+       * Format: date-time
+       * @description Updated departure timestamp.
+       */
+      departed_at?: string | null;
+      /**
+       * Format: date-time
+       * @description Updated arrival timestamp.
+       */
+      arrived_at?: string | null;
+    };
+    /**
+     * @description Request payload for adding a row to an existing bin transfer.
+     * @example {
+     *       "bin_transfer_id": 1,
+     *       "variant_id": 42,
+     *       "quantity": "3",
+     *       "source_bin_location_id": 7,
+     *       "target_bin_location_id": 9
+     *     }
+     */
+    CreateBinTransferRowRequest: {
+      /** @description ID of the bin transfer to add this row to. */
+      bin_transfer_id: number;
+      /** @description ID of the variant to move. */
+      variant_id: number;
+      /** @description Quantity to move, as a decimal string. */
+      quantity: string;
+      /** @description ID of the bin to move stock from, or null. */
+      source_bin_location_id?: number | null;
+      /** @description ID of the bin to move stock to, or null. */
+      target_bin_location_id?: number | null;
+      /** @description Optional batch/serial allocations for the moved quantity. */
+      traceability?: components['schemas']['BinTransferTraceabilityRequest'][];
+    };
+    /**
+     * @description Request payload for updating a bin transfer row.
+     * @example {
+     *       "quantity": "5"
+     *     }
+     */
+    UpdateBinTransferRowRequest: {
+      /** @description Updated variant ID. */
+      variant_id?: number;
+      /** @description Updated quantity, as a decimal string. */
+      quantity?: string;
+      /** @description Updated source bin ID, or null. */
+      source_bin_location_id?: number | null;
+      /** @description Updated target bin ID, or null. */
+      target_bin_location_id?: number | null;
+      /** @description Updated batch/serial allocations for the moved quantity. */
+      traceability?: components['schemas']['BinTransferTraceabilityRequest'][];
+    };
+    /**
+     * @description Request payload for changing a bin transfer's status.
+     * @example {
+     *       "status": "IN_TRANSIT"
+     *     }
+     */
+    UpdateBinTransferStatusRequest: {
+      /** @description New status for the bin transfer. */
+      status: components['schemas']['BinTransferStatus'];
     };
     /**
      * @description Record of inventory quantity changes caused by transactions like sales, purchases, manufacturing, or adjustments
@@ -3286,26 +4732,12 @@ export interface components {
      *     }
      */
     InventoryMovement: {
-      /** @description Unique identifier for the inventory movement. */
-      id: number;
       /** @description Identifier of the product variant associated with the movement. */
       variant_id: number;
       /** @description Identifier of the location where the movement occurred. */
       location_id: number;
-      /**
-       * @description The type of resource that caused the movement.
-       * @enum {string}
-       */
-      resource_type:
-        | 'Production'
-        | 'PurchaseOrderRow'
-        | 'PurchaseOrderRecipeRow'
-        | 'SalesOrderRow'
-        | 'ManufacturingOrderRecipeRow'
-        | 'StockAdjustmentRow'
-        | 'StockTransferRow'
-        | 'ManufacturingOrder'
-        | 'SystemGenerated';
+      /** @description The type of resource that caused the movement. */
+      resource_type: components['schemas']['InventoryMovementResourceType'];
       /** @description Identifier of the resource that initiated the movement. */
       resource_id?: number;
       /** @description Order number that triggered the movement. */
@@ -3338,13 +4770,24 @@ export interface components {
      *           "id": 5001,
      *           "variant_id": 2002,
      *           "location_id": 1,
+     *           "resource_type": "PurchaseOrderRow",
+     *           "resource_id": 1001,
+     *           "caused_by_order_no": "PO-2024-001",
+     *           "caused_by_resource_id": 1001,
      *           "movement_type": "TRANSFER_IN",
-     *           "quantity": 10,
-     *           "cost_per_unit": 12.5,
-     *           "total_cost": 125,
-     *           "reference_id": 1001,
      *           "movement_date": "2023-10-15T14:30:00Z",
-     *           "notes": "Received from supplier shipment"
+     *           "quantity": 10,
+     *           "quantity_change": 10,
+     *           "balance_after": 100,
+     *           "cost_per_unit": 12.5,
+     *           "value_per_unit": 12.5,
+     *           "total_cost": 125,
+     *           "value_in_stock_after": 1250,
+     *           "average_cost_after": 12.5,
+     *           "reference_id": 1001,
+     *           "notes": "Received from supplier shipment",
+     *           "created_at": "2023-10-15T14:30:00Z",
+     *           "updated_at": "2023-10-15T14:30:00Z"
      *         }
      *       ]
      *     }
@@ -3386,14 +4829,19 @@ export interface components {
      *           "config_value": "Steel"
      *         }
      *       ],
+     *       "abc_classification": "A",
      *       "created_at": "2024-01-15T08:00:00.000Z",
      *       "updated_at": "2024-08-20T14:45:00.000Z",
      *       "deleted_at": null
      *     }
      */
     Variant: components['schemas']['UpdatableEntity'] & {
-      /** @description Stock keeping unit - unique identifier for this variant */
-      sku: string;
+      /**
+       * @description Stock keeping unit - unique identifier for this variant. Katana allows
+       *     variants to be created without a SKU; the field is always present in the
+       *     response but may be null for such rows.
+       */
+      sku: string | null;
       /** @description Price at which this variant is sold to customers */
       sales_price?: number | null;
       /** @description ID of the parent product if this variant belongs to a finished good */
@@ -3402,35 +4850,40 @@ export interface components {
       material_id?: number | null;
       /** @description Cost to purchase this variant from suppliers */
       purchase_price?: number;
-      /**
-       * @description Type classification - either 'product' or 'material'
-       * @enum {string}
-       */
-      type?: 'product' | 'material';
+      type?: components['schemas']['VariantType'];
       /** @description Internal barcode for warehouse scanning and tracking */
-      internal_barcode?: string;
+      internal_barcode?: string | null;
       /** @description Official registered barcode (UPC, EAN, etc.) for retail use */
-      registered_barcode?: string;
+      registered_barcode?: string | null;
       /** @description Supplier-specific part numbers or SKUs for purchasing */
       supplier_item_codes?: string[];
       /** @description Days required to manufacture or procure this variant */
       lead_time?: number | null;
       /** @description Minimum quantity that must be ordered from suppliers */
       minimum_order_quantity?: number | null;
-      /** @description Custom field values specific to this variant */
-      custom_fields?: {
-        /** @description Name of the custom field */
-        field_name?: string;
-        /** @description Value stored in the custom field */
-        field_value?: string;
-      }[];
+      /** @description Custom field values specific to this variant (legacy [{field_name, field_value}] array via /custom_fields_collections; distinct from the sales-order custom_fields dict — see CustomFieldValue) */
+      custom_fields?:
+        | {
+            /** @description Name of the custom field */
+            field_name?: string;
+            /** @description Value stored in the custom field */
+            field_value?: string;
+          }[]
+        | null;
       /** @description Configuration attribute values that define this variant (color, size, etc.) */
-      config_attributes?: {
-        /** @description Name of the configuration attribute (e.g., Color, Size) */
-        config_name?: string;
-        /** @description Value for this configuration attribute (e.g., Blue, Large) */
-        config_value?: string;
-      }[];
+      config_attributes?:
+        | {
+            /** @description Name of the configuration attribute (e.g., Color, Size) */
+            config_name?: string;
+            /** @description Value for this configuration attribute (e.g., Blue, Large) */
+            config_value?: string;
+          }[]
+        | null;
+      /**
+       * @description ABC inventory classification of this variant. ``null`` when the
+       *     variant has not been classified.
+       */
+      abc_classification?: components['schemas']['AbcClassification'] | null;
     } & components['schemas']['DeletableEntity'];
     /**
      * @description Service variant with unique pricing and configuration for external services
@@ -3457,26 +4910,41 @@ export interface components {
      *     }
      */
     ServiceVariant: components['schemas']['UpdatableEntity'] & {
-      /** @description A unique service code */
-      sku: string;
-      /** @description Default sales price (excluding tax), which is automatically assigned to the service when creating sales orders */
+      /**
+       * @description A unique service code. Katana allows services to be created without
+       *     a SKU; the field is always present in the response but may be null
+       *     for such rows (mirrors Variant.sku).
+       */
+      sku: string | null;
+      /**
+       * @description Default sales price (excluding tax), which is automatically assigned to the service when creating sales
+       *     orders
+       */
       sales_price?: number | null;
       /** @description Default cost which is used to calculate profit */
       default_cost?: number | null;
       /** @description ID of the service this variant belongs to */
       service_id: number;
+      type?: components['schemas']['VariantType'];
       /**
-       * @description Type classification - always 'service' for service variants
-       * @enum {string}
+       * @description Custom field values specific to this service variant, in
+       *     the legacy ``[{field_name, field_value}]`` array shape
+       *     (configured via ``/custom_fields_collections``; distinct
+       *     from the sales-order ``custom_fields`` dict — see
+       *     ``CustomFieldValue``). The API returns ``null`` (not
+       *     ``[]``) when the variant has no custom-field assignments —
+       *     non-nullable here causes the generated parser to fail with
+       *     "NoneType is not iterable" on every create_service /
+       *     get_service response.
        */
-      type?: 'service';
-      /** @description Custom field values specific to this service variant */
-      custom_fields?: {
-        /** @description Name of the custom field */
-        field_name?: string;
-        /** @description Value for the custom field */
-        field_value?: string;
-      }[];
+      custom_fields?:
+        | {
+            /** @description Name of the custom field */
+            field_name?: string;
+            /** @description Value for the custom field */
+            field_value?: string;
+          }[]
+        | null;
     } & components['schemas']['DeletableEntity'];
     /**
      * @description Physical address information for manufacturing locations and warehouse facilities
@@ -3509,59 +4977,46 @@ export interface components {
     /**
      * @description Manufacturing location or warehouse facility where inventory is managed and operations are performed
      * @example {
-     *       "data": [
-     *         {
-     *           "id": 1,
-     *           "name": "Main location",
-     *           "legal_name": "Amazon",
-     *           "address_id": 1,
-     *           "address": {
-     *             "id": 1,
-     *             "city": "New York",
-     *             "country": "US",
-     *             "line_1": "10 East 20th Example St",
-     *             "line_2": "",
-     *             "state": "New York",
-     *             "zip": "10000"
-     *           },
-     *           "is_primary": true,
-     *           "sales_allowed": true,
-     *           "purchase_allowed": true,
-     *           "manufacturing_allowed": true,
-     *           "created_at": "2020-10-23T10:37:05.085Z",
-     *           "updated_at": "2020-10-23T10:37:05.085Z",
-     *           "deleted_at": null
-     *         },
-     *         {
-     *           "id": 2,
-     *           "name": "Secondary location",
-     *           "legal_name": "Amazon",
-     *           "address_id": null,
-     *           "address": null,
-     *           "is_primary": false,
-     *           "sales_allowed": false,
-     *           "purchase_allowed": true,
-     *           "manufacturing_allowed": false,
-     *           "created_at": "2020-10-23T10:37:05.085Z",
-     *           "updated_at": "2020-10-23T10:37:05.085Z",
-     *           "deleted_at": null
-     *         }
-     *       ]
+     *       "id": 1,
+     *       "name": "Main location",
+     *       "legal_name": "Amazon",
+     *       "address_id": 1,
+     *       "address": {
+     *         "id": 1,
+     *         "city": "New York",
+     *         "country": "US",
+     *         "line_1": "10 East 20th Example St",
+     *         "line_2": "",
+     *         "state": "New York",
+     *         "zip": "10000"
+     *       },
+     *       "is_primary": true,
+     *       "sales_allowed": true,
+     *       "purchase_allowed": true,
+     *       "manufacturing_allowed": true,
+     *       "created_at": "2020-10-23T10:37:05.085Z",
+     *       "updated_at": "2020-10-23T10:37:05.085Z",
+     *       "deleted_at": null
      *     }
      */
-    Location:
-      | {
-          id: number;
-          name: string;
-          legal_name?: string;
-          address_id?: number;
-          address?: components['schemas']['LocationAddress'];
-          is_primary?: boolean;
-          sales_allowed?: boolean;
-          purchase_allowed?: boolean;
-          manufacturing_allowed?: boolean;
-        }
-      | components['schemas']['DeletableEntity'];
+    Location: components['schemas']['DeletableEntity'] & {
+      /** @description Display name of the location */
+      name: string;
+      /** @description Legal name of the entity that owns the location */
+      legal_name?: string;
+      /** @description Identifier of the associated address record, or null if no address is on file */
+      address_id?: number | null;
+      /** @description Structured address information for the location, or null if no address is on file */
+      address?: components['schemas']['LocationAddress'] | null;
+      /** @description Whether this location is the primary location for the tenant */
+      is_primary?: boolean;
+      /** @description Whether sales orders may be fulfilled from this location */
+      sales_allowed?: boolean;
+      /** @description Whether purchase orders may be received at this location */
+      purchase_allowed?: boolean;
+      /** @description Whether manufacturing orders may be produced at this location */
+      manufacturing_allowed?: boolean;
+    };
     /**
      * @description Represents the current inventory state for a specific product variant at a location.
      *     Includes stock levels, commitments, expectations, and financial information.
@@ -3584,8 +5039,11 @@ export interface components {
       variant_id: number;
       /** @description Unique identifier of the location where inventory is stored */
       location_id: number;
-      /** @description The quantity of a product or material which indicates an acceptable stock level for unexpected demand without overstocking */
-      safety_stock_level?: string;
+      /**
+       * @description The quantity of a product or material which indicates an acceptable stock level for unexpected demand
+       *     without overstocking
+       */
+      safety_stock_level: string;
       /** @description (Deprecated - use safety_stock_level instead) Queries the safety stock level */
       reorder_point: string;
       /** @description Average cost per unit of this variant at this location */
@@ -3601,11 +5059,20 @@ export interface components {
       /** @description Difference between expected and actual stock (negative means missing, positive means excess) */
       quantity_missing_or_excess: string;
       /** @description Total quantity that could be available (in stock + expected) */
-      quantity_potential: string;
+      quantity_potential: string | null;
       /** @description Product variant details associated with this inventory record */
       variant?: components['schemas']['Variant'];
       /** @description Location details where this inventory is stored */
       location?: components['schemas']['Location'];
+      /**
+       * Format: date-time
+       * @description Timestamp when this inventory record was archived
+       */
+      archived_at?: string | null;
+      /** @description Default storage bin for this variant at this location, when one has been linked via the variant default storage bin endpoints */
+      default_storage_bin?:
+        | components['schemas']['VariantDefaultStorageBinLinkResponse']
+        | null;
     };
     /**
      * @description List of current inventory levels showing stock quantities for all variants across all locations
@@ -3618,7 +5085,15 @@ export interface components {
      *           "quantity_on_hand": 150,
      *           "quantity_allocated": 25,
      *           "quantity_available": 125,
-     *           "average_cost": 25.5,
+     *           "safety_stock_level": "25.0",
+     *           "reorder_point": "25.0",
+     *           "average_cost": "25.5",
+     *           "value_in_stock": "3825.0",
+     *           "quantity_in_stock": "150.0",
+     *           "quantity_committed": "25.0",
+     *           "quantity_expected": "50.0",
+     *           "quantity_missing_or_excess": "0.0",
+     *           "quantity_potential": "175.0",
      *           "total_value": 3825,
      *           "created_at": "2024-01-15T08:00:00.000Z",
      *           "updated_at": "2024-01-15T12:30:00.000Z"
@@ -3630,7 +5105,15 @@ export interface components {
      *           "quantity_on_hand": 75,
      *           "quantity_allocated": 10,
      *           "quantity_available": 65,
-     *           "average_cost": 45,
+     *           "safety_stock_level": "30.0",
+     *           "reorder_point": "30.0",
+     *           "average_cost": "45.0",
+     *           "value_in_stock": "3375.0",
+     *           "quantity_in_stock": "75.0",
+     *           "quantity_committed": "10.0",
+     *           "quantity_expected": "25.0",
+     *           "quantity_missing_or_excess": "0.0",
+     *           "quantity_potential": "90.0",
      *           "total_value": 3375,
      *           "created_at": "2024-01-15T08:00:00.000Z",
      *           "updated_at": "2024-01-15T14:15:00.000Z"
@@ -3642,14 +5125,17 @@ export interface components {
       /** @description Array of inventory records with current stock levels and location details */
       data: components['schemas']['Inventory'][];
     };
-    /** @description Configuration that defines the minimum inventory level that triggers automatic reordering for a specific variant at a location */
+    /**
+     * @description Configuration that defines the minimum inventory level that triggers automatic reordering for a specific variant
+     *     at a location
+     */
     InventoryReorderPoint: {
       /** @description The location where this reorder point applies */
       location_id: number;
       /** @description The product variant this reorder point is configured for */
       variant_id: number;
-      /** @description The minimum quantity that triggers reordering */
-      value: number;
+      /** @description The minimum quantity that triggers reordering, returned as a fixed-precision decimal string */
+      value: string;
     };
     /** @description Complete inventory reorder point configuration including metadata and creation/update timestamps */
     InventoryReorderPointResponse: components['schemas']['InventoryReorderPoint'] &
@@ -3659,7 +5145,7 @@ export interface components {
      * @example {
      *       "location_id": 1,
      *       "variant_id": 3001,
-     *       "value": 25
+     *       "value": "25.0"
      *     }
      */
     InventorySafetyStockLevel: {
@@ -3667,17 +5153,19 @@ export interface components {
       location_id: number;
       /** @description ID of the variant for which the safety stock level is set */
       variant_id: number;
-      /** @description Minimum quantity to maintain as safety stock buffer */
-      value: number;
+      /** @description Minimum quantity to maintain as safety stock buffer, returned as a fixed-precision decimal string */
+      value: string;
     };
     /**
      * @description Complete safety stock level configuration with metadata including timestamps and deletion status
      * @example {
+     *       "id": 1001,
      *       "variant_id": 1,
      *       "location_id": 1,
-     *       "value": 10,
+     *       "value": "10",
      *       "created_at": "2020-10-23T10:37:05.085Z",
-     *       "updated_at": "2020-10-23T10:37:05.085Z"
+     *       "updated_at": "2020-10-23T10:37:05.085Z",
+     *       "deleted_at": null
      *     }
      */
     InventorySafetyStockLevelResponse: components['schemas']['InventorySafetyStockLevel'] &
@@ -3688,18 +5176,30 @@ export interface components {
      *       "variant_id": 2101,
      *       "planned_quantity": 50,
      *       "location_id": 1,
+     *       "order_no": "MO-2024-001",
      *       "order_created_date": "2024-01-15T08:00:00Z",
      *       "production_deadline_date": "2024-01-25T17:00:00Z",
      *       "additional_info": "Priority order for new product launch"
      *     }
      */
     CreateManufacturingOrderRequest: {
+      /**
+       * @description Initial production status. ``NOT_STARTED`` is the only value
+       *     accepted on create; transition to other statuses via
+       *     ``PATCH /manufacturing_orders/{id}``.
+       * @enum {string}
+       */
+      status?: 'NOT_STARTED';
+      /** @description Custom manufacturing order number for tracking and reference */
+      order_no: string;
       /** @description ID of the product variant to manufacture */
       variant_id: number;
-      /** @description Quantity of the variant to produce */
-      planned_quantity: number;
       /** @description ID of the factory location where production will take place */
       location_id: number;
+      /** @description Quantity of the variant to produce */
+      planned_quantity: number;
+      /** @description Actual quantity produced */
+      actual_quantity?: number;
       /**
        * Format: date-time
        * @description Date and time when the manufacturing order should be created (defaults to current time)
@@ -3712,6 +5212,8 @@ export interface components {
       production_deadline_date?: string;
       /** @description Optional notes or additional information about the order */
       additional_info?: string;
+      /** @description Batch transactions for produced items */
+      batch_transactions?: components['schemas']['BatchTransaction'][];
     };
     /**
      * @description Represents a manufacturing order for producing products, tracking production status, costs, and timeline from creation to completion.
@@ -3727,7 +5229,7 @@ export interface components {
      *       "production_deadline_date": "2024-01-25T17:00:00Z",
      *       "additional_info": "Priority order for new product launch",
      *       "is_linked_to_sales_order": true,
-     *       "ingredient_availability": "AVAILABLE",
+     *       "ingredient_availability": "IN_STOCK",
      *       "total_cost": 12500,
      *       "total_actual_time": 140.5,
      *       "total_planned_time": 200,
@@ -3738,9 +5240,33 @@ export interface components {
      *       "subassemblies_cost": 2250,
      *       "operations_cost": 1500,
      *       "serial_numbers": [
-     *         "PKS-001-240115",
-     *         "PKS-002-240115",
-     *         "PKS-003-240115"
+     *         {
+     *           "id": 1,
+     *           "transaction_id": "MO-2024-001-001",
+     *           "serial_number": "PKS-001-240115",
+     *           "resource_type": "ManufacturingOrder",
+     *           "resource_id": 3001,
+     *           "transaction_date": "2024-01-15T08:00:00Z",
+     *           "quantity_change": 1
+     *         },
+     *         {
+     *           "id": 2,
+     *           "transaction_id": "MO-2024-001-002",
+     *           "serial_number": "PKS-002-240115",
+     *           "resource_type": "ManufacturingOrder",
+     *           "resource_id": 3001,
+     *           "transaction_date": "2024-01-15T08:00:00Z",
+     *           "quantity_change": 1
+     *         },
+     *         {
+     *           "id": 3,
+     *           "transaction_id": "MO-2024-001-003",
+     *           "serial_number": "PKS-003-240115",
+     *           "resource_type": "ManufacturingOrder",
+     *           "resource_id": 3001,
+     *           "transaction_date": "2024-01-15T08:00:00Z",
+     *           "quantity_change": 1
+     *         }
      *       ],
      *       "created_at": "2024-01-15T08:00:00Z",
      *       "updated_at": "2024-01-20T14:30:00Z",
@@ -3749,11 +5275,8 @@ export interface components {
      */
     ManufacturingOrder: {
       id?: number;
-      /**
-       * @description Current production status of the manufacturing order
-       * @enum {string}
-       */
-      status?: 'NOT_STARTED' | 'BLOCKED' | 'IN_PROGRESS' | 'DONE';
+      /** @description Current production status of the manufacturing order */
+      status?: components['schemas']['ManufacturingOrderStatus'];
       /** @description Unique manufacturing order number for tracking and reference */
       order_no?: string;
       /** @description ID of the product variant being manufactured */
@@ -3762,6 +5285,12 @@ export interface components {
       planned_quantity?: number;
       /** @description Actual quantity produced, null if production not completed */
       actual_quantity?: number | null;
+      /** @description Total quantity completed so far (including partial completions) */
+      completed_quantity?: number | null;
+      /** @description Remaining quantity to produce (planned - completed) */
+      remaining_quantity?: number | null;
+      /** @description Whether this order has been partially completed */
+      includes_partial_completions?: boolean;
       /** @description Batch transactions for produced items, typically one transaction per manufacturing order */
       batch_transactions?: components['schemas']['BatchTransaction'][];
       /** @description ID of the factory location where production takes place */
@@ -3773,9 +5302,9 @@ export interface components {
       order_created_date?: string;
       /**
        * Format: date-time
-       * @description Target deadline for completing production
+       * @description Target deadline for completing production (null when none is set)
        */
-      production_deadline_date?: string;
+      production_deadline_date?: string | null;
       /**
        * Format: date-time
        * @description Timestamp when the manufacturing order was completed
@@ -3787,7 +5316,7 @@ export interface components {
       is_linked_to_sales_order?: boolean;
       /** @description Status of material ingredient availability for production */
       ingredient_availability?:
-        | ('PROCESSED' | 'IN_STOCK' | 'NOT_AVAILABLE' | 'EXPECTED' | 'NO_RECIPE' | 'NOT_APPLICABLE')
+        | components['schemas']['IngredientAvailability']
         | null;
       /** @description Total cost of the manufacturing order including all materials and operations */
       total_cost?: number;
@@ -3803,7 +5332,7 @@ export interface components {
        * Format: date-time
        * @description Delivery deadline from the linked sales order
        */
-      sales_order_delivery_deadline?: string;
+      sales_order_delivery_deadline?: string | null;
       /** @description Total cost of materials used in production */
       material_cost?: number;
       /** @description Total cost of subassemblies used in production */
@@ -3822,22 +5351,47 @@ export interface components {
      *     }
      */
     UpdateManufacturingOrderRequest: {
+      /** @description Updated production status of the manufacturing order */
+      status?: components['schemas']['ManufacturingOrderStatus'];
+      /** @description Updated manufacturing order number for tracking and reference */
+      order_no?: string;
+      /** @description Updated ID of the product variant being manufactured */
+      variant_id?: number;
+      /** @description Updated ID of the factory location where production takes place */
+      location_id?: number;
       /** @description Updated quantity of the variant to produce */
       planned_quantity?: number;
-      /** @description Updated notes or additional information about the order */
-      additional_info?: string;
+      /** @description Updated actual quantity produced */
+      actual_quantity?: number;
+      /**
+       * Format: date-time
+       * @description Updated date and time when the manufacturing order was created
+       */
+      order_created_date?: string;
       /**
        * Format: date-time
        * @description Updated target deadline for completing production
        */
       production_deadline_date?: string;
+      /**
+       * Format: date-time
+       * @description Timestamp when the manufacturing order was completed
+       */
+      done_date?: string;
+      /** @description Updated notes or additional information about the order */
+      additional_info?: string;
+      /** @description Batch transactions for produced items */
+      batch_transactions?: components['schemas']['BatchTransaction'][];
+      /** @description Serial number IDs allocated to the produced units of this manufacturing order. Required when the MO's finished-good variant is serial-tracked; the count must equal `actual_quantity`. */
+      serial_numbers?: number[];
     };
     /**
      * @description Request payload for creating a production run within a manufacturing order, recording actual production activities and material consumption.
      * @example {
      *       "manufacturing_order_id": 3001,
-     *       "quantity": 25,
-     *       "production_date": "2024-01-20T14:30:00Z",
+     *       "completed_quantity": 25,
+     *       "completed_date": "2024-01-20T14:30:00Z",
+     *       "is_final": false,
      *       "ingredients": [
      *         {
      *           "id": 4001,
@@ -3865,57 +5419,35 @@ export interface components {
       /** @description ID of the manufacturing order this production run belongs to */
       manufacturing_order_id: number;
       /** @description Quantity produced in this production run */
-      quantity: number;
+      completed_quantity: number;
       /**
        * Format: date-time
        * @description Date and time when the production was completed
        */
-      production_date: string;
+      completed_date?: string;
+      /** @description Whether this is the final production run that completes the manufacturing order */
+      is_final?: boolean;
+      /** @description Batch transaction allocation for this production run */
+      batch_transaction?: components['schemas']['BatchTransaction'];
       /** @description Ingredients consumed during this production run */
       ingredients?: components['schemas']['ManufacturingOrderProductionIngredient'][];
       /** @description Operations performed during this production run */
       operations?: components['schemas']['ManufacturingOrderOperationRow'][];
+      /** @description Pre-existing SerialNumber IDs (integers) to assign to the units produced in this production run. Required when the manufacturing order's finished-good variant is serial-tracked. Katana silently drops IDs that do not exist — callers must mint via `POST /serial_numbers` first. */
+      serial_numbers?: number[];
     };
     /**
-     * @description Request payload for updating an existing production run within a manufacturing order, modifying production quantities and material usage.
+     * @description Request payload for updating an existing production run within a manufacturing order.
      * @example {
-     *       "quantity": 30,
-     *       "production_date": "2024-01-21T16:00:00Z",
-     *       "ingredients": [
-     *         {
-     *           "id": 4002,
-     *           "location_id": 1,
-     *           "variant_id": 3102,
-     *           "manufacturing_order_id": 3001,
-     *           "manufacturing_order_recipe_row_id": 3202,
-     *           "production_id": 3502,
-     *           "quantity": 60,
-     *           "production_date": "2024-01-21T16:00:00Z",
-     *           "cost": 150
-     *         }
-     *       ],
-     *       "operations": [
-     *         {
-     *           "id": 3802,
-     *           "manufacturing_order_id": 3001,
-     *           "operation_id": 402,
-     *           "time": 18
-     *         }
-     *       ]
+     *       "production_date": "2024-01-21T16:00:00Z"
      *     }
      */
     UpdateManufacturingOrderProductionRequest: {
-      /** @description Updated quantity produced in this production run */
-      quantity?: number;
       /**
        * Format: date-time
        * @description Updated date and time when the production was completed
        */
       production_date?: string;
-      /** @description Updated ingredients consumed during this production run */
-      ingredients?: components['schemas']['UpdateManufacturingOrderProductionIngredientRequest'][];
-      /** @description Updated operations performed during this production run */
-      operations?: components['schemas']['UpdateManufacturingOrderOperationRowRequest'][];
     };
     /**
      * @description Represents a completed production run within a manufacturing order, tracking actual quantities produced and resources consumed during manufacturing.
@@ -3954,8 +5486,24 @@ export interface components {
      *         }
      *       ],
      *       "serial_numbers": [
-     *         "PKS-001-240120",
-     *         "PKS-002-240120"
+     *         {
+     *           "id": 1,
+     *           "transaction_id": "PROD-3501-001",
+     *           "serial_number": "PKS-001-240120",
+     *           "resource_type": "Production",
+     *           "resource_id": 3501,
+     *           "transaction_date": "2024-01-20T14:30:00Z",
+     *           "quantity_change": 1
+     *         },
+     *         {
+     *           "id": 2,
+     *           "transaction_id": "PROD-3501-002",
+     *           "serial_number": "PKS-002-240120",
+     *           "resource_type": "Production",
+     *           "resource_id": 3501,
+     *           "transaction_date": "2024-01-20T14:30:00Z",
+     *           "quantity_change": 1
+     *         }
      *       ],
      *       "created_at": "2024-01-20T14:30:00Z",
      *       "updated_at": "2024-01-20T14:30:00Z",
@@ -3966,6 +5514,8 @@ export interface components {
       id?: number;
       /** @description ID of the manufacturing order this production run belongs to */
       manufacturing_order_id?: number;
+      /** @description ID of the factory where this production run was performed */
+      factory_id?: number;
       /** @description Actual quantity produced in this production run */
       quantity?: number;
       /**
@@ -4019,8 +5569,24 @@ export interface components {
      *             }
      *           ],
      *           "serial_numbers": [
-     *             "PKS-001-240120",
-     *             "PKS-002-240120"
+     *             {
+     *               "id": 1,
+     *               "transaction_id": "PROD-3501-001",
+     *               "serial_number": "PKS-001-240120",
+     *               "resource_type": "Production",
+     *               "resource_id": 3501,
+     *               "transaction_date": "2024-01-20T14:30:00Z",
+     *               "quantity_change": 1
+     *             },
+     *             {
+     *               "id": 2,
+     *               "transaction_id": "PROD-3501-002",
+     *               "serial_number": "PKS-002-240120",
+     *               "resource_type": "Production",
+     *               "resource_id": 3501,
+     *               "transaction_date": "2024-01-20T14:30:00Z",
+     *               "quantity_change": 1
+     *             }
      *           ],
      *           "created_at": "2024-01-20T14:30:00Z",
      *           "updated_at": "2024-01-20T14:30:00Z",
@@ -4049,28 +5615,24 @@ export interface components {
     /**
      * @description Request payload for updating ingredient consumption data in a manufacturing order production batch
      * @example {
-     *       "quantity": 3.2,
-     *       "production_date": "2023-10-15T11:15:00Z",
-     *       "cost": 15.75
+     *       "batch_transactions": [
+     *         {
+     *           "batch_id": 123,
+     *           "quantity": 3.2
+     *         }
+     *       ]
      *     }
      */
     UpdateManufacturingOrderProductionIngredientRequest: {
-      /** @description Updated actual quantity of ingredient consumed */
-      quantity?: number;
-      /**
-       * Format: date-time
-       * @description Updated date when the ingredient was consumed in production
-       */
-      production_date?: string;
-      /** @description Updated cost of the ingredient consumed */
-      cost?: number;
+      /** @description Batch transactions for tracking ingredient consumption from specific batches */
+      batch_transactions?: components['schemas']['BatchTransaction'][];
     };
     /**
      * @description Represents an individual operation step within a manufacturing order, tracking production operations, operator assignments, time, and costs.
      * @example {
      *       "id": 3801,
      *       "status": "IN_PROGRESS",
-     *       "type": "Production",
+     *       "type": "process",
      *       "rank": 1,
      *       "manufacturing_order_id": 3001,
      *       "operation_id": 401,
@@ -4088,13 +5650,13 @@ export interface components {
      *       ],
      *       "completed_by_operators": [],
      *       "active_operator_id": 101,
-     *       "planned_time_per_unit": 15,
-     *       "planned_time_parameter": 1,
-     *       "total_actual_time": 12.5,
-     *       "planned_cost_per_unit": 45,
-     *       "total_actual_cost": 37.5,
-     *       "cost_per_hour": 180,
-     *       "cost_parameter": 1,
+     *       "planned_time_per_unit": "15.0",
+     *       "planned_time_parameter": "1.0",
+     *       "total_actual_time": "12.5",
+     *       "planned_cost_per_unit": "45.0",
+     *       "total_actual_cost": "37.5",
+     *       "cost_per_hour": "180.0",
+     *       "cost_parameter": "1.0",
      *       "group_boundary": 0,
      *       "is_status_actionable": true,
      *       "completed_at": null,
@@ -4105,13 +5667,14 @@ export interface components {
      */
     ManufacturingOrderOperationRow: {
       id: number;
+      /** @description Current status of the operation */
+      status?: components['schemas']['ManufacturingOperationStatus'];
       /**
-       * @description Current status of the operation
-       * @enum {string}
+       * @description Type of operation defining how time and cost are calculated.
+       *     Same enum used on the request side
+       *     (``Create/UpdateManufacturingOrderOperationRowRequest``).
        */
-      status?: 'IN_PROGRESS' | 'COMPLETED' | 'PAUSED';
-      /** @description Type classification of the operation */
-      type?: string;
+      type?: components['schemas']['ManufacturingOperationType'];
       /** @description Order/sequence of this operation within the manufacturing process */
       rank?: number;
       /** @description ID of the manufacturing order this operation belongs to */
@@ -4130,20 +5693,30 @@ export interface components {
       completed_by_operators?: components['schemas']['AssignedOperator'][];
       /** @description ID of the currently active operator working on this operation */
       active_operator_id?: number;
-      /** @description Planned time per unit for this operation */
-      planned_time_per_unit?: number;
+      /**
+       * @deprecated
+       * @description Planned time per unit for this operation (deprecated — use ``planned_time_parameter`` instead)
+       */
+      planned_time_per_unit?: string;
       /** @description Parameter for calculating planned time */
-      planned_time_parameter?: number;
+      planned_time_parameter?: string;
       /** @description Total actual time spent on this operation */
-      total_actual_time?: number;
+      total_actual_time?: string;
       /** @description Planned cost per unit for this operation */
-      planned_cost_per_unit?: number;
+      planned_cost_per_unit?: string;
       /** @description Total actual cost incurred for this operation */
-      total_actual_cost?: number;
-      /** @description Hourly cost rate for this operation */
-      cost_per_hour?: number;
-      /** @description Parameter for calculating operation costs */
-      cost_parameter?: number;
+      total_actual_cost?: string;
+      /** @description Total time consumed so far for this operation */
+      total_consumed_time?: number;
+      /** @description Remaining time estimated for this operation */
+      total_remaining_time?: number;
+      /**
+       * @deprecated
+       * @description Hourly cost rate for this operation, returned as a fixed-precision decimal string (deprecated — use ``cost_parameter`` instead)
+       */
+      cost_per_hour?: string;
+      /** @description Parameter for calculating operation costs, returned as a fixed-precision decimal string */
+      cost_parameter?: string;
       /** @description Group boundary setting for operation grouping */
       group_boundary?: number;
       /** @description Whether the current status allows for operator actions */
@@ -4159,34 +5732,106 @@ export interface components {
      * @example {
      *       "manufacturing_order_id": 1001,
      *       "operation_id": 201,
-     *       "time": 45.5
+     *       "type": "process",
+     *       "operation_name": "Assembly",
+     *       "resource_id": 501,
+     *       "resource_name": "Workstation A",
+     *       "planned_time_parameter": 1,
+     *       "planned_time_per_unit": 15,
+     *       "cost_parameter": 1,
+     *       "cost_per_hour": 50,
+     *       "status": "NOT_STARTED"
      *     }
      */
     CreateManufacturingOrderOperationRowRequest: {
       /** @description ID of the manufacturing order this operation belongs to */
       manufacturing_order_id: number;
       /** @description ID of the operation being performed */
-      operation_id: number;
-      /** @description Estimated time in minutes for this operation */
-      time: number;
+      operation_id?: number;
+      /** @description Type of operation defining how time and cost are calculated */
+      type?: components['schemas']['ManufacturingOperationType'];
+      /** @description Name of the operation */
+      operation_name?: string;
+      /** @description ID of the resource (machine/workstation) performing the operation */
+      resource_id?: number;
+      /** @description Name of the resource performing the operation */
+      resource_name?: string;
+      /** @description Parameter for calculating planned time */
+      planned_time_parameter?: number;
+      /**
+       * @deprecated
+       * @description Planned time per unit of output (deprecated — use ``planned_time_parameter`` instead)
+       */
+      planned_time_per_unit?: number;
+      /** @description Parameter for calculating operation cost */
+      cost_parameter?: number;
+      /**
+       * @deprecated
+       * @description Hourly cost rate for this operation (deprecated — use ``cost_parameter`` instead)
+       */
+      cost_per_hour?: number;
+      /**
+       * @description Initial status of the operation row. Live API only accepts
+       *     NOT_STARTED on create; transitions go through PATCH.
+       * @enum {string}
+       */
+      status: 'NOT_STARTED';
+      /** @description Operators assigned to perform this operation */
+      assigned_operators?: components['schemas']['Operator'][];
     };
     /**
      * @description Request payload for updating a manufacturing order operation row with actual completion data
      * @example {
+     *       "manufacturing_order_id": 1001,
+     *       "operation_name": "Assembly",
+     *       "total_actual_time": 52.3,
+     *       "status": "COMPLETED",
      *       "completed_by_operators": [
      *         {
      *           "id": 101,
-     *           "name": "John Smith"
+     *           "operator_name": "John Smith",
+     *           "created_at": "2024-01-15T08:00:00.000Z",
+     *           "updated_at": "2024-01-15T08:00:00.000Z",
+     *           "deleted_at": null
      *         }
-     *       ],
-     *       "total_actual_time": 52.3
+     *       ]
      *     }
      */
     UpdateManufacturingOrderOperationRowRequest: {
-      /** @description List of operators who completed this operation */
-      completed_by_operators?: components['schemas']['Operator'][];
+      /** @description ID of the manufacturing order this operation row belongs to */
+      manufacturing_order_id: number;
+      /** @description ID of the operation being performed */
+      operation_id?: number;
+      /** @description Type of operation defining how time and cost are calculated */
+      type?: components['schemas']['ManufacturingOperationType'];
+      /** @description Name of the operation */
+      operation_name?: string;
+      /** @description ID of the resource (machine/workstation) performing the operation */
+      resource_id?: number;
+      /** @description Name of the resource performing the operation */
+      resource_name?: string;
+      /** @description Parameter for calculating planned time */
+      planned_time_parameter?: number;
+      /**
+       * @deprecated
+       * @description Planned time per unit of output (deprecated — use ``planned_time_parameter`` instead)
+       */
+      planned_time_per_unit?: number;
       /** @description Actual time taken in minutes for this operation */
       total_actual_time?: number;
+      /** @description Parameter for calculating operation cost */
+      cost_parameter?: number;
+      /**
+       * @deprecated
+       * @description Hourly cost rate for this operation (deprecated — use ``cost_parameter`` instead)
+       */
+      cost_per_hour?: number;
+      /** @description Current status of the operation */
+      status: components['schemas']['ManufacturingOperationStatus'];
+      /** @description Operators assigned to perform this operation */
+      assigned_operators?: components['schemas']['Operator'][];
+      /** @description List of operators who completed this operation */
+      completed_by_operators?: components['schemas']['Operator'][];
     };
     /** @description Complete manufacturing order operation details including all metadata and operational parameters */
     ManufacturingOrderOperationRowResponse: components['schemas']['ManufacturingOrderOperationRow'];
@@ -4210,8 +5855,6 @@ export interface components {
      *       "notes": "Use fresh ingredients from cold storage",
      *       "planned_quantity_per_unit": 0.25,
      *       "total_actual_quantity": 5,
-     *       "ingredient_availability": "AVAILABLE",
-     *       "ingredient_expected_date": "2023-10-15T08:00:00Z",
      *       "batch_transactions": [
      *         {
      *           "batch_id": 301,
@@ -4221,8 +5864,7 @@ export interface components {
      *           "batch_id": 302,
      *           "quantity": 2
      *         }
-     *       ],
-     *       "cost": 12.5
+     *       ]
      *     }
      */
     CreateManufacturingOrderRecipeRowRequest: {
@@ -4236,13 +5878,6 @@ export interface components {
       planned_quantity_per_unit: number;
       /** @description Total actual quantity of ingredient consumed */
       total_actual_quantity?: number;
-      /** @description Availability status of the ingredient */
-      ingredient_availability?: string;
-      /**
-       * Format: date-time
-       * @description Expected date when ingredient will be available
-       */
-      ingredient_expected_date?: string;
       /** @description Batch tracking transactions for this ingredient */
       batch_transactions?: {
         /** @description ID of the ingredient batch being consumed */
@@ -4250,17 +5885,14 @@ export interface components {
         /** @description Quantity consumed from this batch */
         quantity: number;
       }[];
-      /** @description Cost of this ingredient in the manufacturing order */
-      cost?: number;
     };
     /**
      * @description Request payload for updating a manufacturing order recipe row with actual consumption data and revised requirements
      * @example {
+     *       "variant_id": 2002,
      *       "notes": "Used organic ingredients as requested by customer",
      *       "planned_quantity_per_unit": 0.3,
      *       "total_actual_quantity": 6.2,
-     *       "ingredient_availability": "AVAILABLE",
-     *       "ingredient_expected_date": "2023-10-15T08:00:00Z",
      *       "batch_transactions": [
      *         {
      *           "batch_id": 301,
@@ -4270,24 +5902,18 @@ export interface components {
      *           "batch_id": 302,
      *           "quantity": 2.7
      *         }
-     *       ],
-     *       "cost": 15.25
+     *       ]
      *     }
      */
     UpdateManufacturingOrderRecipeRowRequest: {
+      /** @description Updated ID of the ingredient variant being consumed */
+      variant_id?: number;
       /** @description Additional notes about this ingredient usage */
       notes?: string;
       /** @description Revised planned quantity of ingredient per unit of finished product */
       planned_quantity_per_unit?: number;
       /** @description Updated total actual quantity of ingredient consumed */
       total_actual_quantity?: number;
-      /** @description Current availability status of the ingredient */
-      ingredient_availability?: string;
-      /**
-       * Format: date-time
-       * @description Updated expected date when ingredient will be available
-       */
-      ingredient_expected_date?: string;
       /** @description Updated batch tracking transactions for this ingredient */
       batch_transactions?: {
         /** @description ID of the ingredient batch being consumed */
@@ -4295,8 +5921,6 @@ export interface components {
         /** @description Quantity consumed from this batch */
         quantity?: number;
       }[];
-      /** @description Updated cost of this ingredient in the manufacturing order */
-      cost?: number;
     };
     /**
      * @description Represents an ingredient or component required for a manufacturing order, tracking planned and actual quantities used in production.
@@ -4305,17 +5929,16 @@ export interface components {
      *       "manufacturing_order_id": 3001,
      *       "variant_id": 3201,
      *       "notes": "Use only grade 304 material",
-     *       "planned_quantity_per_unit": 2.5,
-     *       "total_actual_quantity": 125,
-     *       "ingredient_availability": "AVAILABLE",
-     *       "ingredient_expected_date": null,
+     *       "planned_quantity_per_unit": "2.5000000000",
+     *       "total_actual_quantity": "125.0000000000",
+     *       "ingredient_availability": "IN_STOCK",
      *       "batch_transactions": [
      *         {
      *           "batch_id": 1201,
      *           "quantity": 125
      *         }
      *       ],
-     *       "cost": 437.5,
+     *       "cost": "437.5000000000",
      *       "created_at": "2024-01-15T08:00:00Z",
      *       "updated_at": "2024-01-20T14:30:00Z",
      *       "deleted_at": null
@@ -4330,16 +5953,19 @@ export interface components {
       /** @description Additional notes about this ingredient or special handling instructions */
       notes?: string;
       /** @description Planned quantity of this ingredient needed per unit produced */
-      planned_quantity_per_unit?: number;
-      /** @description Total actual quantity of this ingredient consumed */
-      total_actual_quantity?: number;
+      planned_quantity_per_unit?: string;
+      /**
+       * @description Total actual quantity of this ingredient consumed. Returned as a fixed-precision
+       *     decimal string (e.g. ``"125.0000000000"``).
+       */
+      total_actual_quantity?: string | null;
       /** @description Current availability status of this ingredient */
-      ingredient_availability?: string;
+      ingredient_availability?: components['schemas']['IngredientAvailability'];
       /**
        * Format: date-time
        * @description Expected date when ingredient will be available if currently unavailable
        */
-      ingredient_expected_date?: string;
+      ingredient_expected_date?: string | null;
       /** @description Batch tracking transactions for this ingredient consumption */
       batch_transactions?: {
         /** @description ID of the batch being consumed */
@@ -4347,8 +5973,15 @@ export interface components {
         /** @description Quantity consumed from this batch */
         quantity?: number;
       }[];
-      /** @description Total cost of this ingredient for the manufacturing order */
-      cost?: number;
+      /**
+       * @description Total cost of this ingredient for the manufacturing order. Returned as a fixed-precision
+       *     decimal string (e.g. ``"437.5000000000"``).
+       */
+      cost?: string | null;
+      /** @description Total quantity consumed so far from this ingredient */
+      total_consumed_quantity?: number;
+      /** @description Remaining quantity needed from this ingredient */
+      total_remaining_quantity?: number;
     } & components['schemas']['DeletableEntity'];
     /**
      * @description Response containing a list of recipe rows (ingredients) for manufacturing orders with pagination support.
@@ -4359,17 +5992,16 @@ export interface components {
      *           "manufacturing_order_id": 3001,
      *           "variant_id": 3201,
      *           "notes": "Use only grade 304 material",
-     *           "planned_quantity_per_unit": 2.5,
-     *           "total_actual_quantity": 125,
-     *           "ingredient_availability": "AVAILABLE",
-     *           "ingredient_expected_date": null,
+     *           "planned_quantity_per_unit": "2.5000000000",
+     *           "total_actual_quantity": "125.0000000000",
+     *           "ingredient_availability": "IN_STOCK",
      *           "batch_transactions": [
      *             {
      *               "batch_id": 1201,
      *               "quantity": 125
      *             }
      *           ],
-     *           "cost": 437.5,
+     *           "cost": "437.5000000000",
      *           "created_at": "2024-01-15T08:00:00Z",
      *           "updated_at": "2024-01-20T14:30:00Z",
      *           "deleted_at": null
@@ -4381,34 +6013,95 @@ export interface components {
       /** @description Array of recipe rows showing ingredients required for manufacturing orders */
       data?: components['schemas']['ManufacturingOrderRecipeRow'][];
     };
-    /** @description Individual serial number record for tracking specific units of serialized inventory items through transactions */
+    /**
+     * @description Individual serial number record for tracking specific units of
+     *     serialized inventory items through transactions.
+     *
+     *     **Transfer side-effects:** when a serial number is moved between
+     *     resources (e.g. from a ManufacturingOrder to a SalesOrderRow via
+     *     ``POST /serial_numbers``), the immediate response may report
+     *     ``transaction_id`` equal to the literal string ``undefined`` and
+     *     ``resource_id: null`` for the moved record. The subsequent
+     *     ``GET /serial_numbers`` resolves the correct ``resource_id`` —
+     *     re-fetch via GET to confirm the landing state.
+     */
     SerialNumber: {
       /** @description Unique identifier for the serial number record */
       id?: number;
-      /** @description Identifier of the transaction that affected this serial number */
-      transaction_id?: string;
+      /**
+       * @description Identifier of the transaction that affected this serial number.
+       *     May be the literal string ``undefined`` on a transfer
+       *     response; expect ``null`` in some edge cases.
+       */
+      transaction_id?: string | null;
       /** @description The actual serial number string for the tracked item */
       serial_number?: string;
+      /** @description Type of resource/transaction that generated or moved this serial number */
+      resource_type?: components['schemas']['SerialNumberResourceType'];
       /**
-       * @description Type of resource/transaction that generated or moved this serial number
-       * @enum {string}
+       * @description Unique identifier of the specific resource instance.
+       *     May be ``null`` on a transfer response — re-fetch via
+       *     ``GET /serial_numbers`` to confirm.
        */
-      resource_type?:
-        | 'ManufacturingOrder'
-        | 'Production'
-        | 'StockAdjustmentRow'
-        | 'StockTransferRow'
-        | 'PurchaseOrderRow'
-        | 'SalesOrderRow';
-      /** @description Unique identifier of the specific resource instance */
-      resource_id?: number;
+      resource_id?: number | null;
       /**
        * Format: date-time
        * @description Date and time when the transaction occurred
        */
-      transaction_date?: string;
+      transaction_date?: string | null;
       /** @description Quantity change for this serial number transaction */
       quantity_change?: number;
+    };
+    /**
+     * @description Single per-string failure block on a ``CreateSerialNumbersResponse``.
+     *     Carries the input ``serial_number`` string and a ``reason`` code so
+     *     the caller can react without inspecting status code or response
+     *     body shape.
+     */
+    CreateSerialNumberFailedItem: {
+      /** @description The input serial-number string that failed. */
+      serial_number: string;
+      reason: components['schemas']['CreateSerialNumberFailureReason'];
+    };
+    /**
+     * @description Response from ``POST /serial_numbers``. The endpoint can partial-
+     *     fail: any string the API rejects (DUPLICATE on the mint path,
+     *     MISSING on the transfer path) lands in ``failed`` while the rest
+     *     succeed. The call still returns 200 in the partial-failure case.
+     * @example {
+     *       "successful": [
+     *         {
+     *           "id": 886853,
+     *           "transaction_id": "0f054aa0-1234-5678-9abc-def012345678",
+     *           "serial_number": "KNF001234567",
+     *           "resource_type": "ManufacturingOrder",
+     *           "resource_id": 16920710,
+     *           "transaction_date": "2024-01-15T08:00:00.000Z",
+     *           "quantity_change": 0
+     *         }
+     *       ],
+     *       "failed": [
+     *         {
+     *           "serial_number": "KNF001234568",
+     *           "reason": "DUPLICATE"
+     *         }
+     *       ]
+     *     }
+     */
+    CreateSerialNumbersResponse: {
+      /**
+       * @description Serial-number records that were created (mint) or transferred
+       *     (move) successfully. May be empty if every requested string
+       *     failed.
+       */
+      successful: components['schemas']['SerialNumber'][];
+      /**
+       * @description Per-string failures. Each entry carries the input
+       *     ``serial_number`` string and a ``reason`` code so the caller
+       *     can react without inspecting status code or response body
+       *     shape.
+       */
+      failed: components['schemas']['CreateSerialNumberFailedItem'][];
     };
     /**
      * @description List of serial number records for tracking individual units and enabling full product traceability
@@ -4455,7 +6148,7 @@ export interface components {
      *           "production_deadline_date": "2024-01-25T17:00:00Z",
      *           "additional_info": "Priority order for new product launch",
      *           "is_linked_to_sales_order": true,
-     *           "ingredient_availability": "AVAILABLE",
+     *           "ingredient_availability": "IN_STOCK",
      *           "total_cost": 12500,
      *           "total_actual_time": 140.5,
      *           "total_planned_time": 200,
@@ -4466,9 +6159,33 @@ export interface components {
      *           "subassemblies_cost": 2250,
      *           "operations_cost": 1500,
      *           "serial_numbers": [
-     *             "PKS-001-240115",
-     *             "PKS-002-240115",
-     *             "PKS-003-240115"
+     *             {
+     *               "id": 1,
+     *               "transaction_id": "MO-2024-001-001",
+     *               "serial_number": "PKS-001-240115",
+     *               "resource_type": "ManufacturingOrder",
+     *               "resource_id": 3001,
+     *               "transaction_date": "2024-01-15T08:00:00Z",
+     *               "quantity_change": 1
+     *             },
+     *             {
+     *               "id": 2,
+     *               "transaction_id": "MO-2024-001-002",
+     *               "serial_number": "PKS-002-240115",
+     *               "resource_type": "ManufacturingOrder",
+     *               "resource_id": 3001,
+     *               "transaction_date": "2024-01-15T08:00:00Z",
+     *               "quantity_change": 1
+     *             },
+     *             {
+     *               "id": 3,
+     *               "transaction_id": "MO-2024-001-003",
+     *               "serial_number": "PKS-003-240115",
+     *               "resource_type": "ManufacturingOrder",
+     *               "resource_id": 3001,
+     *               "transaction_date": "2024-01-15T08:00:00Z",
+     *               "quantity_change": 1
+     *             }
      *           ],
      *           "created_at": "2024-01-15T08:00:00Z",
      *           "updated_at": "2024-01-20T14:30:00Z",
@@ -4537,11 +6254,12 @@ export interface components {
      *           "manufacturing_order_id": 1001,
      *           "operation_id": 201,
      *           "time": 45.5,
-     *           "total_actual_time": 52.3,
+     *           "total_actual_time": "52.3",
      *           "completed_by_operators": [
      *             {
-     *               "id": 101,
-     *               "name": "John Smith"
+     *               "operator_id": 101,
+     *               "name": "John Smith",
+     *               "deleted_at": null
      *             }
      *           ],
      *           "created_at": "2023-10-15T09:00:00Z",
@@ -4568,25 +6286,29 @@ export interface components {
      *       "purchase_uom_conversion_rate": 2,
      *       "configs": [
      *         {
+     *           "id": 1,
      *           "name": "Grade",
      *           "values": [
      *             "304",
      *             "316"
-     *           ]
+     *           ],
+     *           "material_id": 1
      *         },
      *         {
+     *           "id": 2,
      *           "name": "Thickness",
      *           "values": [
      *             "1.5mm",
      *             "2.0mm",
      *             "3.0mm"
-     *           ]
+     *           ],
+     *           "material_id": 1
      *         }
      *       ],
      *       "variants": [
      *         {
      *           "sku": "STEEL-304-1.5MM",
-     *           "sales_price": null,
+     *           "sales_price": 65,
      *           "purchase_price": 45,
      *           "lead_time": 5,
      *           "minimum_order_quantity": 1,
@@ -4620,7 +6342,8 @@ export interface components {
       /** @description Whether this material can be sold directly to customers */
       is_sellable?: boolean;
       /**
-       * @description If you are purchasing in a different unit of measure than the default unit of measure (used for tracking stock)
+       * @description If you are purchasing in a different unit of measure than the default unit of measure (used for tracking
+       *     stock)
        *     for this item, you can define the purchase unit. Value null indicates that purchasing is done in same unit
        *     of measure. If value is not null, purchase_uom_conversion_rate must also be populated.
        */
@@ -4632,10 +6355,15 @@ export interface components {
       purchase_uom_conversion_rate?: number;
       /** @description Material configuration options for creating variants */
       configs?: components['schemas']['MaterialConfig'][];
+      /** @description ID of the custom field collection to associate with this material */
+      custom_field_collection_id?: number | null;
       /** @description Material variants with specific configurations and properties */
       variants: components['schemas']['CreateVariantRequest'][];
     };
-    /** @description Base schema for products and materials with common inventory management features including tracking, supplier relationships, and variant configurations */
+    /**
+     * @description Base schema for products and materials with common inventory management features including tracking, supplier
+     *     relationships, and variant configurations
+     */
     InventoryItem: components['schemas']['ArchivableEntity'] & {
       /** @description Display name for the item used in sales, manufacturing, and purchasing contexts */
       name: string;
@@ -4653,15 +6381,16 @@ export interface components {
       batch_tracked?: boolean;
       /**
        * @description If purchasing in a different unit of measure than the default unit of measure (used for tracking stock)
-       *     for this item, you can define the purchase unit. Value null indicates that purchasing is done in same unit
+       *     for this item, you can define the purchase unit. Value null indicates that purchasing is done in same
+       *     unit
        *     of measure. If value is not null, purchase_uom_conversion_rate must also be populated.
        */
       purchase_uom?: string | null;
       /**
-       * @description The conversion rate between the purchase and default UoMs. If used, item must have a purchase_uom
-       *     that is different from uom.
+       * @description The conversion rate between the purchase and default UoMs, returned as a fixed-precision decimal
+       *     string. If used, item must have a purchase_uom that is different from uom.
        */
-      purchase_uom_conversion_rate?: number | null;
+      purchase_uom_conversion_rate?: string | null;
       /** @description ID of the custom field collection associated with this item */
       custom_field_collection_id?: number | null;
       /** @description Item variants with different SKUs, pricing, and configurations */
@@ -4670,11 +6399,8 @@ export interface components {
       configs?: components['schemas']['ItemConfig'][];
       /** @description Primary supplier information for this item */
       supplier?: components['schemas']['Supplier'] | null;
-      /**
-       * @description Item type discriminator - either 'product' or 'material'
-       * @enum {string}
-       */
-      type: 'product' | 'material';
+      /** @description Item type discriminator - either 'product' or 'material' */
+      type: components['schemas']['InventoryItemType'];
     };
     /**
      * @description Represents raw materials and components used in manufacturing, including inventory tracking, supplier information, and batch management.
@@ -4689,7 +6415,7 @@ export interface components {
      *       "is_sellable": false,
      *       "type": "material",
      *       "purchase_uom": "sheet",
-     *       "purchase_uom_conversion_rate": 2,
+     *       "purchase_uom_conversion_rate": "2.0",
      *       "variants": [
      *         {
      *           "id": 5001,
@@ -4740,11 +6466,17 @@ export interface components {
      *     }
      */
     Material: components['schemas']['InventoryItem'] & {
+      /** @description Item type discriminator. Material objects are of type "material" */
+      type: components['schemas']['MaterialType'];
       /**
-       * @description Item type discriminator. Material objects are of type "material"
-       * @enum {string}
+       * Format: date-time
+       * @description Timestamp when this material was soft-deleted
        */
-      type: 'material';
+      deleted_at?: string | null;
+      /** @description Whether inventory movements are tracked by individual serial numbers */
+      serial_tracked?: boolean;
+      /** @description Whether manufacturing operations must be completed in a specific sequence */
+      operations_in_sequence?: boolean;
     } & {
       /**
        * @description discriminator enum property added by openapi-typescript
@@ -4767,7 +6499,7 @@ export interface components {
      *           "is_sellable": false,
      *           "type": "material",
      *           "purchase_uom": "sheet",
-     *           "purchase_uom_conversion_rate": 2,
+     *           "purchase_uom_conversion_rate": "2.0",
      *           "variants": [
      *             {
      *               "id": 5001,
@@ -4896,7 +6628,8 @@ export interface components {
       /** @description Whether this material is archived and hidden from active use */
       is_archived?: boolean;
       /**
-       * @description If you are purchasing in a different unit of measure than the default unit of measure (used for tracking stock)
+       * @description If you are purchasing in a different unit of measure than the default unit of measure (used for tracking
+       *     stock)
        *     for this item, you can define the purchase unit. Value null indicates that purchasing is done in same unit
        *     of measure. If value is not null, purchase_uom_conversion_rate must also be populated.
        */
@@ -4979,7 +6712,8 @@ export interface components {
       data?: components['schemas']['NegativeStock'][];
     };
     /**
-     * @description Request payload for creating a new finished product with variants, configurations, and manufacturing specifications
+     * @description Request payload for creating a new finished product with variants, configurations, and manufacturing
+     *     specifications
      * @example {
      *       "name": "Professional Kitchen Knife Set",
      *       "uom": "set",
@@ -4992,8 +6726,6 @@ export interface components {
      *       "batch_tracked": false,
      *       "serial_tracked": true,
      *       "operations_in_sequence": true,
-     *       "lead_time": 14,
-     *       "minimum_order_quantity": 1,
      *       "configs": [
      *         {
      *           "name": "Piece Count",
@@ -5062,7 +6794,8 @@ export interface components {
       /** @description Whether manufacturing operations must be completed in sequence */
       operations_in_sequence?: boolean;
       /**
-       * @description If you are purchasing in a different unit of measure than the default unit of measure (used for tracking stock)
+       * @description If you are purchasing in a different unit of measure than the default unit of measure (used for tracking
+       *     stock)
        *     for this item, you can define the purchase unit. Value null indicates that purchasing is done in same unit
        *     of measure. If value is not null, purchase_uom_conversion_rate must also be populated.
        */
@@ -5072,10 +6805,6 @@ export interface components {
        *     that is different from uom.
        */
       purchase_uom_conversion_rate?: number;
-      /** @description Expected lead time in days for procurement or production */
-      lead_time?: number | null;
-      /** @description Minimum quantity that must be ordered from suppliers */
-      minimum_order_quantity?: number;
       /** @description Product configuration options for creating variants */
       configs?: {
         /** @description Configuration attribute name (e.g., Color, Size) */
@@ -5098,7 +6827,8 @@ export interface components {
      *       "is_producible": true,
      *       "is_purchasable": false,
      *       "is_auto_assembly": false,
-     *       "default_supplier_id": null,
+     *       "is_archived": false,
+     *       "default_supplier_id": 1501,
      *       "additional_info": "High-carbon stainless steel with ergonomic handles, dishwasher safe",
      *       "batch_tracked": false,
      *       "serial_tracked": true,
@@ -5141,6 +6871,8 @@ export interface components {
       is_purchasable?: boolean;
       /** @description Whether the product should be automatically assembled when components are available */
       is_auto_assembly?: boolean;
+      /** @description Whether this product is archived and hidden from active use */
+      is_archived?: boolean;
       /** @description Primary supplier ID for purchasing this product */
       default_supplier_id?: number;
       /** @description Additional notes or specifications for the product */
@@ -5152,7 +6884,8 @@ export interface components {
       /** @description Whether manufacturing operations must be completed in a specific sequence */
       operations_in_sequence?: boolean;
       /**
-       * @description If you are purchasing in a different unit of measure than the default unit of measure (used for tracking stock)
+       * @description If you are purchasing in a different unit of measure than the default unit of measure (used for tracking
+       *     stock)
        *     for this item, you can define the purchase unit. Value null indicates that purchasing is done in same unit
        *     of measure. If value is not null, purchase_uom_conversion_rate must also be populated.
        */
@@ -5169,6 +6902,12 @@ export interface components {
        *     If you want to remove all configs, delete variants first, then you can omit this field.
        */
       configs?: {
+        /**
+         * @description ID of the existing config to update. When set, the server
+         *     matches by ID instead of by ``name`` — required if you want
+         *     to rename a config.
+         */
+        id?: number;
         /** @description Name of the configuration attribute (e.g., Size, Color) */
         name?: string;
         /** @description Available values for this configuration attribute */
@@ -5195,7 +6934,7 @@ export interface components {
      *       "operations_in_sequence": false,
      *       "type": "product",
      *       "purchase_uom": "pcs",
-     *       "purchase_uom_conversion_rate": 1,
+     *       "purchase_uom_conversion_rate": "1",
      *       "lead_time": 1,
      *       "minimum_order_quantity": 3,
      *       "custom_field_collection_id": 1,
@@ -5247,11 +6986,8 @@ export interface components {
      *     }
      */
     Product: components['schemas']['InventoryItem'] & {
-      /**
-       * @description Item type discriminator. Product objects are of type "product"
-       * @enum {string}
-       */
-      type: 'product';
+      /** @description Item type discriminator. Product objects are of type "product" */
+      type: components['schemas']['ProductType'];
       /** @description Whether this product can be manufactured in-house */
       is_producible?: boolean;
       /** @description Whether this product can be purchased from suppliers */
@@ -5268,6 +7004,11 @@ export interface components {
       minimum_order_quantity?: number | null;
       /** @description Configuration attributes that define variant combinations (size, color, etc.) */
       configs?: components['schemas']['ItemConfig'][];
+      /**
+       * Format: date-time
+       * @description Timestamp when this product was soft-deleted
+       */
+      deleted_at?: string | null;
     } & {
       /**
        * @description discriminator enum property added by openapi-typescript
@@ -5356,22 +7097,19 @@ export interface components {
      *     }
      */
     CreatePurchaseOrderRequest: {
-      /** @description Unique purchase order number for tracking and reference */
-      order_no: string;
       /**
-       * @description Type of purchase order - regular for materials or outsourced for subcontracted work
-       * @enum {string}
+       * @description Unique purchase order number for tracking and reference. Optional —
+       *     Katana auto-generates a sequential ``PO-N`` value when omitted.
        */
-      entity_type?: 'regular' | 'outsourced';
+      order_no?: string;
+      /** @description Whether this purchase order is regular procurement or an outsourced manufacturing order */
+      entity_type?: components['schemas']['PurchaseOrderEntityType'];
       /** @description Unique identifier of the supplier providing the materials or services */
       supplier_id: number;
       /** @description Active ISO 4217 currency code (e.g. USD, EUR). */
       currency?: string;
-      /**
-       * @description Initial status of the purchase order when created
-       * @enum {string}
-       */
-      status?: 'NOT_RECEIVED';
+      /** @description Initial status of the purchase order when created */
+      status?: components['schemas']['CreatePurchaseOrderInitialStatus'];
       /**
        * Format: date-time
        * @description Date when the purchase order was created
@@ -5381,6 +7119,13 @@ export interface components {
       location_id: number;
       /** @description Optional notes or special instructions for the supplier */
       additional_info?: string;
+      /**
+       * Format: date-time
+       * @description Expected date when the purchase order items will arrive
+       */
+      expected_arrival_date?: string;
+      /** @description Location ID for tracking outsourced orders */
+      tracking_location_id?: number;
       /** @description List of line items being ordered, including quantities and pricing */
       purchase_order_rows: components['schemas']['PurchaseOrderRowRequest'][];
     };
@@ -5414,21 +7159,24 @@ export interface components {
        * @description Expected arrival date for this line item
        */
       arrival_date?: string;
+      /**
+       * @description Destination location for this row. Declared by the gateway on the nested
+       *     create-PO row, but **not honored at PO-create time** — Katana silently
+       *     overrides nested rows to the order-level location (verified live
+       *     2026-06-09). To set a per-row location, use `POST /purchase_order_rows` /
+       *     `PATCH /purchase_order_rows/{id}` after creation, or pass it at receive time
+       *     via `POST /purchase_order_receive`.
+       */
+      location_id?: number;
     };
     /** @description Base properties shared by all purchase order types */
     PurchaseOrderBase: components['schemas']['DeletableEntity'] & {
-      /**
-       * @description Status of the order.
-       * @enum {string}
-       */
-      status?: 'NOT_RECEIVED' | 'PARTIALLY_RECEIVED' | 'RECEIVED';
+      /** @description Status of the order. */
+      status?: components['schemas']['PurchaseOrderStatus'];
       /** @description A unique, identifying string used in the UI and controlled by the user. */
       order_no?: string;
-      /**
-       * @description Either "regular" or "outsourced", depending on the purchase order type.
-       * @enum {string}
-       */
-      entity_type?: 'regular' | 'outsourced';
+      /** @description Either "regular" or "outsourced", depending on the purchase order type. */
+      entity_type?: components['schemas']['PurchaseOrderEntityType'];
       /** @description Default grouping identifier for organizational purposes */
       default_group_id?: number;
       /** @description ID of the supplier who this order belongs to. */
@@ -5445,7 +7193,10 @@ export interface components {
        * @description The timestamp of creating the document.
        */
       order_created_date?: string;
-      /** @description A string attached to the object to add any internal comments, links to external files, additional instructions, etc. */
+      /**
+       * @description A string attached to the object to add any internal comments, links to external files, additional
+       *     instructions, etc.
+       */
       additional_info?: string;
       /** @description The ID of the location to which items are received. */
       location_id?: number;
@@ -5454,15 +7205,12 @@ export interface components {
       /** @description The total value of the order (including taxes) in base currency. */
       total_in_base_currency?: number;
       /**
-       * @description Indicating the status of generating the bill through accounting integration to either Xero or QuickBooks Online. "PARTIALLY_BILLED" does not apply to Xero integration.
-       * @enum {string}
+       * @description Indicating the status of generating the bill through accounting integration to either Xero or QuickBooks
+       *     Online. "PARTIALLY_BILLED" does not apply to Xero integration.
        */
-      billing_status?: 'BILLED' | 'NOT_BILLED' | 'PARTIALLY_BILLED';
-      /**
-       * @description Status of the last e-mail sent from (O)PO card.
-       * @enum {string}
-       */
-      last_document_status?: 'NOT_SENT' | 'SENDING' | 'FAILED' | 'SENT';
+      billing_status?: components['schemas']['PurchaseOrderBillingStatus'];
+      /** @description Status of the last e-mail sent from (O)PO card. */
+      last_document_status?: components['schemas']['DocumentSendStatus'];
       /** @description List of line items in this purchase order */
       purchase_order_rows?: components['schemas']['PurchaseOrderRow'][];
       /** @description Complete supplier information for this purchase order */
@@ -5496,7 +7244,8 @@ export interface components {
       ingredient_availability?: components['schemas']['OutsourcedPurchaseOrderIngredientAvailability'];
       /**
        * Format: date-time
-       * @description The latest date of a manufacturing order production deadline or a purchasing order expected arrival date that relates to the required ingredient
+       * @description The latest date of a manufacturing order production deadline or a purchasing order expected arrival date
+       *     that relates to the required ingredient
        */
       ingredient_expected_date?: string | null;
     } & unknown & {
@@ -5510,22 +7259,22 @@ export interface components {
      * @description Complete purchase order for procuring materials or products from suppliers, including order details, line items, and supplier information
      * @example {
      *       "id": 156,
-     *       "status": "OPEN",
+     *       "status": "NOT_RECEIVED",
      *       "order_no": "PO-2024-0156",
      *       "entity_type": "regular",
      *       "default_group_id": 1,
      *       "supplier_id": 4001,
      *       "currency": "USD",
-     *       "expected_arrival_date": "2024-02-15",
-     *       "order_created_date": "2024-01-28",
+     *       "expected_arrival_date": "2024-02-15T00:00:00Z",
+     *       "order_created_date": "2024-01-28T00:00:00Z",
      *       "additional_info": "Rush order - needed for Valentine's Day production run",
      *       "location_id": 1,
      *       "tracking_location_id": null,
      *       "total": 1962.5,
      *       "total_in_base_currency": 1962.5,
-     *       "billing_status": "UNBILLED",
-     *       "last_document_status": "CONFIRMED",
-     *       "ingredient_availability": "AVAILABLE",
+     *       "billing_status": "NOT_BILLED",
+     *       "last_document_status": "NOT_SENT",
+     *       "ingredient_availability": "IN_STOCK",
      *       "ingredient_expected_date": null,
      *       "created_at": "2024-01-28T09:15:00Z",
      *       "updated_at": "2024-01-28T09:15:00Z",
@@ -5582,23 +7331,25 @@ export interface components {
      *       }
      *     }
      */
-    PurchaseOrder: components['schemas']['RegularPurchaseOrder'] | components['schemas']['OutsourcedPurchaseOrder'];
+    PurchaseOrder:
+      | components['schemas']['RegularPurchaseOrder']
+      | components['schemas']['OutsourcedPurchaseOrder'];
     /**
      * @description Response containing a list of purchase orders with pagination support for procurement management
      * @example {
      *       "data": [
      *         {
      *           "id": 156,
-     *           "status": "OPEN",
+     *           "status": "NOT_RECEIVED",
      *           "order_no": "PO-2024-0156",
      *           "entity_type": "regular",
      *           "supplier_id": 4001,
      *           "currency": "USD",
-     *           "expected_arrival_date": "2024-02-15",
-     *           "order_created_date": "2024-01-28",
+     *           "expected_arrival_date": "2024-02-15T00:00:00Z",
+     *           "order_created_date": "2024-01-28T00:00:00Z",
      *           "total": 1962.5,
      *           "total_in_base_currency": 1962.5,
-     *           "billing_status": "UNBILLED",
+     *           "billing_status": "NOT_BILLED",
      *           "tracking_location_id": null,
      *           "created_at": "2024-01-28T09:15:00Z",
      *           "updated_at": "2024-01-28T09:15:00Z",
@@ -5606,16 +7357,16 @@ export interface components {
      *         },
      *         {
      *           "id": 158,
-     *           "status": "OPEN",
+     *           "status": "PARTIALLY_RECEIVED",
      *           "order_no": "PO-2024-0158",
      *           "entity_type": "outsourced",
      *           "supplier_id": 4003,
      *           "currency": "USD",
-     *           "expected_arrival_date": "2024-02-20",
-     *           "order_created_date": "2024-01-30",
+     *           "expected_arrival_date": "2024-02-20T00:00:00Z",
+     *           "order_created_date": "2024-01-30T00:00:00Z",
      *           "total": 2450,
      *           "total_in_base_currency": 2450,
-     *           "billing_status": "UNBILLED",
+     *           "billing_status": "PARTIALLY_BILLED",
      *           "tracking_location_id": 2,
      *           "ingredient_availability": "EXPECTED",
      *           "ingredient_expected_date": "2024-02-18T10:00:00Z",
@@ -5649,6 +7400,7 @@ export interface components {
      *       "received_date": "2024-02-15T14:30:00Z",
      *       "arrival_date": "2024-02-15T10:00:00Z",
      *       "purchase_order_id": 156,
+     *       "location_id": 1,
      *       "landed_cost": 735.5,
      *       "group_id": 1,
      *       "created_at": "2024-01-28T09:15:00Z",
@@ -5675,13 +7427,16 @@ export interface components {
       variant_id?: number;
       /** @description ID of tax added to price per unit. */
       tax_rate_id?: number;
-      /** @description The sales price of one unit (excluding taxes) in sales order currency. */
+      /** @description The purchase price of one unit (excluding taxes) in purchase order currency. */
       price_per_unit?: number;
       /** @description Unit price converted to the base currency */
       price_per_unit_in_base_currency?: number;
       /** @description The conversion rate between the purchase and stock tracking UoMs. */
       purchase_uom_conversion_rate?: number;
-      /** @description The unit used to measure the quantity of the items (e.g. pcs, kg, m) you purchase. It can be different from the unit used to track stock. */
+      /**
+       * @description The unit used to measure the quantity of the items (e.g. pcs, kg, m) you purchase. It can be different
+       *     from the unit used to track stock.
+       */
       purchase_uom?: string;
       /** @description Currency used for this line item pricing */
       currency?: string;
@@ -5703,23 +7458,38 @@ export interface components {
       received_date?: string | null;
       /**
        * Format: date-time
-       * @description The timestamp when the item on the row is expected to arrive (in full) in your warehouse. ISO 8601 format with time and timezone must be used.
+       * @description The timestamp when the item on the row is expected to arrive (in full) in your warehouse. ISO 8601
+       *     format with time and timezone must be used.
        */
       arrival_date?: string | null;
-      /** @description An array of batch transactions and their quantities. You can receive stock for the same item in multiple batches. */
+      /**
+       * @description An array of batch transactions and their quantities. You can receive stock for the same item in multiple
+       *     batches.
+       */
       batch_transactions?: {
         /** @description The quantity received in a particular batch. */
         quantity?: number;
-        /** @description ID of the batch for the received item. */
-        batch_id?: number;
+        /**
+         * @description ID of the batch for the received item, or ``null``
+         *     when the receipt targets unbatched stock (e.g. an
+         *     aggregate receipt against a non-batch-tracked
+         *     variant). Same nullability semantics as
+         *     ``StockAdjustmentBatchTransaction.batch_id``.
+         */
+        batch_id?: number | null;
       }[];
       /** @description Unique identifier of the parent purchase order */
       purchase_order_id?: number;
+      /**
+       * @description Destination location for this row when multi-location receiving is used.
+       *     Null when the row inherits the order-level location.
+       */
+      location_id?: number | null;
       /** @description Total landed cost including shipping, duties, and other charges */
-      landed_cost?: string | number;
+      landed_cost?: number;
       /** @description Grouping identifier for organizational purposes */
       group_id?: number;
-    } & components['schemas']['UpdatableEntity'];
+    } & components['schemas']['DeletableEntity'];
     /**
      * @description Response containing a list of purchase order line items with pagination support for detailed order management
      * @example {
@@ -5767,7 +7537,7 @@ export interface components {
      * @description Request payload for updating an existing purchase order's details, status, and line items
      * @example {
      *       "order_no": "PO-2024-0156-REVISED",
-     *       "expected_arrival_date": "2024-02-20",
+     *       "expected_arrival_date": "2024-02-20T00:00:00Z",
      *       "status": "PARTIALLY_RECEIVED",
      *       "additional_info": "Delivery delayed due to weather - updated schedule"
      *     }
@@ -5781,11 +7551,8 @@ export interface components {
       currency?: string;
       /** @description Updatable only when status is in NOT_RECEIVED and entity_type is outsourced */
       tracking_location_id?: number;
-      /**
-       * @description Current status indicating progress of order fulfillment
-       * @enum {string}
-       */
-      status?: 'NOT_RECEIVED' | 'RECEIVED' | 'PARTIALLY_RECEIVED';
+      /** @description Current status indicating progress of order fulfillment */
+      status?: components['schemas']['PurchaseOrderStatus'];
       /**
        * Format: date-time
        * @description Updatable only when status is in NOT_RECEIVED or PARTIALLY_RECEIVED. Update will override arrival_date on purchase order rows
@@ -5820,11 +7587,8 @@ export interface components {
       tax_rate_id: number;
       /** @description Amount of the additional cost in the purchase order currency */
       price: number;
-      /**
-       * @description Method for distributing this cost across purchase order items
-       * @enum {string}
-       */
-      distribution_method?: 'BY_VALUE' | 'NON_DISTRIBUTED';
+      /** @description How this additional cost is allocated across purchase order line items (e.g., by value or by quantity) */
+      distribution_method?: components['schemas']['CostDistributionMethod'];
     };
     /**
      * @description Additional cost line item within a purchase order, representing charges like shipping, duties, or handling fees
@@ -5860,20 +7624,20 @@ export interface components {
       /** @description Tax rate identifier applied to this additional cost */
       tax_rate_id?: number;
       /** @description Tax rate percentage applied to this additional cost */
-      tax_rate?: number;
+      tax_rate?: number | null;
       /** @description Amount of the additional cost in the purchase order currency */
       price?: number;
       /** @description Amount of the additional cost converted to base currency */
-      price_in_base?: number;
+      price_in_base?: number | null;
       /** @description Currency used for this additional cost */
       currency?: string;
       /** @description Exchange rate used for currency conversion */
-      currency_conversion_rate?: number;
+      currency_conversion_rate?: number | null;
       /**
        * Format: date-time
        * @description Date when the currency conversion rate was fixed
        */
-      currency_conversion_rate_fix_date?: string;
+      currency_conversion_rate_fix_date?: string | null;
     } & components['schemas']['DeletableEntity'];
     /**
      * @description Response containing a list of additional cost line items for purchase orders with pagination support
@@ -5932,11 +7696,8 @@ export interface components {
       tax_rate_id?: number;
       /** @description Updated amount of the additional cost in the purchase order currency */
       price?: number;
-      /**
-       * @description Method for distributing this cost across purchase order items
-       * @enum {string}
-       */
-      distribution_method?: 'BY_VALUE' | 'NON_DISTRIBUTED';
+      /** @description How this additional cost is allocated across purchase order line items (e.g., by value or by quantity) */
+      distribution_method?: components['schemas']['CostDistributionMethod'];
     };
     /** @description Row-level data for receiving items against a purchase order, including quantity and batch details */
     PurchaseOrderReceiveRow: {
@@ -5949,6 +7710,12 @@ export interface components {
        * @description Optional received date in ISO 8601 format.
        */
       received_date?: string;
+      /**
+       * @description Destination location to receive this row into, enabling multi-location
+       *     receiving on a single purchase order. Defaults to the row's location (or the
+       *     order-level location) when omitted.
+       */
+      location_id?: number;
       /** @description Array of batch-specific transactions for this received quantity */
       batch_transactions?: {
         batch_id: number;
@@ -5980,7 +7747,6 @@ export interface components {
      *       "quantity": 50,
      *       "variant_id": 503,
      *       "tax_rate_id": 1,
-     *       "group_id": 1,
      *       "price_per_unit": 8.75,
      *       "purchase_uom_conversion_rate": 1,
      *       "purchase_uom": "pieces",
@@ -5996,8 +7762,16 @@ export interface components {
       variant_id: number;
       /** @description Tax rate identifier to apply to this line item */
       tax_rate_id?: number;
-      /** @description Group identifier for organizing related line items */
-      group_id?: number;
+      /** @description Tax label snapshot to record on this line item */
+      tax_name?: string;
+      /**
+       * @description Tax rate percentage snapshot to record on this line item. Sent
+       *     as a string to preserve exact decimal precision (Katana's wire
+       *     format).
+       */
+      tax_rate?: string;
+      /** @description ISO 4217 currency code for the line price (overrides PO currency) */
+      currency?: string;
       /** @description Unit price for each item in this line */
       price_per_unit: number;
       /** @description Conversion rate between purchase unit of measure and base unit */
@@ -6009,6 +7783,11 @@ export interface components {
        * @description Optional arrival date in ISO 8601 format.
        */
       arrival_date?: string;
+      /**
+       * @description Destination location for this row, enabling multi-location receiving on a
+       *     single purchase order. Defaults to the order-level location when omitted.
+       */
+      location_id?: number;
     };
     /**
      * @description Request payload for updating an existing purchase order line item's details and status
@@ -6027,8 +7806,14 @@ export interface components {
       variant_id?: number;
       /** @description Updatable only when received_date is null */
       tax_rate_id?: number;
-      /** @description Updatable only when received_date is null */
-      group_id?: number;
+      /** @description Tax label snapshot to record on this line item */
+      tax_name?: string;
+      /**
+       * @description Tax rate percentage snapshot to record on this line item. Sent
+       *     as a string to preserve exact decimal precision (Katana's wire
+       *     format).
+       */
+      tax_rate?: string;
       /** @description Updatable only when received_date is null */
       price_per_unit?: number;
       /** @description Updatable only when received_date is null */
@@ -6045,37 +7830,39 @@ export interface components {
        * @description Updatable only when received_date is not null
        */
       arrival_date?: string;
+      /**
+       * @description Destination location for this row (multi-location receiving). Updatable only
+       *     when received_date is null.
+       */
+      location_id?: number;
     };
     /**
      * @description Accounting integration metadata linking purchase orders to external accounting systems for bill processing and financial record synchronization
      * @example {
      *       "id": 156,
      *       "purchase_order_id": 8001,
-     *       "purchaseOrderId": 8001,
-     *       "porReceivedGroupId": 2001,
-     *       "integrationType": "quickbooks",
-     *       "billId": "BILL-2024-001",
-     *       "createdAt": "2024-01-15T11:30:00Z"
+     *       "received_items_group_id": 2001,
+     *       "integration_type": "quickBooks",
+     *       "bill_id": "BILL-2024-001",
+     *       "created_at": "2024-01-15T11:30:00Z"
      *     }
      */
     PurchaseOrderAccountingMetadata: {
       /** @description Unique identifier for the accounting metadata record */
       id: number;
       /** @description ID of the purchase order linked to the accounting system */
-      purchase_order_id?: number;
-      /** @description Alternative purchase order ID field for accounting system compatibility */
-      purchaseOrderId: number;
+      purchase_order_id: number;
       /** @description ID of the received items group for accounting cost allocation */
-      porReceivedGroupId?: number;
-      /** @description Type of accounting system integration (e.g., quickbooks, xero, sage) */
-      integrationType?: string;
+      received_items_group_id?: number;
+      /** @description Type of accounting system integration (e.g., quickBooks, xero, sage) */
+      integration_type?: string;
       /** @description Bill identifier in the external accounting system */
-      billId?: string;
+      bill_id?: string;
       /**
        * Format: date-time
        * @description Date and time when the accounting metadata was created
        */
-      createdAt?: string;
+      created_at?: string;
     };
     /**
      * @description Response containing a paginated list of purchase order accounting metadata for financial system integration and bill processing
@@ -6084,20 +7871,18 @@ export interface components {
      *         {
      *           "id": 156,
      *           "purchase_order_id": 8001,
-     *           "purchaseOrderId": 8001,
-     *           "porReceivedGroupId": 2001,
-     *           "integrationType": "quickbooks",
-     *           "billId": "BILL-2024-001",
-     *           "createdAt": "2024-01-15T11:30:00Z"
+     *           "received_items_group_id": 2001,
+     *           "integration_type": "quickBooks",
+     *           "bill_id": "BILL-2024-001",
+     *           "created_at": "2024-01-15T11:30:00Z"
      *         },
      *         {
      *           "id": 157,
      *           "purchase_order_id": 8002,
-     *           "purchaseOrderId": 8002,
-     *           "porReceivedGroupId": 2002,
-     *           "integrationType": "xero",
-     *           "billId": "BILL-2024-002",
-     *           "createdAt": "2024-01-15T12:00:00Z"
+     *           "received_items_group_id": 2002,
+     *           "integration_type": "xero",
+     *           "bill_id": "BILL-2024-002",
+     *           "created_at": "2024-01-15T12:00:00Z"
      *         }
      *       ]
      *     }
@@ -6201,8 +7986,6 @@ export interface components {
      *     }
      */
     Supplier: {
-      /** @description Unique identifier for the supplier */
-      id?: number;
       /** @description Business name of the supplier company or individual */
       name?: string;
       /** @description Primary email address for supplier communication and order confirmations */
@@ -6295,8 +8078,6 @@ export interface components {
      *     }
      */
     SupplierAddress: {
-      /** @description Unique identifier for this supplier address */
-      id?: number;
       /** @description Unique identifier of the supplier this address belongs to */
       supplier_id?: number;
       /** @description Primary address line (street number, street name) */
@@ -6365,7 +8146,7 @@ export interface components {
       /** @description Unique identifier of the supplier this address belongs to */
       supplier_id: number;
       /** @description Primary address line (street number, street name) */
-      line_1: string;
+      line_1?: string;
       /** @description Secondary address line (suite, apartment, building) */
       line_2?: string | null;
       /** @description City name */
@@ -6474,7 +8255,11 @@ export interface components {
       data?: components['schemas']['TaxRate'][];
     };
     /**
-     * @description Request payload for creating a new product or material variant with specific SKU and configuration attributes
+     * @description Request payload for creating a new product or material variant with specific SKU and configuration attributes.
+     *
+     *     **Parent reference:** specify **exactly one** of ``product_id`` or
+     *     ``material_id``, never both — variants are scoped to a single parent
+     *     item.
      * @example {
      *       "sku": "KNF-PRO-12PC-WD",
      *       "sales_price": 399.99,
@@ -6512,14 +8297,20 @@ export interface components {
      */
     CreateVariantRequest: {
       /** @description Stock keeping unit code for unique identification of this product variant */
-      sku: string;
+      sku?: string;
       /** @description Default selling price per unit for this product variant */
       sales_price?: number;
       /** @description Default purchase cost per unit for this product variant */
       purchase_price?: number;
-      /** @description ID of the parent product if this variant belongs to a finished good */
+      /**
+       * @description ID of the parent product if this variant belongs to a finished
+       *     good. Mutually exclusive with ``material_id``.
+       */
       product_id?: number | null;
-      /** @description ID of the parent material if this variant belongs to a raw material */
+      /**
+       * @description ID of the parent material if this variant belongs to a raw
+       *     material. Mutually exclusive with ``product_id``.
+       */
       material_id?: number | null;
       /** @description Supplier-specific part numbers or SKUs for purchasing this variant */
       supplier_item_codes?: string[];
@@ -6538,7 +8329,7 @@ export interface components {
         /** @description Value for this configuration attribute (e.g., Blue, Large) */
         config_value: string;
       }[];
-      /** @description Custom field values specific to this variant */
+      /** @description Custom field values specific to this variant (legacy [{field_name, field_value}] array via /custom_fields_collections; distinct from the sales-order custom_fields dict — see CustomFieldValue) */
       custom_fields?: {
         /** @description Name of the custom field */
         field_name: string;
@@ -6600,8 +8391,14 @@ export interface components {
     VariantResponse: {
       /** @description Unique identifier for this variant */
       id?: number;
-      /** @description Stock keeping unit code for unique identification */
-      sku?: string;
+      /**
+       * @description Stock keeping unit code for unique identification. Katana allows
+       *     variants to be created without a SKU; the value may be null for
+       *     such rows. ``VariantResponse`` does not declare ``sku`` as required,
+       *     so the key may also be omitted entirely on some response shapes —
+       *     consumers should handle both ``null`` and missing keys.
+       */
+      sku?: string | null;
       /** @description Price at which this variant is sold to customers */
       sales_price?: number;
       /** @description Cost to purchase this variant from suppliers */
@@ -6610,15 +8407,11 @@ export interface components {
       product_id?: number | null;
       /** @description ID of the parent material if this variant belongs to a raw material */
       material_id?: number | null;
-      /**
-       * @description Type classification of this variant
-       * @enum {string}
-       */
-      type?: 'product' | 'material' | 'service';
+      type?: components['schemas']['VariantType'];
       /** @description Internal barcode for warehouse scanning and tracking */
-      internal_barcode?: string;
+      internal_barcode?: string | null;
       /** @description Official registered barcode (UPC, EAN, etc.) for retail use */
-      registered_barcode?: string;
+      registered_barcode?: string | null;
       /** @description Supplier-specific part numbers or SKUs for purchasing */
       supplier_item_codes?: string[];
       /** @description Days required to manufacture or procure this variant */
@@ -6626,30 +8419,36 @@ export interface components {
       /** @description Minimum quantity that must be ordered from suppliers */
       minimum_order_quantity?: number | null;
       /** @description Configuration attribute values that define this variant */
-      config_attributes?: {
-        /** @description Name of the configuration attribute (e.g., Color, Size) */
-        config_name?: string;
-        /** @description Value for this configuration attribute (e.g., Blue, Large) */
-        config_value?: string;
-      }[];
-      /** @description Custom field values specific to this variant */
-      custom_fields?: {
-        /** @description Name of the custom field */
-        field_name?: string;
-        /** @description Value stored in the custom field */
-        field_value?: string;
-      }[];
+      config_attributes?:
+        | {
+            /** @description Name of the configuration attribute (e.g., Color, Size) */
+            config_name?: string;
+            /** @description Value for this configuration attribute (e.g., Blue, Large) */
+            config_value?: string;
+          }[]
+        | null;
+      /** @description Custom field values specific to this variant (legacy [{field_name, field_value}] array via /custom_fields_collections; distinct from the sales-order custom_fields dict — see CustomFieldValue) */
+      custom_fields?:
+        | {
+            /** @description Name of the custom field */
+            field_name?: string;
+            /** @description Value stored in the custom field */
+            field_value?: string;
+          }[]
+        | null;
       /** @description Details of the parent product or material this variant belongs to */
-      product_or_material?: components['schemas']['Product'] | components['schemas']['Material'];
+      product_or_material?:
+        | components['schemas']['Product']
+        | components['schemas']['Material'];
     } & components['schemas']['DeletableEntity'];
     /**
-     * @description Request payload for updating product variant details including pricing, configuration, and inventory information
+     * @description Request payload for updating product variant details including pricing, configuration, and inventory information.
+     *     Note: ``product_id`` and ``material_id`` are not present here — a variant's parent
+     *     is set at create time and cannot be reassigned via PATCH.
      * @example {
      *       "sku": "KNF-PRO-8PC-UPD",
      *       "sales_price": 319.99,
      *       "purchase_price": 160,
-     *       "product_id": 101,
-     *       "material_id": null,
      *       "supplier_item_codes": [
      *         "SUP-KNF-8PC-002"
      *       ],
@@ -6682,10 +8481,6 @@ export interface components {
       sales_price?: number;
       /** @description Default purchase cost per unit for this product variant */
       purchase_price?: number;
-      /** @description Reference to the parent product when this is a product variant */
-      product_id?: number | null;
-      /** @description Reference to the parent material when this is a material variant */
-      material_id?: number | null;
       /** @description Supplier-specific codes for ordering this variant */
       supplier_item_codes?: string[];
       /** @description Internal barcode for warehouse operations and tracking */
@@ -6703,7 +8498,12 @@ export interface components {
         /** @description Value of the configuration attribute for this variant */
         config_value?: string;
       }[];
-      /** @description Additional custom field values associated with this variant */
+      /**
+       * @description Additional custom field values associated with this variant, in
+       *     the legacy ``[{field_name, field_value}]`` array shape
+       *     (configured via ``/custom_fields_collections``; distinct from
+       *     the sales-order ``custom_fields`` dict — see ``CustomFieldValue``).
+       */
       custom_fields?: {
         /** @description Name of the custom field */
         field_name?: string;
@@ -6750,7 +8550,7 @@ export interface components {
      *         {
      *           "id": 5001,
      *           "sku": "STEEL-304-1.5MM",
-     *           "sales_price": null,
+     *           "sales_price": 65,
      *           "purchase_price": 45,
      *           "type": "material",
      *           "lead_time": 5,
@@ -6769,7 +8569,7 @@ export interface components {
      *         {
      *           "id": 5003,
      *           "sku": "ALU-6061-2.0MM",
-     *           "sales_price": null,
+     *           "sales_price": 55,
      *           "purchase_price": 38.5,
      *           "type": "material",
      *           "lead_time": 3,
@@ -6984,6 +8784,7 @@ export interface components {
      * @description Request payload for creating a new webhook subscription to receive real-time event notifications
      * @example {
      *       "url": "https://api.customer.com/webhooks/katana",
+     *       "enabled": true,
      *       "subscribed_events": [
      *         "sales_order.created",
      *         "sales_order.delivered",
@@ -6996,6 +8797,8 @@ export interface components {
     CreateWebhookRequest: {
       /** @description HTTPS endpoint URL where webhook events will be sent (must use HTTPS for security) */
       url: string;
+      /** @description Whether this webhook subscription should be active immediately on creation (defaults to true) */
+      enabled?: boolean;
       /** @description List of event types to subscribe to (at least one event type required) */
       subscribed_events: components['schemas']['WebhookEvent'][];
       /** @description Optional human-readable description of this webhook's purpose for management and documentation */
@@ -7019,11 +8822,11 @@ export interface components {
      */
     UpdateWebhookRequest: {
       /** @description HTTPS endpoint URL where webhook events will be sent (must use HTTPS for security) */
-      url: string;
+      url?: string;
       /** @description Whether this webhook subscription should be active and receive events */
       enabled?: boolean;
       /** @description List of event types to subscribe to (at least one event type required) */
-      subscribed_events: components['schemas']['WebhookEvent'][];
+      subscribed_events?: components['schemas']['WebhookEvent'][];
       /** @description Optional human-readable description of this webhook's purpose for management and documentation */
       description?: string;
     };
@@ -7032,14 +8835,14 @@ export interface components {
      * @example {
      *       "id": 1,
      *       "url": "https://api.customer.com/webhooks/katana",
-     *       "token": "whk_live_abc123def456",
+     *       "token": "46aec160c0efe1d6",
      *       "enabled": true,
      *       "description": "ERP integration webhook for inventory sync",
      *       "subscribed_events": [
      *         "sales_order.created",
      *         "sales_order.updated",
-     *         "inventory.stock_adjustment",
-     *         "manufacturing_order.completed"
+     *         "manufacturing_order.done",
+     *         "purchase_order.received"
      *       ],
      *       "created_at": "2024-01-10T09:00:00Z",
      *       "updated_at": "2024-01-15T11:30:00Z"
@@ -7050,13 +8853,24 @@ export interface components {
       id?: number;
       /** @description HTTPS endpoint URL where webhook events will be sent */
       url?: string;
-      /** @description Authentication token included in webhook request headers for security verification */
+      /**
+       * @description Server-generated verification token included with every webhook
+       *     delivery so subscribers can authenticate the payload. Returned as
+       *     a 16-character lowercase hexadecimal string (e.g.
+       *     ``"46aec160c0efe1d6"``).
+       */
       token?: string;
       /** @description Whether this webhook subscription is active and will receive events */
       enabled?: boolean;
       /** @description Optional human-readable description of this webhook's purpose */
       description?: string | null;
-      /** @description List of event types that will trigger this webhook */
+      /**
+       * @description List of event types that will trigger this webhook. Known
+       *     values are listed in the ``WebhookEvent`` enum (enforced on
+       *     Create / Update request DTOs), but the read shape stays an
+       *     open string list so newly-released server events deserialize
+       *     without breaking older clients.
+       */
       subscribed_events?: string[];
     } & components['schemas']['UpdatableEntity'];
     /**
@@ -7066,7 +8880,7 @@ export interface components {
      *         {
      *           "id": 1,
      *           "url": "https://api.customer.com/webhooks/katana",
-     *           "token": "whk_live_abc123def456",
+     *           "token": "46aec160c0efe1d6",
      *           "enabled": true,
      *           "description": "ERP integration webhook for inventory sync",
      *           "subscribed_events": [
@@ -7080,7 +8894,7 @@ export interface components {
      *         {
      *           "id": 2,
      *           "url": "https://reporting.company.com/katana-events",
-     *           "token": "whk_live_xyz789",
+     *           "token": "73f82127d57a2cea",
      *           "enabled": false,
      *           "description": "Business intelligence reporting",
      *           "subscribed_events": [
@@ -7101,36 +8915,88 @@ export interface components {
      * @description Request parameters for exporting webhook delivery logs for analysis and debugging
      * @example {
      *       "webhook_id": 1,
-     *       "start_date": "2024-01-10T00:00:00Z",
-     *       "end_date": "2024-01-15T23:59:59Z",
-     *       "status_filter": [
-     *         "failure",
-     *         "retry"
-     *       ],
-     *       "format": "csv"
+     *       "event": "sales_order.created",
+     *       "status_code": 200,
+     *       "delivered": true,
+     *       "created_at_min": "2024-01-10T00:00:00Z",
+     *       "created_at_max": "2024-01-15T23:59:59Z"
      *     }
      */
     WebhookLogsExportRequest: {
       /** @description Filter logs to specific webhook subscription (optional - if not provided, exports all webhook logs) */
       webhook_id?: number;
       /**
-       * Format: date-time
-       * @description Start date for log export range (ISO 8601 format)
-       */
-      start_date?: string;
-      /**
-       * Format: date-time
-       * @description End date for log export range (ISO 8601 format)
-       */
-      end_date?: string;
-      /** @description Filter logs by delivery status (success, failure, retry) */
-      status_filter?: ('success' | 'failure' | 'retry')[];
-      /**
-       * @description Export file format preference
-       * @default csv
+       * @description Filter logs by event type
        * @enum {string}
        */
-      format: 'csv' | 'json';
+      event?:
+        | 'sales_order.created'
+        | 'sales_order.packed'
+        | 'sales_order.delivered'
+        | 'sales_order.updated'
+        | 'sales_order.deleted'
+        | 'sales_order.availability_updated'
+        | 'purchase_order.created'
+        | 'purchase_order.updated'
+        | 'purchase_order.deleted'
+        | 'purchase_order.partially_received'
+        | 'purchase_order.received'
+        | 'purchase_order_row.created'
+        | 'purchase_order_row.received'
+        | 'purchase_order_row.updated'
+        | 'purchase_order_row.deleted'
+        | 'outsourced_purchase_order.created'
+        | 'outsourced_purchase_order.updated'
+        | 'outsourced_purchase_order.deleted'
+        | 'outsourced_purchase_order.received'
+        | 'outsourced_purchase_order_row.created'
+        | 'outsourced_purchase_order_row.updated'
+        | 'outsourced_purchase_order_row.deleted'
+        | 'outsourced_purchase_order_row.received'
+        | 'outsourced_purchase_order_recipe_row.created'
+        | 'outsourced_purchase_order_recipe_row.updated'
+        | 'outsourced_purchase_order_recipe_row.deleted'
+        | 'manufacturing_order.created'
+        | 'manufacturing_order.updated'
+        | 'manufacturing_order.deleted'
+        | 'manufacturing_order.in_progress'
+        | 'manufacturing_order.blocked'
+        | 'manufacturing_order.done'
+        | 'manufacturing_order_recipe_row.created'
+        | 'manufacturing_order_recipe_row.updated'
+        | 'manufacturing_order_recipe_row.deleted'
+        | 'manufacturing_order_recipe_row.ingredients_in_stock'
+        | 'manufacturing_order_operation_row.created'
+        | 'manufacturing_order_operation_row.updated'
+        | 'manufacturing_order_operation_row.deleted'
+        | 'manufacturing_order_operation_row.in_progress'
+        | 'manufacturing_order_operation_row.paused'
+        | 'manufacturing_order_operation_row.blocked'
+        | 'manufacturing_order_operation_row.completed'
+        | 'current_inventory.product_updated'
+        | 'current_inventory.material_updated'
+        | 'current_inventory.product_out_of_stock'
+        | 'current_inventory.material_out_of_stock'
+        | 'product.created'
+        | 'product.updated'
+        | 'product.deleted'
+        | 'material.created'
+        | 'material.updated'
+        | 'material.deleted'
+        | 'variant.created'
+        | 'variant.updated'
+        | 'variant.deleted'
+        | 'product_recipe_row.created'
+        | 'product_recipe_row.deleted'
+        | 'product_recipe_row.updated';
+      /** @description Filter logs by HTTP status code */
+      status_code?: number;
+      /** @description Filter logs by delivery status (true for successful deliveries) */
+      delivered?: boolean;
+      /** @description Minimum creation date for log export range (ISO 8601 format) */
+      created_at_min?: string;
+      /** @description Maximum creation date for log export range (ISO 8601 format) */
+      created_at_max?: string;
     };
     /**
      * @description Webhook log export result containing downloadable data for debugging and monitoring webhook delivery
@@ -7206,12 +9072,12 @@ export interface components {
       category_name?: string;
       /** @description Sellable services can be added to Quotes and Sales orders */
       is_sellable?: boolean;
+      /** @description Indicating the item type. Service objects are of type "service" */
+      type?: components['schemas']['ServiceType'];
       /**
-       * @description Indicating the item type. Service objects are of type "service"
-       * @enum {string}
+       * @description A string attached to the object to add any internal comments, links to external files, additional
+       *     instructions, etc.
        */
-      type?: 'service';
-      /** @description A string attached to the object to add any internal comments, links to external files, additional instructions, etc. */
       additional_info?: string;
       /** @description ID of the custom field collection associated with this service */
       custom_field_collection_id?: number | null;
@@ -7293,7 +9159,10 @@ export interface components {
       uom?: string;
       /** @description A string used to group similar items for better organization and analysis */
       category_name?: string;
-      /** @description A string attached to the object to add any internal comments, links to external files, additional instructions, etc. */
+      /**
+       * @description A string attached to the object to add any internal comments, links to external files, additional
+       *     instructions, etc.
+       */
       additional_info?: string;
       /** @description Sellable services can be added to Quotes and Sales orders */
       is_sellable?: boolean;
@@ -7317,8 +9186,8 @@ export interface components {
      *     }
      */
     CreateServiceVariantRequest: {
-      /** @description A unique service code */
-      sku: string;
+      /** @description Optional unique service code */
+      sku?: string;
       /** @description Default sales price (excluding tax) */
       sales_price?: number | null;
       /** @description Default cost which is used to calculate profit */
@@ -7353,7 +9222,10 @@ export interface components {
       uom?: string;
       /** @description A string used to group similar items for better organization and analysis */
       category_name?: string;
-      /** @description A string attached to the object to add any internal comments, links to external files, additional instructions, etc. */
+      /**
+       * @description A string attached to the object to add any internal comments, links to external files, additional
+       *     instructions, etc.
+       */
       additional_info?: string;
       /** @description Sellable services can be added to Quotes and Sales orders */
       is_sellable?: boolean;
@@ -7367,6 +9239,137 @@ export interface components {
       sku?: string;
       /** @description ID of the custom field collection to associate with this service */
       custom_field_collection_id?: number | null;
+      /**
+       * @description Custom field values to attach to the service, in the legacy
+       *     ``[{field_name, field_value}]`` array shape. Field names must
+       *     match those configured for the ``service`` resource type (see
+       *     ``GET /custom_fields_collections``). This is distinct from the
+       *     sales-order ``custom_fields`` dict keyed by
+       *     ``/custom_field_definitions`` UUIDs — see ``CustomFieldValue``.
+       */
+      custom_fields?: components['schemas']['CustomFieldValue'][];
+    };
+    /**
+     * @description A single demand forecast period with stock and demand quantities
+     * @example {
+     *       "period_start": "2024-01-01T00:00:00.000Z",
+     *       "period_end": "2024-01-06T23:59:59.999Z",
+     *       "in_stock": "125",
+     *       "expected": "50",
+     *       "committed": "25"
+     *     }
+     */
+    DemandForecastPeriod: {
+      /**
+       * Format: date-time
+       * @description Period start date in ISO 8601 format (inclusive)
+       */
+      period_start: string;
+      /**
+       * Format: date-time
+       * @description Period end date in ISO 8601 format (inclusive)
+       */
+      period_end: string;
+      /** @description Calculated stock level at the end of the period */
+      in_stock?: string;
+      /** @description Expected incoming quantity during the period */
+      expected?: string;
+      /** @description Total forecasted demand quantity for the period */
+      committed?: string;
+    };
+    /**
+     * @description Demand forecast for a variant in a specific location with period breakdowns
+     * @example {
+     *       "variant_id": 1,
+     *       "location_id": 1,
+     *       "in_stock": "100",
+     *       "periods": [
+     *         {
+     *           "period_start": "2024-01-01T00:00:00.000Z",
+     *           "period_end": "2024-01-06T23:59:59.999Z",
+     *           "in_stock": "125",
+     *           "expected": "50",
+     *           "committed": "25"
+     *         }
+     *       ]
+     *     }
+     */
+    DemandForecastResponse: {
+      /** @description ID of the variant this forecast is for */
+      variant_id: number;
+      /** @description ID of the location this forecast is for */
+      location_id: number;
+      /** @description Current in-stock quantity for this variant at this location */
+      in_stock?: string;
+      /** @description Array of forecast periods with stock and demand data */
+      periods?: components['schemas']['DemandForecastPeriod'][];
+    };
+    /**
+     * @description Request payload for adding planned demand forecast periods for a variant in a location
+     * @example {
+     *       "variant_id": 1,
+     *       "location_id": 1,
+     *       "periods": [
+     *         {
+     *           "period_start": "2024-01-01T00:00:00.000Z",
+     *           "period_end": "2024-01-06T23:59:59.999Z",
+     *           "committed": "25"
+     *         }
+     *       ]
+     *     }
+     */
+    CreateDemandForecastRequest: {
+      /** @description ID of the variant to add forecast for */
+      variant_id: number;
+      /** @description ID of the location to add forecast for */
+      location_id: number;
+      /** @description Array of forecast periods to add */
+      periods: {
+        /**
+         * Format: date-time
+         * @description Period start date in ISO 8601 format (inclusive)
+         */
+        period_start: string;
+        /**
+         * Format: date-time
+         * @description Period end date in ISO 8601 format (inclusive)
+         */
+        period_end: string;
+        /** @description Total forecasted demand quantity for the period */
+        committed: string;
+      }[];
+    };
+    /**
+     * @description Request payload for clearing planned demand forecast periods for a variant in a location
+     * @example {
+     *       "variant_id": 1,
+     *       "location_id": 1,
+     *       "periods": [
+     *         {
+     *           "period_start": "2024-01-01T00:00:00.000Z",
+     *           "period_end": "2024-01-06T23:59:59.999Z"
+     *         }
+     *       ]
+     *     }
+     */
+    ClearDemandForecastRequest: {
+      /** @description ID of the variant to clear forecast for */
+      variant_id: number;
+      /** @description ID of the location to clear forecast for */
+      location_id: number;
+      /** @description Array of forecast periods to clear */
+      periods: {
+        /**
+         * Format: date-time
+         * @description Period start date in ISO 8601 format (inclusive)
+         */
+        period_start: string;
+        /**
+         * Format: date-time
+         * @description Period end date in ISO 8601 format (inclusive)
+         */
+        period_end: string;
+      }[];
     };
     /**
      * @description Customer entity representing individuals or companies that purchase products or services
@@ -7442,15 +9445,9 @@ export interface components {
      *     }
      */
     CustomerAddress: {
-      /** @description Unique identifier for the customer address */
-      id: number;
       /** @description ID of the customer this address belongs to */
       customer_id: number;
-      /**
-       * @description Address type - billing for invoicing, shipping for delivery
-       * @enum {string}
-       */
-      entity_type: 'billing' | 'shipping';
+      entity_type: components['schemas']['AddressEntityType'];
       /** @description Whether this is the default address for the specified entity type */
       default?: boolean;
       /** @description First name for the contact person at this address */
@@ -7473,7 +9470,7 @@ export interface components {
       zip?: string | null;
       /** @description Country name or country code */
       country?: string | null;
-    } & components['schemas']['UpdatableEntity'];
+    } & components['schemas']['DeletableEntity'];
     /**
      * @description Response containing a list of customers with pagination metadata
      * @example {
@@ -7565,6 +9562,20 @@ export interface components {
       category?: string | null;
       /** @description Default discount percentage applied to all orders (0-100) */
       discount_rate?: number | null;
+      /** @description Customer addresses to create with the customer */
+      addresses?: {
+        entity_type?: components['schemas']['AddressEntityType'];
+        first_name?: string;
+        last_name?: string;
+        company?: string;
+        phone?: string;
+        line_1?: string;
+        line_2?: string;
+        city?: string;
+        state?: string;
+        zip?: string;
+        country?: string;
+      }[];
     };
     /**
      * @description Request payload for updating an existing customer with contact and business information
@@ -7627,7 +9638,7 @@ export interface components {
      *       "currency": "USD",
      *       "conversion_rate": 1,
      *       "conversion_date": "2024-01-15T10:00:00Z",
-     *       "invoicing_status": "INVOICED",
+     *       "invoicing_status": "invoiced",
      *       "total": 1250,
      *       "total_in_base_currency": 1250,
      *       "additional_info": "Customer requested expedited delivery",
@@ -7641,18 +9652,18 @@ export interface components {
      *           "location_id": 1,
      *           "product_availability": "IN_STOCK",
      *           "product_expected_date": null,
-     *           "price_per_unit": 599.99,
+     *           "price_per_unit": "599.9900000000",
      *           "price_per_unit_in_base_currency": 599.99,
      *           "total": 1199.98,
      *           "total_in_base_currency": 1199.98,
-     *           "cogs_value": 400,
+     *           "cogs_value": "400.0000000000",
      *           "created_at": "2024-01-15T10:00:00Z",
      *           "updated_at": "2024-01-15T10:00:00Z"
      *         }
      *       ],
-     *       "ecommerce_order_type": "standard",
-     *       "ecommerce_store_name": "Kitchen Pro Store",
-     *       "ecommerce_order_id": "SHOP-5678-2024",
+     *       "ecommerce_order_type": "shopify",
+     *       "ecommerce_store_name": "acme.myshopify.com",
+     *       "ecommerce_order_id": "19433769",
      *       "product_availability": "IN_STOCK",
      *       "product_expected_date": null,
      *       "ingredient_availability": "IN_STOCK",
@@ -7705,11 +9716,8 @@ export interface components {
       picked_date?: string | null;
       /** @description Unique identifier of the fulfillment location for this order */
       location_id: number;
-      /**
-       * @description Current fulfillment status of the sales order
-       * @enum {string}
-       */
-      status: 'NOT_SHIPPED' | 'PARTIALLY_PACKED' | 'PARTIALLY_DELIVERED' | 'PACKED' | 'DELIVERED';
+      /** @description Current fulfillment status of the sales order */
+      status: components['schemas']['SalesOrderStatus'];
       /** @description Currency code for the order pricing (ISO 4217 format) */
       currency?: string;
       /** @description Exchange rate used to convert order currency to base company currency */
@@ -7719,8 +9727,17 @@ export interface components {
        * @description Date when the currency conversion rate was applied
        */
       conversion_date?: string | null;
-      /** @description Current invoicing status indicating billing progress */
-      invoicing_status?: string | null;
+      /**
+       * @description Order-level invoicing status, rolled up from the underlying
+       *     fulfillment-level statuses. Uses camelCase wire values
+       *     (``notInvoiced`` / ``partiallyInvoiced`` / ``invoiced``) —
+       *     **not** the SCREAMING_SNAKE_CASE values used by
+       *     ``SalesOrderFulfillment.invoice_status``. ``null`` when the
+       *     order has no fulfillments yet.
+       */
+      invoicing_status?:
+        | components['schemas']['SalesOrderInvoicingStatus']
+        | null;
       /** @description Total order amount in the order currency */
       total?: number;
       /** @description Total order amount converted to the company's base currency */
@@ -7731,20 +9748,22 @@ export interface components {
       customer_ref?: string | null;
       /** @description Line items included in the sales order with product details and quantities */
       sales_order_rows?: components['schemas']['SalesOrderRow'][];
-      /** @description Type of ecommerce order when imported from external platforms */
+      /** @description Source ecommerce platform for orders imported from a native Katana integration, as the exact camelCase literal (`shopify`, `wooCommerce`, or `bigCommerce`); `null` otherwise. Free-string on the wire and create-only — the literal is stored verbatim and cannot be changed via update. */
       ecommerce_order_type?: string | null;
-      /** @description Name of the ecommerce store when order originated from external platforms */
+      /** @description Storefront host or slug of the source integration — a full host for Shopify/WooCommerce (e.g. `acme.myshopify.com`) or a bare subdomain slug for BigCommerce; `null` when the order is not from a native integration. Create-only — like the other `ecommerce_*` fields it cannot be changed via update. */
       ecommerce_store_name?: string | null;
-      /** @description Original order ID from the external ecommerce platform */
+      /** @description The source platform's own order identifier (e.g. `19433769`), as a string; `null` when the order is not from a native ecommerce integration. Create-only — like the other `ecommerce_*` fields it cannot be changed via update. */
       ecommerce_order_id?: string | null;
-      product_availability?: ('IN_STOCK' | 'EXPECTED' | 'PICKED' | 'NOT_AVAILABLE' | 'NOT_APPLICABLE') | null;
+      product_availability?:
+        | components['schemas']['ProductAvailability']
+        | null;
       /**
        * Format: date-time
        * @description Expected date when products will be available for fulfillment
        */
       product_expected_date?: string | null;
       ingredient_availability?:
-        | ('PROCESSED' | 'IN_STOCK' | 'NOT_AVAILABLE' | 'EXPECTED' | 'NO_RECIPE' | 'NOT_APPLICABLE')
+        | components['schemas']['IngredientAvailability']
         | null;
       /**
        * Format: date-time
@@ -7752,7 +9771,9 @@ export interface components {
        */
       ingredient_expected_date?: string | null;
       /** @description Current status of production for items in this order */
-      production_status?: ('NOT_STARTED' | 'NONE' | 'NOT_APPLICABLE' | 'IN_PROGRESS' | 'BLOCKED' | 'DONE') | null;
+      production_status?:
+        | components['schemas']['SalesOrderProductionStatus']
+        | null;
       /** @description Shipping carrier tracking number for package tracking */
       tracking_number?: string | null;
       /** @description URL link to track the shipment on carrier website */
@@ -7767,7 +9788,27 @@ export interface components {
       shipping_fee?: components['schemas']['SalesOrderShippingFee'] | null;
       /** @description Complete address information for billing and shipping */
       addresses?: components['schemas']['SalesOrderAddress'][];
-    } & components['schemas']['UpdatableEntity'];
+      /**
+       * @description Custom field values for the sales order, keyed by the
+       *     definition ``id`` (UUID) — the ``id`` returned by
+       *     ``GET /custom_field_definitions``, not the field label.
+       *     Each value matches the definition's ``field_type``: string
+       *     for ``shortText`` / ``url``, number for ``number``, boolean
+       *     for ``boolean``, a ``YYYY-MM-DD`` string for ``date``, or
+       *     the integer choice ``id`` for ``singleSelect``. Example
+       *     (keys are definition UUIDs):
+       *     ``{"0c8f1d6e-…": "EMEA", "7a21b4c2-…": 2}`` — a
+       *     ``shortText`` value and a ``singleSelect`` choice ``id``.
+       *     ``null`` when no values are set. Values for soft-deleted
+       *     definitions are stripped from read responses. Keys are
+       *     tenant-specific, so the schema declares
+       *     ``additionalProperties: true`` rather than enumerating
+       *     them.
+       */
+      custom_fields?: {
+        [key: string]: unknown;
+      } | null;
+    } & components['schemas']['DeletableEntity'];
     /**
      * @description Individual line item within a sales order representing a specific product variant, quantity, pricing, and delivery details
      * @example {
@@ -7778,11 +9819,11 @@ export interface components {
      *       "location_id": 1,
      *       "product_availability": "IN_STOCK",
      *       "product_expected_date": null,
-     *       "price_per_unit": 599.99,
+     *       "price_per_unit": "599.9900000000",
      *       "price_per_unit_in_base_currency": 599.99,
      *       "total": 1199.98,
      *       "total_in_base_currency": 1199.98,
-     *       "cogs_value": 400,
+     *       "cogs_value": "400.0000000000",
      *       "attributes": [
      *         {
      *           "key": "engrave_text",
@@ -7821,17 +9862,21 @@ export interface components {
       variant_id: number;
       /** @description ID of the tax rate applied to this line item */
       tax_rate_id?: number | null;
+      /** @description Tax rate percentage applied to this line item */
+      tax_rate?: number | null;
       /** @description Location where the product should be picked from */
       location_id?: number | null;
       /** @description Current availability status of the product for this order row */
-      product_availability?: ('IN_STOCK' | 'EXPECTED' | 'PICKED' | 'NOT_AVAILABLE' | 'NOT_APPLICABLE') | null;
+      product_availability?:
+        | components['schemas']['ProductAvailability']
+        | null;
       /**
        * Format: date-time
        * @description Expected date when the product will be available if not currently in stock
        */
       product_expected_date?: string | null;
       /** @description Selling price per unit in the order currency */
-      price_per_unit?: number;
+      price_per_unit?: string;
       /** @description Selling price per unit converted to the base company currency */
       price_per_unit_in_base_currency?: number;
       /** @description Total line amount (quantity * price_per_unit) in order currency */
@@ -7840,8 +9885,8 @@ export interface components {
       total_in_base_currency?: number;
       /** @description Discount amount applied to this line item */
       total_discount?: string | null;
-      /** @description Cost of goods sold value for this line item */
-      cogs_value?: number | null;
+      /** @description Cost of goods sold value for this line item, null when not yet computed */
+      cogs_value?: string | null;
       /** @description Custom attributes associated with this sales order row */
       attributes?: {
         /** @description Attribute name/key */
@@ -7858,6 +9903,21 @@ export interface components {
       }[];
       /** @description Serial numbers allocated to this order row for serialized products */
       serial_numbers?: number[];
+      /**
+       * @description Audit trail of serial-number actions on this row. Each entry records
+       *     whether a serial number was added (``quantity: 1``) or removed
+       *     (``quantity: 0``). Use this for incremental updates; ``serial_numbers``
+       *     reflects the resulting current state.
+       */
+      serial_number_transactions?: {
+        /** @description ID of the serial number for the fulfilled item */
+        serial_number_id: number;
+        /**
+         * @description 1 to add the serial number, 0 to remove it
+         * @enum {integer}
+         */
+        quantity?: 0 | 1;
+      }[];
       /** @description ID of the manufacturing order linked to this sales order row for make-to-order items */
       linked_manufacturing_order_id?: number | null;
       /** @description Currency conversion rate used for this row */
@@ -7867,7 +9927,24 @@ export interface components {
        * @description Date when the currency conversion rate was applied
        */
       conversion_date?: string | null;
-    } & components['schemas']['UpdatableEntity'];
+      /**
+       * @description Row-level custom field values, keyed by the
+       *     definition ``id`` (UUID) — the ``id`` returned by
+       *     ``GET /custom_field_definitions``, not the field label.
+       *     Each value matches the definition's ``field_type``: string
+       *     for ``shortText`` / ``url``, number for ``number``, boolean
+       *     for ``boolean``, a ``YYYY-MM-DD`` string for ``date``, or
+       *     the integer choice ``id`` for ``singleSelect``. ``null``
+       *     when no values are set on the row. Values for soft-deleted
+       *     definitions are stripped from read responses. Keys are
+       *     tenant-specific, so the schema declares
+       *     ``additionalProperties: true`` rather than enumerating
+       *     them.
+       */
+      custom_fields?: {
+        [key: string]: unknown;
+      } | null;
+    } & components['schemas']['DeletableEntity'];
     /**
      * @description Billing or shipping address associated with a sales order, containing complete contact and location information
      * @example {
@@ -7889,15 +9966,9 @@ export interface components {
      *     }
      */
     SalesOrderAddress: {
-      /** @description Unique identifier for the address record */
-      id: number;
       /** @description ID of the sales order this address belongs to */
       sales_order_id: number;
-      /**
-       * @description Type of address - billing for invoicing or shipping for delivery
-       * @enum {string}
-       */
-      entity_type: 'billing' | 'shipping';
+      entity_type: components['schemas']['AddressEntityType'];
       /** @description First name of the contact person */
       first_name?: string | null;
       /** @description Last name of the contact person */
@@ -7918,7 +9989,7 @@ export interface components {
       zip?: string | null;
       /** @description Country code (e.g., US, CA, GB) */
       country?: string | null;
-    } & components['schemas']['UpdatableEntity'];
+    } & components['schemas']['DeletableEntity'];
     /**
      * @description Request payload for creating a new sales order row (line item)
      * @example {
@@ -7943,6 +10014,29 @@ export interface components {
       tax_rate_id?: number;
       /** @description Location where the product should be picked from */
       location_id?: number;
+      /** @description Custom attributes for this line item */
+      attributes?: {
+        /** @description Attribute name/key */
+        key?: string;
+        /** @description Attribute value */
+        value?: string;
+      }[];
+      /** @description Total discount amount applied to this line item */
+      total_discount?: number;
+      /**
+       * @description Row-level custom field values, keyed by the
+       *     definition ``id`` (UUID) — the ``id`` returned by
+       *     ``GET /custom_field_definitions``, not the field label. Each
+       *     value matches the definition's ``field_type``: string for
+       *     ``shortText`` / ``url``, number for ``number``, boolean for
+       *     ``boolean``, a ``YYYY-MM-DD`` string for ``date``, or the
+       *     integer choice ``id`` for ``singleSelect``. Keys are
+       *     tenant-specific, so the schema declares
+       *     ``additionalProperties: true`` rather than enumerating them.
+       */
+      custom_fields?: {
+        [key: string]: unknown;
+      } | null;
     };
     /**
      * @description Request payload for updating an existing sales order row
@@ -7962,6 +10056,346 @@ export interface components {
       tax_rate_id?: number;
       /** @description Location where the product should be picked from */
       location_id?: number;
+      /** @description Total discount amount applied to this line item */
+      total_discount?: number;
+      /** @description Batch transactions for inventory tracking */
+      batch_transactions?: components['schemas']['BatchTransaction'][];
+      /** @description Serial number transactions for tracking */
+      serial_number_transactions?: {
+        serial_number_id?: number;
+        quantity?: number;
+      }[];
+      /** @description Custom attributes for this line item */
+      attributes?: {
+        /** @description Attribute name/key */
+        key?: string;
+        /** @description Attribute value */
+        value?: string;
+      }[];
+      /**
+       * @description Row-level custom field values, keyed by the
+       *     definition ``id`` (UUID) — the ``id`` returned by
+       *     ``GET /custom_field_definitions``, not the field label. Each
+       *     value matches the definition's ``field_type``: string for
+       *     ``shortText`` / ``url``, number for ``number``, boolean for
+       *     ``boolean``, a ``YYYY-MM-DD`` string for ``date``, or the
+       *     integer choice ``id`` for ``singleSelect``.
+       *
+       *     On ``PATCH`` the object is **merged** with the existing values,
+       *     not replaced:
+       *
+       *     - omit the ``custom_fields`` key — existing values unchanged;
+       *     - ``{"<id>": value}`` — that key is set / overwritten, all
+       *       other keys kept;
+       *     - ``null`` — all custom field values on the row are cleared.
+       *
+       *     Keys are tenant-specific, so the schema declares
+       *     ``additionalProperties: true`` rather than enumerating them.
+       */
+      custom_fields?: {
+        [key: string]: unknown;
+      } | null;
+    };
+    /**
+     * @description A scalar filter value used in search ``where`` predicates — the
+     *     bare-equality value and the operand type inside
+     *     ``SearchComparator`` operator objects. Covers the full range of
+     *     Katana field value types: string (max 256 chars), number, boolean,
+     *     or ``null``. Note: the pydantic generator emits the ``str`` branch
+     *     as a separate ``RootModel[str]`` class (``SearchScalarValue1``)
+     *     rather than producing a single named union — ``SearchScalarValue1``
+     *     is the string branch only, not the full union.
+     */
+    SearchScalarValue: string | number | boolean | null;
+    /**
+     * @description Operator object for a search ``where`` predicate. Supply this only
+     *     when you need something other than equality — for equality, pass a
+     *     bare ``SearchScalarValue`` instead. Only the operators listed below
+     *     are accepted; the server rejects any other key with 422.
+     */
+    SearchComparator: {
+      /** @description Not equal. */
+      neq?: components['schemas']['SearchScalarValue'];
+      /** @description Greater than. */
+      gt?: components['schemas']['SearchScalarValue'];
+      /** @description Greater than or equal. */
+      gte?: components['schemas']['SearchScalarValue'];
+      /** @description Less than. */
+      lt?: components['schemas']['SearchScalarValue'];
+      /** @description Less than or equal. */
+      lte?: components['schemas']['SearchScalarValue'];
+      /** @description Value is in this list (max 100 entries). */
+      inq?: components['schemas']['SearchScalarValue'][];
+      /** @description Value is not in this list (max 100 entries). */
+      nin?: components['schemas']['SearchScalarValue'][];
+      /** @description Inclusive range ``[low, high]``. */
+      between?: components['schemas']['SearchScalarValue'][];
+      /**
+       * @description Pattern match, case-sensitive. ``%`` matches any sequence,
+       *     ``_`` matches any single character.
+       */
+      like?: string;
+      /** @description Pattern match, case-insensitive (see ``like``). */
+      ilike?: string;
+    };
+    /**
+     * @description A single ``where`` predicate: either a bare ``SearchScalarValue``
+     *     (equality) or a ``SearchComparator`` operator object.
+     */
+    SearchPredicate:
+      | components['schemas']['SearchScalarValue']
+      | components['schemas']['SearchComparator'];
+    /**
+     * @description Structured filter body for ``POST /sales_orders/search``. Returns
+     *     the same paginated ``{"data": [...]}`` shape as
+     *     ``GET /sales_orders`` plus an ``X-Pagination`` header. Beta —
+     *     request/response shape may evolve before GA.
+     * @example {
+     *       "filter": {
+     *         "where": {
+     *           "and": [
+     *             {
+     *               "status": {
+     *                 "inq": [
+     *                   "NOT_SHIPPED",
+     *                   "PACKED"
+     *                 ]
+     *               }
+     *             },
+     *             {
+     *               "created_at": {
+     *                 "gte": "2026-01-01T00:00:00.000Z"
+     *               }
+     *             },
+     *             {
+     *               "custom_fields.0c8f1d6e-3c2a-4f5b-9d77-12ab34cd56ef": 2
+     *             }
+     *           ]
+     *         },
+     *         "order": [
+     *           "created_at DESC",
+     *           "id DESC"
+     *         ],
+     *         "limit": 50,
+     *         "page": 1
+     *       }
+     *     }
+     */
+    SalesOrderSearchRequest: {
+      filter?: components['schemas']['SalesOrderSearchFilter'];
+    };
+    /** @description Filter envelope for ``POST /sales_orders/search``. */
+    SalesOrderSearchFilter: {
+      where?: components['schemas']['SalesOrderSearchWhere'];
+      /**
+       * @description Sort directive(s). Each entry is ``<field> ASC|DESC``
+       *     (direction defaults to ASC). Only filterable fields may be
+       *     used; ``custom_fields.<uuid>`` paths are orderable.
+       */
+      order?: string | string[];
+      /**
+       * @description Page size; maximum 200. Omit to let the server apply its
+       *     default of 50 (the client omits the key when unset rather than
+       *     sending a default, so direct construction and round-tripped
+       *     ``from_dict`` payloads behave identically).
+       */
+      limit?: number;
+      /** @description 1-based page number. Omit to let the server default to 1. */
+      page?: number;
+    };
+    /**
+     * @description ``where`` clause for ``POST /sales_orders/search``. Only the fields
+     *     listed here may appear; unknown fields are rejected with 422.
+     *     Custom field values are addressable via additional
+     *     ``custom_fields.<uuid>`` keys (snake_case, matching the
+     *     request/response body), where ``<uuid>`` is the custom field
+     *     definition id — its value is a bare value or a ``SearchComparator``
+     *     like any other predicate (for ``singleSelect`` the value is the
+     *     integer choice ``id``). Compose with ``and`` / ``or`` (max nesting
+     *     depth 2).
+     */
+    SalesOrderSearchWhere: {
+      /** @description Logical AND — every nested where-clause must match. Max nesting depth 2. */
+      and?: {
+        [key: string]: unknown;
+      }[];
+      /** @description Logical OR — at least one nested where-clause must match. Max nesting depth 2. */
+      or?: {
+        [key: string]: unknown;
+      }[];
+      /** @description Sales order id. */
+      id?: components['schemas']['SearchPredicate'];
+      /** @description Order number. */
+      order_no?: components['schemas']['SearchPredicate'];
+      /** @description Customer id. */
+      customer_id?: components['schemas']['SearchPredicate'];
+      /** @description Caller-supplied customer reference. */
+      customer_ref?: components['schemas']['SearchPredicate'];
+      /** @description Location id the order ships from. */
+      location_id?: components['schemas']['SearchPredicate'];
+      /**
+       * @description Delivery status. Allowed values: ``PENDING``, ``NOT_SHIPPED``,
+       *     ``PACKED``, ``DELIVERED``, ``PARTIALLY_PACKED``,
+       *     ``PARTIALLY_DELIVERED``.
+       */
+      status?: components['schemas']['SearchPredicate'];
+      /**
+       * @description Invoicing status. Allowed values: ``invoiced``,
+       *     ``partiallyInvoiced``, ``notInvoiced``.
+       */
+      invoicing_status?: components['schemas']['SearchPredicate'];
+      /**
+       * @description Production status. Allowed values: ``NOT_STARTED``, ``NONE``,
+       *     ``NOT_APPLICABLE``, ``IN_PROGRESS``, ``BLOCKED``, ``DONE``.
+       */
+      production_status?: components['schemas']['SearchPredicate'];
+      /** @description Source the order was created from (e.g. ``api``, ``shopify``). */
+      source?: components['schemas']['SearchPredicate'];
+      /** @description ISO 4217 currency code. */
+      currency?: components['schemas']['SearchPredicate'];
+      /**
+       * @description Product availability rollup. Allowed values: ``IN_STOCK``,
+       *     ``EXPECTED``, ``PICKED``, ``NOT_AVAILABLE``, ``NOT_APPLICABLE``.
+       */
+      product_availability?: components['schemas']['SearchPredicate'];
+      /**
+       * @description Ingredient (material) availability rollup. Allowed values:
+       *     ``PROCESSED``, ``IN_STOCK``, ``NOT_AVAILABLE``, ``EXPECTED``,
+       *     ``NO_RECIPE``, ``NOT_APPLICABLE``.
+       */
+      ingredient_availability?: components['schemas']['SearchPredicate'];
+      /** @description Filter by source ecommerce platform identifier (e.g. `shopify`). */
+      ecommerce_order_type?: components['schemas']['SearchPredicate'];
+      /** @description Filter by storefront host or slug (e.g. `acme.myshopify.com`). */
+      ecommerce_store_name?: components['schemas']['SearchPredicate'];
+      /** @description Filter by the source platform's order identifier. */
+      ecommerce_order_id?: components['schemas']['SearchPredicate'];
+      /** @description Carrier tracking number. */
+      tracking_number?: components['schemas']['SearchPredicate'];
+      /** @description ISO 8601 timestamp the order was created. */
+      created_at?: components['schemas']['SearchPredicate'];
+      /** @description ISO 8601 timestamp the order was last updated. */
+      updated_at?: components['schemas']['SearchPredicate'];
+      /** @description Business-meaningful order creation date (separate from ``created_at``). */
+      order_created_date?: components['schemas']['SearchPredicate'];
+      /** @description Planned delivery date. */
+      delivery_date?: components['schemas']['SearchPredicate'];
+      /** @description Date the order was picked / shipped. */
+      picked_date?: components['schemas']['SearchPredicate'];
+    } & {
+      [key: string]: unknown;
+    };
+    /**
+     * @description Structured filter body for ``POST /sales_order_rows/search``.
+     *     Returns the same paginated ``{"data": [...]}`` shape as
+     *     ``GET /sales_order_rows`` plus an ``X-Pagination`` header. Beta —
+     *     request/response shape may evolve before GA.
+     * @example {
+     *       "filter": {
+     *         "where": {
+     *           "and": [
+     *             {
+     *               "sales_order_id": {
+     *                 "inq": [
+     *                   12345,
+     *                   12346,
+     *                   12347
+     *                 ]
+     *               }
+     *             },
+     *             {
+     *               "quantity": {
+     *                 "gt": 0
+     *               }
+     *             },
+     *             {
+     *               "product_availability": "IN_STOCK"
+     *             }
+     *           ]
+     *         },
+     *         "order": [
+     *           "delivery_date ASC",
+     *           "id ASC"
+     *         ],
+     *         "limit": 100,
+     *         "page": 1
+     *       }
+     *     }
+     */
+    SalesOrderRowSearchRequest: {
+      filter?: components['schemas']['SalesOrderRowSearchFilter'];
+    };
+    /** @description Filter envelope for ``POST /sales_order_rows/search``. */
+    SalesOrderRowSearchFilter: {
+      where?: components['schemas']['SalesOrderRowSearchWhere'];
+      /**
+       * @description Sort directive(s). Each entry is ``<field> ASC|DESC``
+       *     (direction defaults to ASC). Only filterable fields may be
+       *     used; ``custom_fields.<uuid>`` paths are orderable.
+       */
+      order?: string | string[];
+      /**
+       * @description Page size; maximum 200. Omit to let the server apply its
+       *     default of 50 (the client omits the key when unset rather than
+       *     sending a default, so direct construction and round-tripped
+       *     ``from_dict`` payloads behave identically).
+       */
+      limit?: number;
+      /** @description 1-based page number. Omit to let the server default to 1. */
+      page?: number;
+    };
+    /**
+     * @description ``where`` clause for ``POST /sales_order_rows/search``. Only the
+     *     fields listed here may appear; unknown fields are rejected with
+     *     422. Custom field values are addressable via additional
+     *     ``custom_fields.<uuid>`` keys (snake_case), where ``<uuid>`` is the
+     *     custom field definition id. Compose with ``and`` / ``or`` (max
+     *     nesting depth 2).
+     */
+    SalesOrderRowSearchWhere: {
+      /** @description Logical AND — every nested where-clause must match. Max nesting depth 2. */
+      and?: {
+        [key: string]: unknown;
+      }[];
+      /** @description Logical OR — at least one nested where-clause must match. Max nesting depth 2. */
+      or?: {
+        [key: string]: unknown;
+      }[];
+      /** @description Sales order row id. */
+      id?: components['schemas']['SearchPredicate'];
+      /** @description Parent sales order id. */
+      sales_order_id?: components['schemas']['SearchPredicate'];
+      /** @description Variant id sold on this row. */
+      variant_id?: components['schemas']['SearchPredicate'];
+      /** @description Location id this row ships from. */
+      location_id?: components['schemas']['SearchPredicate'];
+      /** @description Tax rate id applied to this row. */
+      tax_rate_id?: components['schemas']['SearchPredicate'];
+      /** @description Ordered quantity. */
+      quantity?: components['schemas']['SearchPredicate'];
+      /** @description Unit price. */
+      price_per_unit?: components['schemas']['SearchPredicate'];
+      /** @description Total discount applied to this row. */
+      total_discount?: components['schemas']['SearchPredicate'];
+      /** @description Tax rate percentage applied to this row. */
+      tax_rate?: components['schemas']['SearchPredicate'];
+      /** @description ISO 4217 currency code. */
+      currency?: components['schemas']['SearchPredicate'];
+      /**
+       * @description Product availability rollup. Allowed values: ``IN_STOCK``,
+       *     ``EXPECTED``, ``PICKED``, ``NOT_AVAILABLE``, ``NOT_APPLICABLE``.
+       */
+      product_availability?: components['schemas']['SearchPredicate'];
+      /** @description ISO 8601 timestamp the row was created. */
+      created_at?: components['schemas']['SearchPredicate'];
+      /** @description ISO 8601 timestamp the row was last updated. */
+      updated_at?: components['schemas']['SearchPredicate'];
+      /** @description Planned delivery date for this row. */
+      delivery_date?: components['schemas']['SearchPredicate'];
+      /** @description Actual shipping date for this row. */
+      shipping_date?: components['schemas']['SearchPredicate'];
+    } & {
+      [key: string]: unknown;
     };
     /**
      * @description Request payload for creating a new sales order address
@@ -7971,7 +10405,7 @@ export interface components {
      *       "first_name": "John",
      *       "last_name": "Johnson",
      *       "company": "Johnson's Restaurant",
-     *       "address_line_1": "123 Main Street",
+     *       "line_1": "123 Main Street",
      *       "city": "Portland",
      *       "state": "OR",
      *       "zip": "97201",
@@ -7982,11 +10416,8 @@ export interface components {
     CreateSalesOrderAddressRequest: {
       /** @description ID of the sales order this address belongs to */
       sales_order_id: number;
-      /**
-       * @description Type of address (billing or shipping)
-       * @enum {string}
-       */
-      entity_type: 'billing' | 'shipping';
+      /** @description Whether this address is the shipping or billing address for the sales order */
+      entity_type: components['schemas']['AddressEntityType'];
       /** @description First name for the address contact */
       first_name?: string;
       /** @description Last name for the address contact */
@@ -7994,33 +10425,28 @@ export interface components {
       /** @description Company name for the address */
       company?: string;
       /** @description Primary address line */
-      address_line_1: string;
+      line_1?: string;
       /** @description Secondary address line */
-      address_line_2?: string;
+      line_2?: string;
       /** @description City name */
-      city: string;
+      city?: string;
       /** @description State or province */
       state?: string;
       /** @description Postal code */
       zip?: string;
       /** @description Country code */
-      country: string;
+      country?: string;
       /** @description Contact phone number */
       phone?: string;
     };
     /**
      * @description Request payload for updating an existing sales order address
      * @example {
-     *       "address_line_1": "456 Oak Avenue",
+     *       "line_1": "456 Oak Avenue",
      *       "phone": "+1-555-0456"
      *     }
      */
     UpdateSalesOrderAddressRequest: {
-      /**
-       * @description Type of address (billing or shipping)
-       * @enum {string}
-       */
-      entity_type?: 'billing' | 'shipping';
       /** @description First name for the address contact */
       first_name?: string;
       /** @description Last name for the address contact */
@@ -8028,9 +10454,9 @@ export interface components {
       /** @description Company name for the address */
       company?: string;
       /** @description Primary address line */
-      address_line_1?: string;
+      line_1?: string;
       /** @description Secondary address line */
-      address_line_2?: string;
+      line_2?: string;
       /** @description City name */
       city?: string;
       /** @description State or province */
@@ -8059,14 +10485,14 @@ export interface components {
      *           "currency": "USD",
      *           "conversion_rate": 1,
      *           "conversion_date": "2024-01-15T10:00:00Z",
-     *           "invoicing_status": "INVOICED",
+     *           "invoicing_status": "invoiced",
      *           "total": 1250,
      *           "total_in_base_currency": 1250,
      *           "additional_info": "Customer requested expedited delivery",
      *           "customer_ref": "CUST-REF-2024-001",
-     *           "ecommerce_order_type": "standard",
-     *           "ecommerce_store_name": "Kitchen Pro Store",
-     *           "ecommerce_order_id": "SHOP-5678-2024",
+     *           "ecommerce_order_type": "shopify",
+     *           "ecommerce_store_name": "acme.myshopify.com",
+     *           "ecommerce_order_id": "19433769",
      *           "product_availability": "IN_STOCK",
      *           "ingredient_availability": "IN_STOCK",
      *           "production_status": "NOT_APPLICABLE",
@@ -8141,14 +10567,17 @@ export interface components {
      *       "status": "PENDING",
      *       "additional_info": "Customer prefers morning delivery",
      *       "customer_ref": "WC-ORDER-2024-003",
-     *       "ecommerce_order_type": "wholesale",
-     *       "ecommerce_store_name": "B2B Portal",
-     *       "ecommerce_order_id": "B2B-7891-2024"
+     *       "ecommerce_order_type": "wooCommerce",
+     *       "ecommerce_store_name": "shop.example.com",
+     *       "ecommerce_order_id": "501"
      *     }
      */
     CreateSalesOrderRequest: {
-      /** @description Unique order number for tracking and reference */
-      order_no: string;
+      /**
+       * @description Unique order number for tracking and reference. Optional — Katana
+       *     auto-generates a sequential ``SO-N`` value when omitted.
+       */
+      order_no?: string;
       /** @description ID of the customer placing the order */
       customer_id: number;
       /** @description List of products and quantities being ordered */
@@ -8172,6 +10601,21 @@ export interface components {
           /** @description Attribute value */
           value?: string;
         }[];
+        /**
+         * @description Row-level custom field values, keyed by the
+         *     definition ``id`` (UUID) — the ``id`` returned by
+         *     ``GET /custom_field_definitions``, not the field label.
+         *     Each value matches the definition's ``field_type``:
+         *     string for ``shortText`` / ``url``, number for
+         *     ``number``, boolean for ``boolean``, a ``YYYY-MM-DD``
+         *     string for ``date``, or the integer choice ``id`` for
+         *     ``singleSelect``. Keys are tenant-specific, so the schema
+         *     declares ``additionalProperties: true`` rather than
+         *     enumerating them.
+         */
+        custom_fields?: {
+          [key: string]: unknown;
+        } | null;
       }[];
       /** @description Shipping tracking number if already known */
       tracking_number?: string | null;
@@ -8180,8 +10624,37 @@ export interface components {
        * @description URL for tracking shipment status
        */
       tracking_number_url?: string | null;
-      /** @description Billing and shipping addresses for the order */
-      addresses?: components['schemas']['SalesOrderAddress'][];
+      /**
+       * @description Billing and shipping addresses for the order. Inline-create shape —
+       *     ``sales_order_id`` is implicit (set by the parent sales-order create)
+       *     and server-assigned fields (``id`` / ``sales_order_id``) are rejected
+       *     by the live API on this endpoint. For the standalone create endpoint
+       *     (``POST /sales_order_addresses``) see ``CreateSalesOrderAddressRequest``.
+       */
+      addresses?: {
+        /** @description Whether this address is the shipping or billing address for the sales order */
+        entity_type: components['schemas']['AddressEntityType'];
+        /** @description First name for the address contact */
+        first_name?: string;
+        /** @description Last name for the address contact */
+        last_name?: string;
+        /** @description Company name for the address */
+        company?: string;
+        /** @description Primary address line */
+        line_1?: string;
+        /** @description Secondary address line */
+        line_2?: string;
+        /** @description City name */
+        city?: string;
+        /** @description State or province */
+        state?: string;
+        /** @description Postal code */
+        zip?: string;
+        /** @description Country code */
+        country?: string;
+        /** @description Contact phone number */
+        phone?: string;
+      }[];
       /**
        * Format: date-time
        * @description Date when the order was originally created (defaults to current time)
@@ -8196,33 +10669,127 @@ export interface components {
       currency?: string | null;
       /** @description Primary fulfillment location for the order */
       location_id?: number;
-      /**
-       * @description Initial status of the order
-       * @enum {string}
-       */
-      status?: 'NOT_SHIPPED' | 'PENDING';
+      /** @description Initial status of the order */
+      status?: components['schemas']['CreateSalesOrderStatus'];
       /** @description Additional notes or instructions for the order */
       additional_info?: string | null;
       /** @description Customer's internal reference number */
       customer_ref?: string | null;
-      /** @description Type of ecommerce order if applicable */
+      /** @description Source ecommerce platform, set at creation only (update cannot change it). Use the exact camelCase literal (`shopify`, `wooCommerce`, or `bigCommerce`) for Katana to recognize and deep-link the order; other values are stored verbatim but not deep-linked. */
       ecommerce_order_type?: string | null;
-      /** @description Name of the ecommerce store if order originated from online */
+      /** @description Storefront host or slug — a full host for Shopify/WooCommerce (e.g. `acme.myshopify.com`) or a bare BigCommerce subdomain slug. Set at creation only. */
       ecommerce_store_name?: string | null;
-      /** @description Original order ID from the ecommerce platform */
+      /** @description The source platform's order identifier (e.g. `19433769`). Set at creation only. */
       ecommerce_order_id?: string | null;
+      /**
+       * @description Custom field values for the sales order, keyed by the
+       *     definition ``id`` (UUID) — the ``id`` returned by
+       *     ``GET /custom_field_definitions``, not the field label. Each
+       *     value matches the definition's ``field_type``: string for
+       *     ``shortText`` / ``url``, number for ``number``, boolean for
+       *     ``boolean``, a ``YYYY-MM-DD`` string for ``date``, or the
+       *     integer choice ``id`` for ``singleSelect``. Example (keys are
+       *     definition UUIDs): ``{"0c8f1d6e-…": "EMEA", "7a21b4c2-…": 2}``
+       *     — a ``shortText`` value and a ``singleSelect`` choice ``id``.
+       *     Keys are tenant-specific, so the schema declares
+       *     ``additionalProperties: true`` rather than enumerating them.
+       */
+      custom_fields?: {
+        [key: string]: unknown;
+      } | null;
+    };
+    /**
+     * @description Batch-specific transaction for tracking stock adjustments. Each
+     *     entry pairs a quantity with the batch it applies to; ``batch_id``
+     *     is nullable because some adjustments target unbatched stock (e.g.
+     *     an aggregate correction to a non-batch-tracked variant) — Katana
+     *     returns ``batch_id: null`` in that case.
+     * @example {
+     *       "batch_id": 1001,
+     *       "quantity": 50
+     *     }
+     */
+    StockAdjustmentBatchTransaction: {
+      /**
+       * @description Unique identifier for the batch being adjusted, or ``null``
+       *     when the adjustment targets unbatched stock.
+       */
+      batch_id?: number | null;
+      /** @description Quantity adjusted for this specific batch */
+      quantity: number;
+    };
+    /**
+     * @description Individual line item in a stock adjustment showing specific variant and quantity changes
+     * @example {
+     *       "id": 3001,
+     *       "variant_id": 501,
+     *       "quantity": 100,
+     *       "cost_per_unit": 123.45,
+     *       "batch_transactions": [
+     *         {
+     *           "batch_id": 1001,
+     *           "quantity": 50
+     *         },
+     *         {
+     *           "batch_id": 1002,
+     *           "quantity": 50
+     *         }
+     *       ]
+     *     }
+     */
+    StockAdjustmentRow: {
+      /** @description Unique identifier for the stock adjustment row (present in responses only) */
+      id?: number;
+      /** @description ID of the product or material variant being adjusted */
+      variant_id: number;
+      /** @description Quantity to adjust (positive or negative) */
+      quantity: number;
+      /** @description Cost per unit for this adjustment (defaults to current average cost if not specified) */
+      cost_per_unit?: number;
+      /** @description Optional batch-specific adjustments for tracked inventory */
+      batch_transactions?: components['schemas']['StockAdjustmentBatchTransaction'][];
     };
     /**
      * @description Manual inventory adjustment record for correcting stock discrepancies and maintaining accurate inventory levels
      * @example {
-     *       "id": 2001,
-     *       "stock_adjustment_number": "SA-2024-001",
+     *       "id": 1,
+     *       "stock_adjustment_number": "SA-1",
+     *       "stock_adjustment_date": "2021-10-06T11:47:13.846Z",
      *       "location_id": 1,
-     *       "status": "COMPLETED",
-     *       "adjustment_date": "2024-01-15T14:30:00.000Z",
-     *       "additional_info": "Physical count discrepancy correction",
-     *       "created_at": "2024-01-15T14:30:00.000Z",
-     *       "updated_at": "2024-01-15T14:30:00.000Z",
+     *       "reason": "adjustment reason",
+     *       "additional_info": "adjustment additional info",
+     *       "stock_adjustment_rows": [
+     *         {
+     *           "id": 1,
+     *           "variant_id": 1,
+     *           "quantity": 100,
+     *           "cost_per_unit": 123.45,
+     *           "batch_transactions": [
+     *             {
+     *               "batch_id": 1,
+     *               "quantity": 50
+     *             },
+     *             {
+     *               "batch_id": 2,
+     *               "quantity": 50
+     *             }
+     *           ]
+     *         },
+     *         {
+     *           "id": 2,
+     *           "variant_id": 2,
+     *           "quantity": 150,
+     *           "cost_per_unit": 234.56,
+     *           "batch_transactions": [
+     *             {
+     *               "batch_id": 3,
+     *               "quantity": 150
+     *             }
+     *           ]
+     *         }
+     *       ],
+     *       "created_at": "2021-10-06T11:47:13.846Z",
+     *       "updated_at": "2021-10-06T11:47:13.846Z",
      *       "deleted_at": null
      *     }
      */
@@ -8231,47 +10798,63 @@ export interface components {
       id: number;
       /** @description Human-readable reference number for tracking and audit purposes */
       stock_adjustment_number: string;
-      /** @description Alternative reference number (optional) */
-      reference_no?: string | null;
-      /** @description ID of the location where the stock adjustment is performed */
-      location_id: number;
-      /**
-       * @description Current status of the stock adjustment workflow
-       * @enum {string}
-       */
-      status?: 'DRAFT' | 'COMPLETED';
       /**
        * Format: date-time
        * @description Date and time when the adjustment was performed
        */
-      adjustment_date?: string;
+      stock_adjustment_date?: string;
+      /** @description ID of the location where the stock adjustment is performed */
+      location_id: number;
+      /** @description Reason for the stock adjustment */
+      reason?: string | null;
       /** @description Optional notes or comments about the adjustment reason */
       additional_info?: string | null;
+      /** @description Line items showing specific variants and quantities being adjusted */
+      stock_adjustment_rows?: components['schemas']['StockAdjustmentRow'][];
     } & components['schemas']['DeletableEntity'];
     /**
      * @description List of stock adjustment records showing all manual inventory corrections and their current status
      * @example {
      *       "data": [
      *         {
-     *           "id": 2001,
-     *           "reference_no": "SA-2024-001",
+     *           "id": 1,
+     *           "stock_adjustment_number": "SA-1",
+     *           "stock_adjustment_date": "2021-10-06T11:47:13.846Z",
      *           "location_id": 1,
-     *           "status": "COMPLETED",
-     *           "adjustment_date": "2024-01-15T14:30:00.000Z",
-     *           "additional_info": "Physical count discrepancy correction",
-     *           "created_at": "2024-01-15T14:30:00.000Z",
-     *           "updated_at": "2024-01-15T14:30:00.000Z",
-     *           "deleted_at": null
-     *         },
-     *         {
-     *           "id": 2002,
-     *           "reference_no": "SA-2024-002",
-     *           "location_id": 2,
-     *           "status": "DRAFT",
-     *           "adjustment_date": "2024-01-16T10:00:00.000Z",
-     *           "additional_info": "Damaged goods write-off",
-     *           "created_at": "2024-01-16T10:00:00.000Z",
-     *           "updated_at": "2024-01-16T10:00:00.000Z",
+     *           "reason": "adjustment reason",
+     *           "additional_info": "adjustment additional info",
+     *           "stock_adjustment_rows": [
+     *             {
+     *               "id": 1,
+     *               "variant_id": 1,
+     *               "quantity": 100,
+     *               "cost_per_unit": 123.45,
+     *               "batch_transactions": [
+     *                 {
+     *                   "batch_id": 1,
+     *                   "quantity": 50
+     *                 },
+     *                 {
+     *                   "batch_id": 2,
+     *                   "quantity": 50
+     *                 }
+     *               ]
+     *             },
+     *             {
+     *               "id": 2,
+     *               "variant_id": 2,
+     *               "quantity": 150,
+     *               "cost_per_unit": 234.56,
+     *               "batch_transactions": [
+     *                 {
+     *                   "batch_id": 3,
+     *                   "quantity": 150
+     *                 }
+     *               ]
+     *             }
+     *           ],
+     *           "created_at": "2021-10-06T11:47:13.846Z",
+     *           "updated_at": "2021-10-06T11:47:13.846Z",
      *           "deleted_at": null
      *         }
      *       ]
@@ -8284,89 +10867,120 @@ export interface components {
     /**
      * @description Request payload for creating a new stock adjustment to correct inventory levels
      * @example {
-     *       "reference_no": "SA-2024-003",
+     *       "stock_adjustment_number": "SA-2024-003",
+     *       "stock_adjustment_date": "2024-01-17T14:30:00.000Z",
      *       "location_id": 1,
-     *       "adjustment_date": "2024-01-17T14:30:00.000Z",
-     *       "additional_info": "Cycle count correction",
-     *       "status": "DRAFT"
+     *       "reason": "Cycle count correction",
+     *       "additional_info": "Q1 2024 physical inventory",
+     *       "stock_adjustment_rows": [
+     *         {
+     *           "variant_id": 501,
+     *           "quantity": 100,
+     *           "cost_per_unit": 123.45
+     *         },
+     *         {
+     *           "variant_id": 502,
+     *           "quantity": -25
+     *         }
+     *       ]
      *     }
      */
     CreateStockAdjustmentRequest: {
       /** @description Human-readable reference number for tracking and audit purposes */
-      reference_no: string;
-      /** @description ID of the location where the stock adjustment is performed */
-      location_id: number;
+      stock_adjustment_number: string;
       /**
        * Format: date-time
        * @description Date and time when the adjustment was performed
        */
-      adjustment_date: string;
+      stock_adjustment_date?: string;
+      /** @description ID of the location where the stock adjustment is performed */
+      location_id: number;
+      /** @description Reason for the stock adjustment */
+      reason?: string;
       /** @description Optional notes or comments about the adjustment reason */
       additional_info?: string;
-      /**
-       * @description Status of the stock adjustment
-       * @default DRAFT
-       * @enum {string}
-       */
-      status: 'DRAFT' | 'COMPLETED';
+      /** @description Line items specifying variants and quantities to adjust */
+      stock_adjustment_rows: {
+        /** @description ID of the product or material variant being adjusted */
+        variant_id: number;
+        /** @description Quantity to adjust (positive or negative) */
+        quantity: number;
+        /** @description Cost per unit for this adjustment. Only allowed when quantity is positive; for negative adjustments, the item's average cost is used automatically and sending this field will result in a 422 validation error. */
+        cost_per_unit?: number;
+        /** @description Optional batch-specific adjustments for tracked inventory */
+        batch_transactions?: components['schemas']['StockAdjustmentBatchTransaction'][];
+      }[];
     };
     /**
      * @description Request payload for updating an existing stock adjustment
      * @example {
-     *       "reference_no": "SA-2024-003",
+     *       "stock_adjustment_number": "SA-2024-003",
+     *       "stock_adjustment_date": "2024-01-17T14:30:00.000Z",
      *       "location_id": 1,
-     *       "adjustment_date": "2024-01-17T14:30:00.000Z",
-     *       "additional_info": "Cycle count correction - updated",
-     *       "status": "COMPLETED"
+     *       "reason": "Cycle count correction",
+     *       "additional_info": "Cycle count correction - updated with final counts"
      *     }
      */
     UpdateStockAdjustmentRequest: {
       /** @description Human-readable reference number for tracking and audit purposes */
-      reference_no?: string;
-      /** @description ID of the location where the stock adjustment is performed */
-      location_id?: number;
+      stock_adjustment_number?: string;
       /**
        * Format: date-time
        * @description Date and time when the adjustment was performed
        */
-      adjustment_date?: string;
+      stock_adjustment_date?: string;
+      /** @description ID of the location where the stock adjustment is performed */
+      location_id?: number;
+      /** @description Reason for the stock adjustment */
+      reason?: string;
       /** @description Optional notes or comments about the adjustment reason */
       additional_info?: string;
-      /**
-       * @description Status of the stock adjustment
-       * @enum {string}
-       */
-      status?: 'DRAFT' | 'COMPLETED';
     };
     /**
      * @description Inventory transfer record for moving stock between different warehouse locations or facilities
      * @example {
-     *       "id": 3001,
-     *       "stock_transfer_number": "ST-2024-001",
+     *       "id": 1,
+     *       "stock_transfer_number": "ST-1",
      *       "source_location_id": 1,
      *       "target_location_id": 2,
-     *       "status": "COMPLETED",
-     *       "transfer_date": "2024-01-15T16:00:00.000Z",
-     *       "additional_info": "Rebalancing inventory between warehouses",
+     *       "transfer_date": "2021-10-06T11:47:13.846Z",
+     *       "order_created_date": "2021-10-01T11:47:13.846Z",
+     *       "expected_arrival_date": "2021-10-20T11:47:13.846Z",
+     *       "additional_info": "transfer additional info",
      *       "stock_transfer_rows": [
      *         {
-     *           "id": 4001,
-     *           "variant_id": 2001,
-     *           "quantity": 50,
+     *           "id": 1,
+     *           "variant_id": 1,
+     *           "quantity": 100,
+     *           "cost_per_unit": 123.45,
      *           "batch_transactions": [
      *             {
-     *               "batch_id": 5001,
-     *               "quantity": 30
+     *               "batch_id": 1,
+     *               "quantity": 50
      *             },
      *             {
-     *               "batch_id": 5002,
-     *               "quantity": 20
+     *               "batch_id": 2,
+     *               "quantity": 50
      *             }
-     *           ]
+     *           ],
+     *           "deleted_at": null
+     *         },
+     *         {
+     *           "id": 2,
+     *           "variant_id": 2,
+     *           "quantity": 150,
+     *           "cost_per_unit": 234.56,
+     *           "batch_transactions": [
+     *             {
+     *               "batch_id": 3,
+     *               "quantity": 150
+     *             }
+     *           ],
+     *           "deleted_at": null
      *         }
      *       ],
-     *       "created_at": "2024-01-15T16:00:00.000Z",
-     *       "updated_at": "2024-01-15T16:00:00.000Z",
+     *       "created_at": "2021-10-06T11:47:13.846Z",
+     *       "updated_at": "2021-10-06T11:47:13.846Z",
      *       "deleted_at": null
      *     }
      */
@@ -8379,16 +10993,23 @@ export interface components {
       source_location_id: number;
       /** @description ID of the destination location where stock is being transferred to */
       target_location_id: number;
-      /**
-       * @description Current status of the stock transfer workflow
-       * @enum {string}
-       */
-      status?: 'DRAFT' | 'COMPLETED' | 'received';
+      /** @description Current status of the stock transfer workflow */
+      status?: string;
       /**
        * Format: date-time
        * @description Date and time when the transfer was executed
        */
       transfer_date?: string;
+      /**
+       * Format: date-time
+       * @description Date and time when the transfer order was created
+       */
+      order_created_date?: string | null;
+      /**
+       * Format: date-time
+       * @description Expected arrival date for the transferred stock
+       */
+      expected_arrival_date?: string | null;
       /** @description Optional notes or comments about the transfer purpose */
       additional_info?: string | null;
       /** @description Line items detailing the products and quantities being transferred */
@@ -8402,6 +11023,8 @@ export interface components {
       variant_id: number;
       /** @description Quantity of the variant being transferred */
       quantity: number;
+      /** @description Cost per unit for the transferred variant */
+      cost_per_unit?: number;
       /** @description Batch transaction details for batch-tracked items */
       batch_transactions?: {
         /** @description ID of the batch being transferred */
@@ -8409,33 +11032,27 @@ export interface components {
         /** @description Quantity from this specific batch */
         quantity: number;
       }[];
+      /**
+       * Format: date-time
+       * @description Nullable deletion timestamp for the row
+       */
+      deleted_at?: string | null;
     };
     /**
      * @description List of stock transfer records showing all inventory movements between locations and their transfer status
      * @example {
      *       "data": [
      *         {
-     *           "id": 3001,
-     *           "stock_transfer_number": "ST-2024-001",
+     *           "id": 1,
+     *           "stock_transfer_number": "ST-1",
      *           "source_location_id": 1,
      *           "target_location_id": 2,
-     *           "status": "COMPLETED",
-     *           "transfer_date": "2024-01-15T16:00:00.000Z",
-     *           "additional_info": "Rebalancing inventory between warehouses",
-     *           "created_at": "2024-01-15T16:00:00.000Z",
-     *           "updated_at": "2024-01-15T16:00:00.000Z",
-     *           "deleted_at": null
-     *         },
-     *         {
-     *           "id": 3002,
-     *           "stock_transfer_number": "ST-2024-002",
-     *           "source_location_id": 2,
-     *           "target_location_id": 3,
-     *           "status": "DRAFT",
-     *           "transfer_date": "2024-01-16T11:30:00.000Z",
-     *           "additional_info": "Seasonal stock redistribution",
-     *           "created_at": "2024-01-16T11:30:00.000Z",
-     *           "updated_at": "2024-01-16T11:30:00.000Z",
+     *           "transfer_date": "2021-10-06T11:47:13.846Z",
+     *           "order_created_date": "2021-10-01T11:47:13.846Z",
+     *           "expected_arrival_date": "2021-10-20T11:47:13.846Z",
+     *           "additional_info": "transfer additional info",
+     *           "created_at": "2021-10-06T11:47:13.846Z",
+     *           "updated_at": "2021-10-06T11:47:13.846Z",
      *           "deleted_at": null
      *         }
      *       ]
@@ -8446,21 +11063,37 @@ export interface components {
       data?: components['schemas']['StockTransfer'][];
     };
     /**
-     * @description Shipping and delivery record for a sales order, tracking the physical fulfillment process from shipment to delivery
+     * @description Shipping and delivery record for a sales order, tracking the physical fulfillment process including picking, packing, and shipment tracking
      * @example {
-     *       "id": 2701,
-     *       "sales_order_id": 2001,
-     *       "tracking_number": "UPS1234567890",
-     *       "tracking_number_url": "https://www.ups.com/track?track=UPS1234567890",
-     *       "shipped_date": "2024-01-20T16:30:00Z",
-     *       "estimated_delivery_date": "2024-01-22T14:00:00Z",
-     *       "actual_delivery_date": null,
-     *       "shipping_cost": 25.99,
-     *       "shipping_method": "UPS Ground",
-     *       "carrier": "UPS",
-     *       "notes": "Signature required for delivery",
-     *       "created_at": "2024-01-20T16:30:00Z",
-     *       "updated_at": "2024-01-20T16:30:00Z"
+     *       "id": 1,
+     *       "sales_order_id": 1,
+     *       "picked_date": "2020-10-23T10:37:05.085Z",
+     *       "status": "DELIVERED",
+     *       "invoice_status": "NOT_INVOICED",
+     *       "conversion_rate": 2,
+     *       "conversion_date": "2020-10-23T10:37:05.085Z",
+     *       "tracking_number": "12345678",
+     *       "tracking_url": "https://tracking-number-url",
+     *       "tracking_carrier": "UPS",
+     *       "tracking_method": "ground",
+     *       "packer_id": 1,
+     *       "sales_order_fulfillment_rows": [
+     *         {
+     *           "sales_order_row_id": 1,
+     *           "quantity": 2,
+     *           "batch_transactions": [
+     *             {
+     *               "batch_id": 1,
+     *               "quantity": 2
+     *             }
+     *           ],
+     *           "serial_numbers": [
+     *             1
+     *           ]
+     *         }
+     *       ],
+     *       "created_at": "2020-10-23T10:37:05.085Z",
+     *       "updated_at": "2020-10-23T10:37:05.085Z"
      *     }
      */
     SalesOrderFulfillment: {
@@ -8468,47 +11101,59 @@ export interface components {
       id: number;
       /** @description ID of the sales order being fulfilled */
       sales_order_id: number;
+      /**
+       * Format: date-time
+       * @description Date and time when items were picked from inventory
+       */
+      picked_date?: string | null;
+      /** @description Current fulfillment status */
+      status?: components['schemas']['SalesOrderFulfillmentStatus'];
+      /** @description Current invoice status of the fulfillment */
+      invoice_status?:
+        | components['schemas']['SalesOrderFulfillmentInvoiceStatus']
+        | null;
+      /** @description Currency conversion rate applied to this fulfillment */
+      conversion_rate?: number | null;
+      /**
+       * Format: date-time
+       * @description Date when the currency conversion rate was applied
+       */
+      conversion_date?: string | null;
       /** @description Carrier tracking number for shipment monitoring */
       tracking_number?: string | null;
       /** @description URL for online tracking of the shipment */
-      tracking_number_url?: string | null;
-      /**
-       * Format: date-time
-       * @description Date and time when the order was shipped
-       */
-      shipped_date?: string | null;
-      /**
-       * Format: date-time
-       * @description Carrier's estimated delivery date and time
-       */
-      estimated_delivery_date?: string | null;
-      /**
-       * Format: date-time
-       * @description Actual date and time of delivery confirmation
-       */
-      actual_delivery_date?: string | null;
-      /** @description Total shipping cost charged to the customer */
-      shipping_cost?: number | null;
-      /** @description Shipping service used (e.g., Ground, Express, Overnight) */
-      shipping_method?: string | null;
+      tracking_url?: string | null;
       /** @description Shipping carrier name (e.g., UPS, FedEx, DHL) */
-      carrier?: string | null;
-      /** @description Additional notes about the shipment or delivery */
-      notes?: string | null;
+      tracking_carrier?: string | null;
+      /** @description Shipping method used (e.g., ground, express) */
+      tracking_method?: string | null;
+      /** @description ID of the user who packed the fulfillment */
+      packer_id?: number | null;
+      /** @description Line items in this fulfillment with quantities and batch details */
+      sales_order_fulfillment_rows?: {
+        /** @description ID of the sales order row being fulfilled */
+        sales_order_row_id?: number;
+        /** @description Quantity fulfilled for this row */
+        quantity?: number;
+        /** @description Batch allocations for this fulfillment row */
+        batch_transactions?: {
+          /** @description ID of the batch */
+          batch_id?: number;
+          /** @description Quantity from this batch */
+          quantity?: number;
+        }[];
+        /** @description Serial numbers allocated to this fulfillment row */
+        serial_numbers?: number[];
+      }[];
     } & components['schemas']['UpdatableEntity'];
     /**
-     * @description Customer-specific pricing configuration with markup rules and time-based validity for flexible pricing management across different market segments
+     * @description Customer-specific pricing configuration for flexible pricing management across different market segments
      * @example {
-     *       "id": 1001,
-     *       "name": "Premium Customer Pricing",
-     *       "currency": "USD",
-     *       "is_default": false,
-     *       "markup_percentage": 25,
-     *       "start_date": "2024-01-01T00:00:00Z",
-     *       "end_date": "2024-12-31T23:59:59Z",
-     *       "created_at": "2024-01-01T10:00:00Z",
-     *       "updated_at": "2024-01-15T14:30:00Z",
-     *       "deleted_at": null
+     *       "id": 1,
+     *       "name": "Wholesale price list",
+     *       "is_active": false,
+     *       "created_at": "2020-10-23T10:37:05.085Z",
+     *       "updated_at": "2020-10-23T10:37:05.085Z"
      *     }
      */
     PriceList: {
@@ -8516,142 +11161,103 @@ export interface components {
       id: number;
       /** @description Descriptive name for the price list (e.g., "Premium Customer Pricing", "Wholesale Rates") */
       name: string;
-      /** @description ISO 4217 currency code for all prices in this list (e.g., USD, EUR, GBP) */
-      currency?: string;
-      /** @description Whether this price list is the default fallback for customers without specific price lists */
-      is_default?: boolean;
-      /** @description Percentage markup applied to base costs to calculate pricing in this list */
-      markup_percentage?: number | null;
-      /**
-       * Format: date-time
-       * @description Date and time when this price list becomes active
-       */
-      start_date?: string | null;
-      /**
-       * Format: date-time
-       * @description Date and time when this price list expires
-       */
-      end_date?: string | null;
-    } & components['schemas']['DeletableEntity'];
+      /** @description Whether this price list is currently active */
+      is_active?: boolean;
+    } & components['schemas']['UpdatableEntity'];
     /**
-     * @description Request payload for creating a new price list with market-specific pricing configurations and time-based validity
+     * @description Request payload for creating a new price list with market-specific pricing configurations
      * @example {
-     *       "name": "Premium Customer Pricing",
-     *       "currency": "USD",
-     *       "is_default": false,
-     *       "markup_percentage": 25,
-     *       "start_date": "2024-01-01T00:00:00Z",
-     *       "end_date": "2024-12-31T23:59:59Z"
+     *       "name": "Premium Customer Pricing"
      *     }
      */
     CreatePriceListRequest: {
       /** @description Descriptive name for the price list (e.g., "Premium Customer Pricing", "Wholesale Rates") */
       name: string;
-      /** @description ISO 4217 currency code for all prices in this list (e.g., USD, EUR, GBP) */
-      currency: string;
-      /** @description Whether this price list should be the default fallback for customers without specific price lists */
-      is_default?: boolean;
-      /** @description Percentage markup applied to base costs to calculate pricing in this list */
-      markup_percentage?: number;
-      /**
-       * Format: date-time
-       * @description Date and time when this price list becomes active
-       */
-      start_date?: string;
-      /**
-       * Format: date-time
-       * @description Date and time when this price list expires
-       */
-      end_date?: string;
     };
     /**
-     * @description Request payload for adding a product variant with specific pricing to a price list for customer-specific pricing management
+     * @description Request payload for adding product variants with specific pricing to a price list
      * @example {
      *       "price_list_id": 1001,
-     *       "variant_id": 201,
-     *       "price": 249.99,
-     *       "currency": "USD"
+     *       "price_list_rows": [
+     *         {
+     *           "variant_id": 201,
+     *           "adjustment_method": "fixed",
+     *           "amount": 249.99
+     *         }
+     *       ]
      *     }
      */
     CreatePriceListRowRequest: {
       /** @description ID of the price list to add the variant pricing to */
       price_list_id: number;
-      /** @description ID of the product variant to set custom pricing for */
-      variant_id: number;
-      /** @description Custom price for this variant in the price list's currency */
-      price: number;
-      /** @description ISO 4217 currency code (must match the price list's currency) */
-      currency?: string;
+      /** @description Array of price list row items to create */
+      price_list_rows: {
+        /** @description ID of the product variant */
+        variant_id?: number;
+        /** @description Method for price adjustment */
+        adjustment_method?: components['schemas']['PriceListAdjustmentMethod'];
+        /** @description Adjustment amount */
+        amount?: number;
+      }[];
     };
     /**
-     * @description Request payload for assigning a customer to a price list for custom pricing
+     * @description Request payload for assigning customers to a price list for custom pricing
      * @example {
      *       "price_list_id": 1002,
-     *       "customer_id": 2002
+     *       "price_list_customers": [
+     *         {
+     *           "customer_id": 2002
+     *         }
+     *       ]
      *     }
      */
     CreatePriceListCustomerRequest: {
       /** @description ID of the price list */
       price_list_id: number;
-      /** @description ID of the customer to assign to price list */
-      customer_id: number;
+      /** @description Array of customers to assign to the price list */
+      price_list_customers: {
+        /** @description ID of the customer to assign */
+        customer_id?: number;
+      }[];
     };
     /**
      * @description Request payload for updating an existing price list
      * @example {
      *       "name": "Premium Customer Pricing - Updated",
-     *       "markup_percentage": 30,
-     *       "end_date": "2025-12-31T23:59:59Z"
+     *       "is_active": true
      *     }
      */
     UpdatePriceListRequest: {
       /** @description Descriptive name for the price list */
       name?: string;
-      /** @description ISO 4217 currency code for all prices in this list */
-      currency?: string;
-      /** @description Whether this price list should be the default fallback */
-      is_default?: boolean;
-      /** @description Percentage markup applied to base costs */
-      markup_percentage?: number;
-      /**
-       * Format: date-time
-       * @description Date and time when this price list becomes active
-       */
-      start_date?: string;
-      /**
-       * Format: date-time
-       * @description Date and time when this price list expires
-       */
-      end_date?: string;
+      /** @description Whether the price list is active */
+      is_active?: boolean;
     };
     /**
      * @description Request payload for updating an existing price list row
      * @example {
-     *       "price": 259.99,
-     *       "currency": "USD"
+     *       "variant_id": 67890,
+     *       "adjustment_method": "fixed",
+     *       "amount": 259.99
      *     }
      */
     UpdatePriceListRowRequest: {
-      /** @description ID of the price list to add the variant pricing to */
-      price_list_id?: number;
-      /** @description ID of the product variant to set custom pricing for */
+      /** @description ID of the product variant being priced */
       variant_id?: number;
-      /** @description Custom price for this variant in the price list's currency */
-      price?: number;
-      /** @description ISO 4217 currency code (must match the price list's currency) */
-      currency?: string;
+      /** @description Method for price adjustment */
+      adjustment_method?: components['schemas']['PriceListAdjustmentMethod'];
+      /** @description Adjustment amount */
+      amount?: number;
     };
     /**
      * @description Request payload for updating an existing price list customer assignment
      * @example {
-     *       "price_list_id": 1003
+     *       "customer_id": 2003
      *     }
      */
     UpdatePriceListCustomerRequest: {
-      /** @description ID of the price list */
-      price_list_id?: number;
       /** @description ID of the customer to assign to price list */
-      customer_id?: number;
+      customer_id: number;
     };
     /**
      * @description Individual product variant pricing entry within a price list for customer-specific or market-specific pricing management
@@ -8672,11 +11278,8 @@ export interface components {
       price_list_id: number;
       /** @description ID of the product variant this pricing applies to */
       variant_id: number;
-      /**
-       * @description Method used for price adjustment (fixed, percentage, markup)
-       * @enum {string}
-       */
-      adjustment_method: 'fixed' | 'percentage' | 'markup';
+      /** @description Method used for price adjustment (fixed, percentage, markup) */
+      adjustment_method: components['schemas']['PriceListAdjustmentMethod'];
       /** @description Amount value for the price adjustment based on the adjustment method */
       amount: number;
     } & components['schemas']['UpdatableEntity'];
@@ -8698,17 +11301,76 @@ export interface components {
       /** @description ID of the customer receiving the custom pricing */
       customer_id: number;
     } & components['schemas']['UpdatableEntity'];
+    /** @description Operation step assigned to a product's manufacturing process */
+    ProductOperationRow: {
+      /** @description Product ID */
+      product_id?: number;
+      /** @description Unique identifier for the product operation row */
+      product_operation_row_id: number;
+      /** @description Product variant ID */
+      product_variant_id?: number;
+      /** @description Operation ID */
+      operation_id?: number;
+      /** @description Name of the operation */
+      operation_name?: string;
+      /**
+       * @description Operation type defining how time and cost are calculated.
+       *     Matches the enum used on manufacturing-order operation rows.
+       */
+      type?: components['schemas']['ManufacturingOperationType'];
+      /** @description Resource ID assigned to operation */
+      resource_id?: number | null;
+      /** @description Name of the assigned resource */
+      resource_name?: string | null;
+      /**
+       * @deprecated
+       * @description Cost per hour for this operation (deprecated — use ``cost_parameter`` instead)
+       */
+      cost_per_hour?: number | null;
+      /**
+       * @description Cost calculation parameter. Numeric — Katana returns it as a
+       *     JSON number (e.g. ``15``) or ``null`` when not configured.
+       */
+      cost_parameter?: number | null;
+      /** @description Planned cost per unit */
+      planned_cost_per_unit?: number | null;
+      /**
+       * @deprecated
+       * @description Planned time per unit (deprecated — use ``planned_time_parameter`` instead)
+       */
+      planned_time_per_unit?: number | null;
+      /**
+       * @description Time calculation parameter. Numeric — Katana returns it as a
+       *     JSON number (e.g. ``7200``) or ``null`` when not configured.
+       */
+      planned_time_parameter?: number | null;
+      /** @description Operation sequence rank */
+      rank?: number;
+      /** @description Group boundary marker */
+      group_boundary?: string | null;
+      /**
+       * Format: date-time
+       * @description Timestamp when the row was created
+       */
+      created_at?: string;
+      /**
+       * Format: date-time
+       * @description Timestamp when the row was last updated
+       */
+      updated_at?: string;
+    };
     /**
      * @description Bill of Materials row defining ingredient requirements for product manufacturing
      * @example {
      *       "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-     *       "product_variant_id": 2001,
-     *       "product_item_id": 3001,
-     *       "ingredient_variant_id": 2002,
-     *       "quantity": 2.5,
-     *       "notes": "Handle with care - fragile component",
-     *       "created_at": "2023-10-15T14:30:00Z",
-     *       "updated_at": "2023-10-16T09:15:00Z"
+     *       "product_item_id": 1,
+     *       "product_variant_id": 1,
+     *       "ingredient_variant_id": 1,
+     *       "quantity": 2,
+     *       "notes": "some notes",
+     *       "rank": 10000,
+     *       "created_at": "2021-04-05T12:00:00.000Z",
+     *       "updated_at": "2021-04-05T12:00:00.000Z"
      *     }
      */
     BomRow: {
@@ -8727,6 +11389,8 @@ export interface components {
       quantity?: number | null;
       /** @description Additional notes for this BOM row */
       notes?: string | null;
+      /** @description Sort rank for ordering BOM rows */
+      rank?: number;
       /**
        * Format: date-time
        * @description Timestamp when the BOM row was created
@@ -8805,7 +11469,7 @@ export interface components {
      * @example {
      *       "data": [
      *         {
-     *           "id": 501,
+     *           "id": "501a1234-5678-90ab-cdef-1234567890ab",
      *           "product_variant_id": 2001,
      *           "product_item_id": 3001,
      *           "ingredient_variant_id": 2002,
@@ -8815,7 +11479,7 @@ export interface components {
      *           "updated_at": "2023-10-16T09:15:00Z"
      *         },
      *         {
-     *           "id": 502,
+     *           "id": "502b1234-5678-90ab-cdef-1234567890ab",
      *           "product_variant_id": 2001,
      *           "product_item_id": 3001,
      *           "ingredient_variant_id": 2003,
@@ -8975,15 +11639,19 @@ export interface components {
       /** @description Base currency code */
       base_currency_code: string;
       /**
-       * Format: date-time
-       * @description Default sales order delivery time
+       * @description Default sales order delivery time. Note: Katana's upstream
+       *     example shows an ISO-8601 datetime, but the live wire delivers
+       *     either ``null`` or an opaque short string (e.g. ``"14"`` for
+       *     days). ``format: date-time`` is intentionally omitted.
        */
-      default_so_delivery_time?: string;
+      default_so_delivery_time?: string | null;
       /**
-       * Format: date-time
-       * @description Default purchase order lead time
+       * @description Default purchase order lead time. Same shape as
+       *     ``default_so_delivery_time`` — wire delivers ``null`` or an
+       *     opaque short string, not a datetime. ``format: date-time``
+       *     intentionally omitted.
        */
-      default_po_lead_time?: string;
+      default_po_lead_time?: string | null;
       /** @description Default manufacturing location ID */
       default_manufacturing_location_id?: number;
       /** @description Default purchases location ID */
@@ -8994,7 +11662,12 @@ export interface components {
        * Format: date-time
        * @description Inventory closing date
        */
-      inventory_closing_date?: string;
+      inventory_closing_date?: string | null;
+    };
+    /** @description Response containing a list of operators */
+    OperatorListResponse: {
+      /** @description Array of operator objects */
+      data?: components['schemas']['Operator'][];
     };
     /** @description Manufacturing operator or worker assigned to specific production operations and work areas */
     Operator: {
@@ -9056,14 +11729,36 @@ export interface components {
       id: number;
       /** @description Display name of the custom fields collection for management and organization */
       name: string;
-      /**
-       * @description The type of business object this custom fields collection applies to
-       * @enum {string}
-       */
-      resource_type?: 'product' | 'material' | 'variant' | 'customer' | 'sales_order' | 'purchase_order' | 'stocktake';
+      /** @description The type of business object this custom fields collection applies to */
+      resource_type?: components['schemas']['CustomFieldCollectionResourceType'];
       /** @description Array of custom field definitions with their types, validation rules, and configuration */
       custom_fields?: components['schemas']['CustomField'][];
-    } & components['schemas']['UpdatableEntity'];
+    } & components['schemas']['DeletableEntity'];
+    /**
+     * @description A single custom field value in the **legacy** ``{field_name,
+     *     field_value}`` shape used by Variant / Product / Material / Service
+     *     resources. These fields are configured via the
+     *     ``/custom_fields_collections`` surface and attached as an **array**
+     *     of name/value pairs.
+     *
+     *     This is distinct from — and must not be unified with — the newer
+     *     sales-order custom-fields surface, where ``custom_fields`` is a
+     *     **dict keyed by custom field definition ``id`` (UUID)** registered
+     *     through ``/custom_field_definitions`` (see ``CustomFieldDefinition``
+     *     and the ``custom_fields`` property on ``SalesOrder`` /
+     *     ``SalesOrderRow``). The two surfaces coexist intentionally; Katana
+     *     has not migrated items/variants to the dict shape.
+     * @example {
+     *       "field_name": "quality_grade",
+     *       "field_value": "A"
+     *     }
+     */
+    CustomFieldValue: {
+      /** @description Name of the custom field (matches a configured field's ``name``) */
+      field_name: string;
+      /** @description Value to set for this custom field */
+      field_value: string;
+    };
     /**
      * @description Individual custom field definition with validation rules and configuration options
      * @example {
@@ -9085,9 +11780,9 @@ export interface components {
       /** @description Internal name/key for the custom field */
       name: string;
       /** @description Type of the custom field (text, number, date, select, etc.) */
-      field_type: string;
+      field_type?: string;
       /** @description Display label for the custom field in user interfaces */
-      label: string;
+      label?: string;
       /** @description Whether this field is required when filling out the form */
       required?: boolean;
       /** @description Available options for select/dropdown field types */
@@ -9160,25 +11855,312 @@ export interface components {
       /** @description Array of custom field collections with their field definitions and configuration */
       data?: components['schemas']['CustomFieldsCollection'][];
     };
+    /**
+     * @description Field input type for a ``CustomFieldDefinition`` — determines how
+     *     Katana renders and validates the field's stored values, and what
+     *     JSON type the value takes when set on a sales order. Immutable
+     *     after creation.
+     *
+     *     Value stored on the entity, by ``field_type``:
+     *
+     *     - ``shortText`` — string
+     *     - ``number`` — number
+     *     - ``date`` — ``YYYY-MM-DD`` string
+     *     - ``boolean`` — ``true`` / ``false``
+     *     - ``url`` — string
+     *     - ``singleSelect`` — the integer choice ``id`` (not the label).
+     *       Requires ``options.choices``; the server assigns each choice an
+     *       integer ``id``. Resolve labels client-side from
+     *       ``options.choices`` (soft-deleted choices remain in the array).
+     *
+     *     Note: a ``multiSelect`` type has been announced on the Katana
+     *     roadmap but is **not yet live** — the API rejects it today, so it
+     *     is intentionally absent from this enum. Add it here only once the
+     *     live API accepts it.
+     * @enum {string}
+     */
+    CustomFieldType:
+      | 'shortText'
+      | 'number'
+      | 'singleSelect'
+      | 'date'
+      | 'boolean'
+      | 'url';
+    /**
+     * @description Resource type a ``CustomFieldDefinition`` applies to. Immutable
+     *     after creation.
+     *
+     *     The partner-defined custom-fields surface (``/custom_field_definitions``)
+     *     is live for **sales orders and sales order rows only**. These are
+     *     the sole values the API accepts today; creating a definition with
+     *     any other ``entity_type`` is rejected.
+     *
+     *     Katana has signalled on its roadmap that custom fields will expand
+     *     to further entities (items / variants, and others). Each new entity
+     *     type must be added here only once the live API accepts it — keeping
+     *     this enum honest forces a deliberate spec edit per rollout rather
+     *     than advertising values that 422.
+     *
+     *     Note: the legacy ``[{field_name, field_value}]`` custom-fields shape
+     *     on Variant / Product / Material / Service is a **separate** surface
+     *     (see ``/custom_fields_collections``) and is unrelated to this enum.
+     * @enum {string}
+     */
+    CustomFieldEntityType: 'SalesOrder' | 'SalesOrderRow';
+    /**
+     * @description A partner-defined custom field that callers register once via
+     *     ``POST /custom_field_definitions`` and then attach values for on a
+     *     sales order (or sales order row) through that resource's
+     *     ``custom_fields`` property, keyed by this definition's ``id``
+     *     (UUID).
+     *
+     *     Scope today: ``entity_type`` is limited to ``SalesOrder`` /
+     *     ``SalesOrderRow`` (see ``CustomFieldEntityType``). A factory may
+     *     hold at most **50 definitions**. ``field_type``, ``entity_type``,
+     *     and ``source`` are **immutable** after creation; only ``label``,
+     *     ``description``, and ``options`` may be updated.
+     * @example {
+     *       "id": "0c8f1d6e-3c2a-4f5b-9d77-12ab34cd56ef",
+     *       "label": "Channel",
+     *       "field_type": "shortText",
+     *       "entity_type": "SalesOrder",
+     *       "source": "your-integration",
+     *       "description": "Customer-facing sales channel classification",
+     *       "options": null,
+     *       "created_at": "2026-05-14T10:00:00Z",
+     *       "updated_at": "2026-05-14T10:00:00Z",
+     *       "deleted_at": null
+     *     }
+     */
+    CustomFieldDefinition: {
+      /**
+       * Format: uuid
+       * @description Server-assigned UUID identifier
+       */
+      id: string;
+      /** @description Display label shown in the Katana UI */
+      label: string;
+      /** @description Field input type. Immutable after creation. */
+      field_type: components['schemas']['CustomFieldType'];
+      /** @description Resource type the definition applies to. Immutable after creation. */
+      entity_type: components['schemas']['CustomFieldEntityType'];
+      /**
+       * @description Caller-provided identifier of the integration that owns the
+       *     field (e.g. your application slug). Namespaces and audits
+       *     definitions. Immutable after creation.
+       */
+      source: string;
+      /** @description Optional long-form description of the field's purpose */
+      description?: string | null;
+      /**
+       * @description Choice configuration. Present and meaningful only when
+       *     ``field_type`` is ``singleSelect``; ``null`` for every other
+       *     type. Each choice carries its server-assigned integer ``id``
+       *     (the value stored on the entity) and ``label``; soft-deleted
+       *     choices remain in the array so historical values stay
+       *     resolvable.
+       */
+      options?: components['schemas']['CustomFieldOptions'] | null;
+      /**
+       * Format: date-time
+       * @description Timestamp when the definition was created
+       */
+      created_at?: string;
+      /**
+       * Format: date-time
+       * @description Timestamp when the definition was last updated
+       */
+      updated_at?: string;
+      /**
+       * Format: date-time
+       * @description Soft-delete timestamp; ``null`` for a live definition. Deleting
+       *     a definition (``DELETE /custom_field_definitions/{id}``) is a
+       *     soft delete — its values are stripped from read responses but
+       *     the definition is retained.
+       */
+      deleted_at?: string | null;
+    };
+    /**
+     * @description Request payload for creating a new custom field definition.
+     * @example {
+     *       "label": "Channel",
+     *       "field_type": "shortText",
+     *       "entity_type": "SalesOrder",
+     *       "source": "your-integration",
+     *       "description": "Customer-facing sales channel classification"
+     *     }
+     */
+    CreateCustomFieldDefinitionRequest: {
+      /** @description Display label shown in the Katana UI */
+      label: string;
+      /** @description Field input type. Immutable after creation. */
+      field_type: components['schemas']['CustomFieldType'];
+      /** @description Resource type the definition applies to. Immutable after creation. */
+      entity_type: components['schemas']['CustomFieldEntityType'];
+      /** @description Origin / namespace of the definition. */
+      source: string;
+      /** @description Optional long-form description */
+      description?: string | null;
+      /**
+       * @description Choice configuration. Required when ``field_type`` is
+       *     ``singleSelect``; omit (or send ``null``) for every other type.
+       *     On create, send each choice with just a ``label`` — the server
+       *     assigns each one an integer ``id`` and returns the resolved
+       *     array. Use those ``id`` values when setting the field on a
+       *     sales order.
+       */
+      options?: components['schemas']['CustomFieldOptionsCreate'] | null;
+    };
+    /**
+     * @description Request payload for updating an existing custom field definition.
+     *     Only ``label``, ``description``, and ``options`` may be updated;
+     *     ``field_type``, ``entity_type``, and ``source`` are immutable.
+     * @example {
+     *       "label": "Quality Grade (revised)",
+     *       "description": "Updated customer-facing quality classification"
+     *     }
+     */
+    UpdateCustomFieldDefinitionRequest: {
+      /** @description Updated display label */
+      label?: string;
+      /** @description Updated long-form description */
+      description?: string | null;
+      /**
+       * @description Updated choice configuration (``singleSelect`` only). Send the
+       *     **full** ``choices`` array — every existing choice must be
+       *     included and identified by its server-assigned ``id``. A choice
+       *     present in the array without an ``id`` is created. A choice
+       *     omitted from the array is removed from the active choices list
+       *     (it can no longer be selected), but its past values on existing
+       *     records are not resolvable after removal. Use ``"deleted": true``
+       *     instead to soft-delete a choice — it stays in the array so
+       *     historical values referencing its ``id`` remain resolvable, but
+       *     it is no longer offered as a new selection. Choices are never
+       *     hard-deleted.
+       */
+      options?: components['schemas']['CustomFieldOptions'] | null;
+    };
+    /**
+     * @description List of custom field definitions
+     * @example {
+     *       "data": [
+     *         {
+     *           "id": "0c8f1d6e-3c2a-4f5b-9d77-12ab34cd56ef",
+     *           "label": "Channel",
+     *           "field_type": "shortText",
+     *           "entity_type": "SalesOrder",
+     *           "source": "your-integration",
+     *           "description": "Customer-facing sales channel classification",
+     *           "options": null,
+     *           "created_at": "2026-05-14T10:00:00Z",
+     *           "updated_at": "2026-05-14T10:00:00Z",
+     *           "deleted_at": null
+     *         }
+     *       ]
+     *     }
+     */
+    CustomFieldDefinitionListResponse: {
+      /** @description Array of custom field definitions */
+      data?: components['schemas']['CustomFieldDefinition'][];
+    };
+    /**
+     * @description A single ``singleSelect`` choice as it appears on read and update.
+     *     The integer ``id`` is what gets stored on the entity; ``label`` is
+     *     the human-readable text resolved client-side.
+     * @example {
+     *       "id": 1,
+     *       "label": "Online"
+     *     }
+     */
+    CustomFieldChoice: {
+      /**
+       * @description Server-assigned choice identifier. The value actually stored on
+       *     a sales order for this field. Present on read; on
+       *     ``PATCH /custom_field_definitions/{id}`` it must be supplied to
+       *     identify an existing choice (omit it to create a new choice).
+       */
+      id?: number;
+      /** @description Human-readable label for the choice. */
+      label: string;
+      /**
+       * @description Soft-delete marker. On update, set ``true`` to retire an
+       *     existing choice while keeping it in the array so historical
+       *     values referencing its ``id`` stay resolvable. Choices are
+       *     never hard-deleted.
+       */
+      deleted?: boolean;
+    };
+    /**
+     * @description A single ``singleSelect`` choice as supplied on
+     *     ``POST /custom_field_definitions``. Send only the ``label`` — the
+     *     server assigns the integer ``id`` and returns it in the response.
+     * @example {
+     *       "label": "Online"
+     *     }
+     */
+    CustomFieldChoiceCreate: {
+      /** @description Human-readable label for the choice. */
+      label: string;
+    };
+    /**
+     * @description Choice configuration for a ``singleSelect`` custom field definition,
+     *     as returned on read and supplied on update.
+     * @example {
+     *       "choices": [
+     *         {
+     *           "id": 1,
+     *           "label": "Online"
+     *         },
+     *         {
+     *           "id": 2,
+     *           "label": "Retail"
+     *         },
+     *         {
+     *           "id": 3,
+     *           "label": "Wholesale"
+     *         }
+     *       ]
+     *     }
+     */
+    CustomFieldOptions: {
+      /**
+       * @description The allowed choices, each with its server-assigned integer
+       *     ``id`` and ``label``. Soft-deleted choices remain present so
+       *     historical values stay resolvable.
+       */
+      choices: components['schemas']['CustomFieldChoice'][];
+    };
+    /**
+     * @description Choice configuration supplied when creating a ``singleSelect``
+     *     custom field definition. Each choice carries only a ``label``; the
+     *     server assigns each one an integer ``id``.
+     * @example {
+     *       "choices": [
+     *         {
+     *           "label": "Online"
+     *         },
+     *         {
+     *           "label": "Retail"
+     *         },
+     *         {
+     *           "label": "Wholesale"
+     *         }
+     *       ]
+     *     }
+     */
+    CustomFieldOptionsCreate: {
+      /** @description The choices to create, each identified by ``label`` only. */
+      choices: components['schemas']['CustomFieldChoiceCreate'][];
+    };
     /** @description Physical inventory count process for reconciling actual stock levels with system records */
     Stocktake: {
       id: number;
-      /** @description Unique identifier for the stocktake process */
+      /** @description A string used to identify the stocktake */
       stocktake_number: string;
-      /** @description Alternative reference number for the stocktake process */
-      reference_no?: string | null;
       /** @description The location where the stocktake is being performed */
       location_id: number;
-      /**
-       * @description Current status of the stocktake process
-       * @enum {string}
-       */
-      status: 'NOT_STARTED' | 'DRAFT' | 'IN_PROGRESS' | 'COMPLETED';
-      /**
-       * Format: date-time
-       * @description Date and time when the stocktake was conducted
-       */
-      stocktake_date?: string;
+      /** @description Current status of the stocktake process */
+      status: components['schemas']['StocktakeStatus'];
       /**
        * Format: date-time
        * @description Date and time when the stocktake was created
@@ -9200,13 +12182,11 @@ export interface components {
       set_remaining_items_as_counted?: boolean;
       /** @description ID of the associated stock adjustment */
       stock_adjustment_id?: number | null;
-      /** @description Reason for the stocktake */
+      /** @description A descriptive field for your own information to enable better identification */
       reason?: string | null;
-      /** @description Additional information about the stocktake */
+      /** @description A string attached to the object to add any internal comments or links to external files */
       additional_info?: string | null;
-      /** @description Additional notes or comments about the stocktake */
-      notes?: string | null;
-    } & components['schemas']['UpdatableEntity'];
+    } & components['schemas']['DeletableEntity'];
     /** @description Individual item record within a stocktake showing system vs actual quantities and variance */
     StocktakeRow: {
       id: number;
@@ -9224,11 +12204,16 @@ export interface components {
       discrepancy_quantity?: number | null;
       /** @description Notes about this stocktake row */
       notes?: string | null;
-    } & components['schemas']['UpdatableEntity'];
+    } & components['schemas']['DeletableEntity'];
+    /** @description Response containing a list of serial number stock items */
+    SerialNumberStockListResponse: {
+      /** @description Array of serial number stock items */
+      data?: components['schemas']['SerialNumberStock'][];
+    };
     /** @description Current stock status and transaction history of individual serialized inventory items */
     SerialNumberStock: {
       /** @description Serial number stock ID */
-      id: string;
+      id: number;
       /** @description The actual serial number */
       serial_number: string;
       /** @description Whether the item is currently in stock */
@@ -9245,7 +12230,7 @@ export interface components {
          * Format: date-time
          * @description Date and time of transaction
          */
-        transaction_date: string;
+        transaction_date?: string | null;
         /** @description Quantity change in transaction */
         quantity_change: number;
       }[];
@@ -9258,22 +12243,24 @@ export interface components {
      *       "sales_order_id": 2001,
      *       "order_no": "SR-2023-001",
      *       "return_location_id": 1,
-     *       "status": "RETURNED",
+     *       "status": "RETURNED_ALL",
      *       "currency": "USD",
      *       "return_date": "2023-10-15T14:30:00Z",
      *       "order_created_date": "2023-10-10T10:00:00Z",
      *       "additional_info": "Customer reported damaged items during shipping",
-     *       "refund_status": "PROCESSED",
+     *       "refund_status": "REFUNDED",
      *       "sales_return_rows": [
      *         {
      *           "id": 3501,
      *           "sales_return_id": 3001,
      *           "variant_id": 2002,
-     *           "quantity": 2,
+     *           "quantity": "2.0",
      *           "return_reason_id": 1,
      *           "notes": "Packaging was damaged",
      *           "unit_price": 25,
-     *           "total_price": 50
+     *           "total_price": 50,
+     *           "created_at": "2023-10-15T14:00:00Z",
+     *           "updated_at": "2023-10-15T15:00:00Z"
      *         }
      *       ],
      *       "created_at": "2023-10-15T14:00:00Z",
@@ -9292,11 +12279,8 @@ export interface components {
       order_no: string;
       /** @description Location where returned items will be received and processed */
       return_location_id: number;
-      /**
-       * @description Current processing status of the sales return
-       * @enum {string}
-       */
-      status: 'NOT_RETURNED' | 'RETURNED_ALL' | 'RESTOCKED_ALL';
+      /** @description Current processing status of the sales return */
+      status: components['schemas']['SalesReturnStatus'];
       /** @description Currency code for refund amounts (ISO 4217 format) */
       currency?: string;
       /**
@@ -9312,89 +12296,88 @@ export interface components {
       /** @description Additional notes or comments about the return */
       additional_info?: string | null;
       /** @description Current status of the refund processing */
-      refund_status?: string | null;
+      refund_status?: components['schemas']['SalesReturnRefundStatus'] | null;
+      /** @description Tracking number for the return shipment */
+      tracking_number?: string | null;
+      /** @description URL to track the return shipment */
+      tracking_number_url?: string | null;
+      /** @description Carrier used for the return shipment */
+      tracking_carrier?: string | null;
+      /** @description Shipping method used for the return */
+      tracking_method?: string | null;
       /** @description Line items being returned with quantities and reasons */
       sales_return_rows?: components['schemas']['SalesReturnRow'][];
     } & components['schemas']['DeletableEntity'];
     /**
      * @description Request payload for creating a new sales return to process customer product returns and refunds
      * @example {
-     *       "customer_id": 1001,
      *       "sales_order_id": 2001,
-     *       "order_no": "SR-2023-001",
-     *       "return_location_id": 1,
-     *       "currency": "USD",
      *       "order_created_date": "2023-10-10T10:00:00Z",
-     *       "additional_info": "Customer reported damaged items during shipping",
-     *       "sales_return_rows": [
-     *         {
-     *           "variant_id": 2002,
-     *           "quantity": 2,
-     *           "return_reason_id": 1,
-     *           "notes": "Packaging was damaged",
-     *           "unit_price": 25,
-     *           "total_price": 50
-     *         }
-     *       ]
+     *       "return_location_id": 1,
+     *       "order_no": "SR-2023-001",
+     *       "additional_info": "Customer reported damaged items during shipping"
      *     }
      */
     CreateSalesReturnRequest: {
-      /** @description ID of the customer initiating the return */
-      customer_id: number;
       /** @description ID of the original sales order being returned */
-      sales_order_id?: number;
-      /** @description Return order reference number */
-      order_no: string;
-      /** @description ID of the location where items are being returned to */
-      return_location_id: number;
-      /** @description Currency code (e.g., USD, EUR) */
-      currency?: string;
+      sales_order_id: number;
       /**
        * Format: date-time
-       * @description Date when the original order was created
+       * @description Creation date of the return. If missing then current timestamp will be used.
        */
       order_created_date?: string;
+      /** @description ID of the location where items are being returned to */
+      return_location_id: number;
+      /** @description Return order reference number */
+      order_no?: string;
       /** @description Optional notes or comments about the return */
       additional_info?: string;
-      /** @description Array of items being returned */
-      sales_return_rows: components['schemas']['CreateSalesReturnRowRequest'][];
+      /** @description Tracking number for the return shipment */
+      tracking_number?: string | null;
+      /** @description URL to track the return shipment */
+      tracking_number_url?: string | null;
+      /** @description Carrier used for the return shipment */
+      tracking_carrier?: string | null;
+      /** @description Shipping method used for the return */
+      tracking_method?: string | null;
     };
     /**
      * @description Request payload for updating an existing sales return
      * @example {
-     *       "customer_id": 1001,
-     *       "sales_order_id": 2001,
+     *       "status": "RETURNED_ALL",
+     *       "return_date": "2023-10-12T10:00:00Z",
      *       "order_no": "SR-2023-001",
      *       "return_location_id": 1,
-     *       "currency": "USD",
-     *       "order_created_date": "2023-10-10T10:00:00Z",
-     *       "additional_info": "Customer reported damaged items during shipping",
-     *       "status": "RETURNED"
+     *       "additional_info": "Customer reported damaged items during shipping"
      *     }
      */
     UpdateSalesReturnRequest: {
-      /** @description ID of the customer initiating the return */
-      customer_id?: number;
-      /** @description ID of the original sales order being returned */
-      sales_order_id?: number;
-      /** @description Return order reference number */
-      order_no?: string;
-      /** @description ID of the location where items are being returned to */
-      return_location_id?: number;
-      /** @description Currency code (e.g., USD, EUR) */
-      currency?: string;
+      /** @description Status of the sales return */
+      status?: components['schemas']['SalesReturnStatus'];
       /**
        * Format: date-time
-       * @description Date when the original order was created
+       * @description Date of the return. Updatable only when current return status is not RESTOCKED_ALL.
+       */
+      return_date?: string;
+      /**
+       * Format: date-time
+       * @description Creation date of the return. Updatable only when current return status is not RESTOCKED_ALL.
        */
       order_created_date?: string;
-      /** @description Optional notes or comments about the return */
-      additional_info?: string;
-      /**
-       * @description Status of the sales return
-       * @enum {string}
-       */
-      status?: 'NOT_RETURNED' | 'RETURNED_ALL' | 'RESTOCKED_ALL';
+      /** @description ID of the location where items are being returned to. Updatable only when current return status is not RESTOCKED_ALL. */
+      return_location_id?: number;
+      /** @description Return order reference number. Updatable only when current return status is not RESTOCKED_ALL. */
+      order_no?: string;
+      /** @description Additional information about the return. Updatable only when current return status is not RESTOCKED_ALL. */
+      additional_info?: string | null;
+      /** @description Tracking number for the return shipment */
+      tracking_number?: string | null;
+      /** @description URL to track the return shipment */
+      tracking_number_url?: string | null;
+      /** @description Carrier used for the return shipment */
+      tracking_carrier?: string | null;
+      /** @description Shipping method used for the return */
+      tracking_method?: string | null;
     };
     /** @description Individual line item within a sales return specifying returned product, quantity, and refund details */
     SalesReturnRow: {
@@ -9403,27 +12386,40 @@ export interface components {
       sales_return_id: number;
       /** @description The product variant being returned */
       variant_id: number;
+      /** @description ID of the fulfillment row this return is associated with */
+      fulfillment_row_id?: number;
+      /** @description ID of the sales order row this return is associated with */
+      sales_order_row_id?: number;
       /** @description The quantity of the variant being returned (formatted as decimal string for precision) */
       quantity: string;
-      /** @description The reason code for this return */
-      return_reason_id?: number | null;
-      /** @description Additional notes about this return item */
-      notes?: string | null;
-      /** @description The price per unit for the returned item */
-      unit_price?: number | null;
-      /** @description The total refund amount for this line item */
-      total_price?: number | null;
+      /** @description Net price per unit for the returned item (formatted as decimal string for precision) */
+      net_price_per_unit?: string | null;
+      /** @description ID of the return reason */
+      reason_id?: number | null;
+      /** @description ID of the location where stock will be restocked */
+      restock_location_id?: number | null;
+      /** @description Batch allocations for this return row */
+      batch_transactions?: {
+        /** @description ID of the batch */
+        batch_id?: number;
+        /** @description Quantity returned to this batch */
+        quantity?: number;
+      }[];
     } & components['schemas']['UpdatableEntity'];
     /** @description Request payload for creating a new sales return row with product and quantity information */
     CreateSalesReturnRowRequest: {
+      /** @description ID of the sales return this row belongs to */
+      sales_return_id: number;
       /** @description ID of the variant being returned */
       variant_id: number;
+      /** @description ID of the fulfillment row this return is associated with */
+      fulfillment_row_id: number;
       /** @description Quantity being returned */
       quantity: number;
+      /** @description Restock location ID. If missing then default from sales order fulfillment row will be used. */
+      restock_location_id?: number;
       /** @description ID of the return reason */
-      return_reason_id?: number;
-      /** @description Optional notes about this returned item */
-      notes?: string;
+      reason_id?: number;
     };
     /**
      * @description System user account with authentication credentials and role-based permissions
@@ -9470,11 +12466,11 @@ export interface components {
      *           "location_id": 1,
      *           "product_availability": "IN_STOCK",
      *           "product_expected_date": null,
-     *           "price_per_unit": 599.99,
+     *           "price_per_unit": "599.9900000000",
      *           "price_per_unit_in_base_currency": 599.99,
      *           "total": 1199.98,
      *           "total_in_base_currency": 1199.98,
-     *           "cogs_value": 400,
+     *           "cogs_value": "400.0000000000",
      *           "attributes": [
      *             {
      *               "key": "engrave_text",
@@ -9537,19 +12533,35 @@ export interface components {
      * @example {
      *       "data": [
      *         {
-     *           "id": 2701,
-     *           "sales_order_id": 2001,
-     *           "tracking_number": "UPS1234567890",
-     *           "tracking_number_url": "https://www.ups.com/track?track=UPS1234567890",
-     *           "shipped_date": "2024-01-20T16:30:00Z",
-     *           "estimated_delivery_date": "2024-01-22T14:00:00Z",
-     *           "actual_delivery_date": null,
-     *           "shipping_cost": 25.99,
-     *           "shipping_method": "UPS Ground",
-     *           "carrier": "UPS",
-     *           "notes": "Signature required for delivery",
-     *           "created_at": "2024-01-20T16:30:00Z",
-     *           "updated_at": "2024-01-20T16:30:00Z"
+     *           "id": 1,
+     *           "sales_order_id": 1,
+     *           "picked_date": "2020-10-23T10:37:05.085Z",
+     *           "status": "DELIVERED",
+     *           "invoice_status": "NOT_INVOICED",
+     *           "conversion_rate": 2,
+     *           "conversion_date": "2020-10-23T10:37:05.085Z",
+     *           "tracking_number": "12345678",
+     *           "tracking_url": "https://tracking-number-url",
+     *           "tracking_carrier": "UPS",
+     *           "tracking_method": "ground",
+     *           "packer_id": 1,
+     *           "sales_order_fulfillment_rows": [
+     *             {
+     *               "sales_order_row_id": 1,
+     *               "quantity": 2,
+     *               "batch_transactions": [
+     *                 {
+     *                   "batch_id": 1,
+     *                   "quantity": 2
+     *                 }
+     *               ],
+     *               "serial_numbers": [
+     *                 1
+     *               ]
+     *             }
+     *           ],
+     *           "created_at": "2020-10-23T10:37:05.085Z",
+     *           "updated_at": "2020-10-23T10:37:05.085Z"
      *         }
      *       ]
      *     }
@@ -9619,18 +12631,14 @@ export interface components {
      *       "city": "San Francisco",
      *       "state": "CA",
      *       "zip": "94102",
-     *       "country": "US",
-     *       "is_default": true
+     *       "country": "US"
      *     }
      */
     CreateCustomerAddressRequest: {
       /** @description ID of the customer this address belongs to */
       customer_id: number;
-      /**
-       * @description Address type - billing for invoicing, shipping for delivery
-       * @enum {string}
-       */
-      entity_type: 'billing' | 'shipping';
+      /** @description Whether this address is the shipping or billing address for the customer */
+      entity_type: components['schemas']['AddressEntityType'];
       /** @description First name for the contact person at this address */
       first_name?: string | null;
       /** @description Last name for the contact person at this address */
@@ -9651,8 +12659,6 @@ export interface components {
       zip?: string | null;
       /** @description Country name or country code */
       country?: string | null;
-      /** @description Whether this should be set as the default address for the specified entity type */
-      is_default?: boolean;
     };
     /**
      * @description Response containing a paginated list of price lists configured for customer-specific and market-specific pricing management
@@ -9697,6 +12703,8 @@ export interface components {
      *           "id": 5001,
      *           "price_list_id": 1001,
      *           "variant_id": 201,
+     *           "adjustment_method": "fixed",
+     *           "amount": 249.99,
      *           "price": 249.99,
      *           "currency": "USD",
      *           "created_at": "2024-01-15T10:00:00Z",
@@ -9706,6 +12714,8 @@ export interface components {
      *           "id": 5002,
      *           "price_list_id": 1001,
      *           "variant_id": 202,
+     *           "adjustment_method": "percentage",
+     *           "amount": 10,
      *           "price": 69.99,
      *           "currency": "USD",
      *           "created_at": "2024-01-15T10:05:00Z",
@@ -9749,6 +12759,7 @@ export interface components {
      *       "data": [
      *         {
      *           "id": 4001,
+     *           "stocktake_number": "STK-2024-001",
      *           "reference_no": "STK-2024-001",
      *           "location_id": 1,
      *           "status": "COMPLETED",
@@ -9759,6 +12770,7 @@ export interface components {
      *         },
      *         {
      *           "id": 4002,
+     *           "stocktake_number": "STK-2024-002",
      *           "reference_no": "STK-2024-002",
      *           "location_id": 2,
      *           "status": "IN_PROGRESS",
@@ -9810,107 +12822,117 @@ export interface components {
     /**
      * @description Request payload for creating a new stocktake to perform physical inventory counting
      * @example {
-     *       "reference_no": "STK-2024-003",
+     *       "stocktake_number": "STK-2024-003",
      *       "location_id": 1,
-     *       "stocktake_date": "2024-01-17T09:00:00.000Z",
-     *       "notes": "Quarterly inventory count",
-     *       "status": "DRAFT"
+     *       "reason": "Quarterly inventory count",
+     *       "additional_info": "Annual audit"
      *     }
      */
     CreateStocktakeRequest: {
-      /** @description Human-readable reference number for the stocktake */
-      reference_no: string;
-      /** @description ID of the location where the stocktake will be performed */
+      /** @description A string used to identify the stocktake */
+      stocktake_number: string;
+      /** @description The ID of the stocktake location */
       location_id: number;
+      /** @description A descriptive field for your own information to enable better identification */
+      reason?: string;
+      /** @description Additional notes or information about the stocktake */
+      additional_info?: string;
       /**
        * Format: date-time
-       * @description Date and time when the stocktake was performed
+       * @description Date when the stocktake was created
        */
-      stocktake_date: string;
-      /** @description Optional notes about the stocktake */
-      notes?: string;
-      /**
-       * @description Status of the stocktake
-       * @default DRAFT
-       * @enum {string}
-       */
-      status: 'DRAFT' | 'IN_PROGRESS' | 'COMPLETED';
+      created_date?: string;
+      /** @description Whether to set remaining uncounted items as counted */
+      set_remaining_items_as_counted?: boolean;
+      /** @description Array of stocktake row items */
+      stocktake_rows?: {
+        /** @description ID of the variant to count */
+        variant_id?: number;
+        /** @description ID of the batch */
+        batch_id?: number;
+        /** @description Counted quantity */
+        counted_quantity?: number;
+      }[];
     };
     /**
      * @description Request payload for updating an existing stocktake
      * @example {
-     *       "reference_no": "STK-2024-003",
+     *       "stocktake_number": "STK-2024-003",
      *       "location_id": 1,
-     *       "stocktake_date": "2024-01-17T09:00:00.000Z",
-     *       "notes": "Quarterly inventory count - updated",
+     *       "reason": "Quarterly inventory count - updated",
      *       "status": "IN_PROGRESS"
      *     }
      */
     UpdateStocktakeRequest: {
-      /** @description Human-readable reference number for the stocktake */
-      reference_no?: string;
-      /** @description ID of the location where the stocktake is performed */
+      /** @description A string used to identify the stocktake */
+      stocktake_number?: string;
+      /** @description The ID of the stocktake location */
       location_id?: number;
+      /** @description A descriptive field for your own information to enable better identification */
+      reason?: string;
+      /** @description Status of the stocktake */
+      status?: components['schemas']['StocktakeStatus'];
+      /** @description Additional notes or information about the stocktake */
+      additional_info?: string;
       /**
        * Format: date-time
-       * @description Date and time when the stocktake was performed
+       * @description Date when the stocktake was created
        */
-      stocktake_date?: string;
-      /** @description Optional notes about the stocktake */
-      notes?: string;
+      created_date?: string;
       /**
-       * @description Status of the stocktake
-       * @enum {string}
+       * Format: date-time
+       * @description Date when the stocktake was completed
        */
-      status?: 'DRAFT' | 'IN_PROGRESS' | 'COMPLETED';
+      completed_date?: string;
+      /** @description Whether to set remaining uncounted items as counted */
+      set_remaining_items_as_counted?: boolean;
     };
     /**
-     * @description Request payload for creating a new stocktake row for counting specific variants
+     * @description Request payload for creating stocktake rows for counting specific variants
      * @example {
      *       "stocktake_id": 4001,
-     *       "variant_id": 3001,
-     *       "system_quantity": 150,
-     *       "actual_quantity": 147,
-     *       "notes": "Minor count difference noted"
+     *       "stocktake_rows": [
+     *         {
+     *           "variant_id": 3001,
+     *           "counted_quantity": 147,
+     *           "notes": "Initial count"
+     *         }
+     *       ]
      *     }
      */
     CreateStocktakeRowRequest: {
       /** @description ID of the stocktake this row belongs to */
       stocktake_id: number;
-      /** @description ID of the variant being counted */
-      variant_id: number;
-      /** @description ID of the specific batch being counted (if applicable) */
-      batch_id?: number;
-      /** @description System recorded quantity before counting */
-      system_quantity: number;
-      /** @description Actual counted quantity */
-      actual_quantity?: number;
-      /** @description Optional notes about the count */
-      notes?: string;
+      /** @description Array of stocktake rows to create */
+      stocktake_rows?: {
+        /** @description ID of the variant being counted */
+        variant_id: number;
+        /** @description ID of the specific batch being counted (required for batch-trackable items) */
+        batch_id?: number | null;
+        /** @description Optional notes about the count */
+        notes?: string | null;
+        /** @description The actual quantity counted during the stocktake */
+        counted_quantity?: number | null;
+      }[];
     };
     /**
      * @description Request payload for updating an existing stocktake row
      * @example {
-     *       "actual_quantity": 148,
-     *       "variance_quantity": -2,
+     *       "variant_id": 3001,
+     *       "batch_id": 501,
+     *       "counted_quantity": 148,
      *       "notes": "Recount confirmed minor variance"
      *     }
      */
     UpdateStocktakeRowRequest: {
-      /** @description ID of the stocktake this row belongs to */
-      stocktake_id?: number;
       /** @description ID of the variant being counted */
       variant_id?: number;
-      /** @description ID of the specific batch being counted (if applicable) */
-      batch_id?: number;
-      /** @description System recorded quantity before counting */
-      system_quantity?: number;
-      /** @description Actual counted quantity */
-      actual_quantity?: number;
-      /** @description Calculated variance between system and actual quantity */
-      variance_quantity?: number;
+      /** @description ID of the specific batch being counted (required for batch-trackable items) */
+      batch_id?: number | null;
       /** @description Optional notes about the count */
-      notes?: string;
+      notes?: string | null;
+      /** @description The actual quantity counted during the stocktake */
+      counted_quantity?: number | null;
     };
     /**
      * @description Response containing a list of sales returns with customer refund and return processing information
@@ -9922,12 +12944,12 @@ export interface components {
      *           "sales_order_id": 2001,
      *           "order_no": "SR-2023-001",
      *           "return_location_id": 1,
-     *           "status": "RETURNED",
+     *           "status": "RETURNED_ALL",
      *           "currency": "USD",
      *           "return_date": "2023-10-15T14:30:00Z",
      *           "order_created_date": "2023-10-10T10:00:00Z",
      *           "additional_info": "Customer reported damaged items",
-     *           "refund_status": "PROCESSED"
+     *           "refund_status": "REFUNDED"
      *         }
      *       ]
      *     }
@@ -9944,7 +12966,7 @@ export interface components {
      *           "id": 3501,
      *           "sales_return_id": 3001,
      *           "variant_id": 2002,
-     *           "quantity": 2,
+     *           "quantity": "2.0",
      *           "return_reason_id": 1,
      *           "notes": "Packaging was damaged",
      *           "unit_price": 25,
@@ -9958,13 +12980,32 @@ export interface components {
       data?: components['schemas']['SalesReturnRow'][];
     };
     /**
+     * @description Information about the currently authenticated user
+     * @example {
+     *       "id": 42,
+     *       "firstName": "Jane",
+     *       "lastName": "Doe",
+     *       "email": "jane.doe@example.com"
+     *     }
+     */
+    UserInfo: {
+      /** @description Unique identifier for the user account */
+      id: number;
+      /** @description User's first name */
+      firstName: string;
+      /** @description User's last name */
+      lastName: string;
+      /** @description Email address used for login and notifications */
+      email: string;
+    };
+    /**
      * @description List of system users with their account information and role assignments
      * @example {
      *       "data": [
      *         {
      *           "id": 42,
-     *           "first_name": "Sarah",
-     *           "last_name": "Johnson",
+     *           "firstName": "Sarah",
+     *           "lastName": "Johnson",
      *           "email": "sarah.johnson@company.com",
      *           "role": "production_manager",
      *           "status": "active",
@@ -9974,8 +13015,8 @@ export interface components {
      *         },
      *         {
      *           "id": 43,
-     *           "first_name": "Mike",
-     *           "last_name": "Chen",
+     *           "firstName": "Mike",
+     *           "lastName": "Chen",
      *           "email": "mike.chen@company.com",
      *           "role": "inventory_coordinator",
      *           "status": "active",
@@ -9996,10 +13037,13 @@ export interface components {
      *       "data": [
      *         {
      *           "id": 6001,
+     *           "material_id": 1,
      *           "purchase_order_id": 1001,
+     *           "purchase_order_row_id": 1001,
      *           "variant_id": 2002,
+     *           "ingredient_variant_id": 2002,
      *           "planned_quantity_per_unit": 2.5,
-     *           "ingredient_availability": "AVAILABLE",
+     *           "ingredient_availability": "IN_STOCK",
      *           "ingredient_expected_date": "2023-10-15T08:00:00Z",
      *           "notes": "Supplier will handle assembly"
      *         }
@@ -10021,11 +13065,8 @@ export interface components {
       ingredient_variant_id: number;
       /** @description The planned quantity of this ingredient per unit of production */
       planned_quantity_per_unit: number;
-      /**
-       * @description Current availability status of this ingredient
-       * @enum {string}
-       */
-      ingredient_availability?: 'PROCESSED' | 'IN_STOCK' | 'NOT_AVAILABLE' | 'EXPECTED' | 'NOT_APPLICABLE';
+      /** @description Current availability status of this ingredient */
+      ingredient_availability?: components['schemas']['OutsourcedRecipeIngredientAvailability'];
       /**
        * Format: date-time
        * @description Expected date when this ingredient will be available
@@ -10045,7 +13086,7 @@ export interface components {
      * @description Request payload for reordering product operations within a manufacturing workflow to optimize production sequence
      * @example {
      *       "rank_product_operation_id": 501,
-     *       "preceeding_product_operation_id": 499,
+     *       "preceding_product_operation_id": 499,
      *       "should_group": true
      *     }
      */
@@ -10053,7 +13094,7 @@ export interface components {
       /** @description ID of the product operation to be reordered */
       rank_product_operation_id: number;
       /** @description ID of the operation that should precede the operation being moved */
-      preceeding_product_operation_id?: number;
+      preceding_product_operation_id?: number;
       /** @description Whether operations should be grouped together in the sequence */
       should_group?: boolean;
     };
@@ -10109,11 +13150,8 @@ export interface components {
       fulfillment_id: number;
       /** @description Invoice identifier in the external accounting system */
       invoice_id: string;
-      /**
-       * @description Type of accounting system integration used
-       * @enum {string}
-       */
-      integration_type: 'xero' | 'quickBooks' | 'sage' | 'custom';
+      /** @description Type of accounting system integration used */
+      integration_type: components['schemas']['AccountingIntegrationType'];
       /**
        * Format: date-time
        * @description Date and time when the accounting metadata was created
@@ -10127,7 +13165,7 @@ export interface components {
      *         {
      *           "id": 2801,
      *           "sales_order_id": 2001,
-     *           "amount": 25.99,
+     *           "amount": "25.99",
      *           "tax_rate_id": 301,
      *           "description": "UPS Ground Shipping"
      *         }
@@ -10143,7 +13181,7 @@ export interface components {
      * @example {
      *       "id": 2801,
      *       "sales_order_id": 2001,
-     *       "amount": 25.99,
+     *       "amount": "25.99",
      *       "tax_rate_id": 301,
      *       "description": "UPS Ground Shipping"
      *     }
@@ -10164,7 +13202,7 @@ export interface components {
      * @description Request payload for adding a shipping fee to an existing sales order
      * @example {
      *       "sales_order_id": 2001,
-     *       "amount": 25.99,
+     *       "amount": "25.99",
      *       "description": "Express Shipping - Next Day Delivery",
      *       "tax_rate_id": 301
      *     }
@@ -10172,12 +13210,494 @@ export interface components {
     CreateSalesOrderShippingFeeRequest: {
       /** @description ID of the sales order to add shipping fee to */
       sales_order_id: number;
-      /** @description Shipping fee amount in the order currency */
-      amount: number;
+      /**
+       * @description Shipping fee amount in the order currency. Sent as a string to
+       *     preserve exact decimal precision (Katana's wire format).
+       */
+      amount: string;
       /** @description Description of the shipping service or fee type */
       description?: string;
       /** @description ID of the tax rate to apply to the shipping fee */
       tax_rate_id?: number;
+    };
+    /** @description Batch allocation transaction for tracking inventory lots */
+    BatchTransactionRequest: {
+      /** @description Batch ID */
+      batch_id: number;
+      /** @description Quantity */
+      quantity: number;
+    };
+    /** @description Request payload for updating an existing customer address */
+    UpdateCustomerAddressRequest: {
+      /** @description Updated first name for the contact person at this address */
+      first_name?: string | null;
+      /** @description Updated last name for the contact person at this address */
+      last_name?: string | null;
+      /** @description Updated company name for business addresses */
+      company?: string | null;
+      /** @description Updated phone number for this address location */
+      phone?: string | null;
+      /** @description Updated primary address line (street address, building number) */
+      line_1?: string | null;
+      /** @description Updated secondary address line (apartment, suite, floor) */
+      line_2?: string | null;
+      /** @description Updated city or locality name */
+      city?: string | null;
+      /** @description Updated state, province, or region */
+      state?: string | null;
+      /** @description Updated postal code or ZIP code */
+      zip?: string | null;
+      /** @description Updated country name or country code */
+      country?: string | null;
+    };
+    /** @description Request payload for creating a new inventory reorder point */
+    CreateInventoryReorderPointRequest: {
+      /** @description Product variant ID */
+      variant_id: number;
+      /** @description Location ID */
+      location_id: number;
+      /** @description Minimum stock level that triggers reorder */
+      value: number;
+    };
+    /** @description Request payload for setting an inventory safety stock level (create or update) */
+    CreateInventorySafetyStockLevelRequest: {
+      /** @description Product variant ID */
+      variant_id: number;
+      /** @description Location ID */
+      location_id: number;
+      /** @description Minimum quantity to maintain as safety stock buffer */
+      value: number;
+    };
+    /** @description Request payload for creating a new outsourced purchase order recipe row */
+    CreateOutsourcedPurchaseOrderRecipeRowRequest: {
+      /** @description Purchase order row ID */
+      purchase_order_row_id: number;
+      /** @description Ingredient variant ID */
+      ingredient_variant_id: number;
+      /** @description Planned quantity per unit of production */
+      planned_quantity_per_unit: number;
+      /** @description Additional notes about this ingredient requirement */
+      notes?: string;
+      /** @description Batch allocation transactions for this ingredient */
+      batch_transactions?: components['schemas']['BatchTransactionRequest'][];
+    };
+    /** @description Request payload for updating an outsourced purchase order recipe row */
+    UpdateOutsourcedPurchaseOrderRecipeRowRequest: {
+      /** @description Ingredient variant ID. Updatable only when received_date is null. */
+      ingredient_variant_id?: number;
+      /** @description Planned quantity per unit. Updatable only when received_date is null. */
+      planned_quantity_per_unit?: number;
+      /** @description Additional notes about this ingredient requirement */
+      notes?: string;
+      /** @description Batch allocation transactions for this ingredient */
+      batch_transactions?: components['schemas']['BatchTransactionRequest'][];
+    };
+    /** @description A single product operation row item in a bulk create request */
+    CreateProductOperationRowItem: {
+      /** @description ID of the product variant that this operation row applies to */
+      product_variant_id: number;
+      /** @description If operation ID is used to map the operation, then operation_name is ignored. */
+      operation_id?: number;
+      /**
+       * @description If operation name is used to map the operation then,
+       *     we match to the existing operations by name. If a match is not found, a new one is created.
+       */
+      operation_name?: string;
+      /** @description If resource ID is used to map the resource, then resource_name is ignored. */
+      resource_id?: number;
+      /**
+       * @description If resource name is used to map the resource then we match to the existing resources by name.
+       *     If a match is not found, a new one is created.
+       */
+      resource_name?: string;
+      /**
+       * @description Different operation types allows you to use different cost
+       *     calculations depending on the type of product operation
+       *     Process: The process operation type is best for when products
+       *     are individually built and time is the main driver of cost.
+       *     Setup: The setup operation type is best for setting up a
+       *     machine for production where the production quantity doesn't
+       *     affect cost.
+       *     Per unit: The per unit operation type is best when cost of
+       *     time isn't a factor, but only the quantity of product made.
+       *     Fixed cost: The fixed cost operation type is useful for adding
+       *     the expected extra costs that go into producing a product.
+       * @default process
+       */
+      type: components['schemas']['ProductOperationType'];
+      /**
+       * @description The expected cost of an operation, either total or per hour/unit of product (based on type).
+       *     Total cost of the operation on a manufacturing order is calculated as follows:
+       *     process: cost = cost_parameter x planned_time_parameter (in hours) x product quantity
+       *     setup: cost = cost_parameter x planned_time_parameter (in
+       *     hours)
+       *     perUnit: cost = cost_parameter x product quantity
+       *     fixed: cost = cost_parameter
+       */
+      cost_parameter?: number;
+      /**
+       * @deprecated
+       * @description (This field is deprecated in favor of cost_parameter) The expected cost of an
+       *     operation, either total or per hour/unit of product (based on type). Total cost
+       *     of the operation on a manufacturing order is calculated as follows:
+       *     process: cost = cost_parameter x planned_time_parameter (in hours) x product quantity
+       *     setup: cost = cost_parameter x planned_time_parameter (in
+       *     hours)
+       *     perUnit: cost = cost_parameter x product quantity
+       *     fixed: cost = cost_parameter
+       */
+      cost_per_hour?: number;
+      /** @description The planned duration of an operation, in seconds, to either manufacture one unit of a product or complete a manufacturing order (based on type). */
+      planned_time_parameter?: number;
+      /**
+       * @deprecated
+       * @description (This field is deprecated in favor of planned_time_parameter) The planned duration of an operation, in seconds, to either manufacture one unit of a product or complete a manufacturing order (based on type).
+       */
+      planned_time_per_unit?: number;
+    };
+    /** @description Request payload for creating product operation rows in bulk */
+    CreateProductOperationRowsRequest: {
+      /**
+       * @description Existing production operation lines are kept by default,
+       *     and new lines will be added after the existing product operations.
+       *     Set to false to delete all existing product operation lines for related products.
+       */
+      keep_current_rows?: boolean;
+      /** @description List of product operation rows to create in this bulk request (max 150 per call) */
+      rows: components['schemas']['CreateProductOperationRowItem'][];
+    };
+    /** @description Request payload for updating a product operation row */
+    UpdateProductOperationRowRequest: {
+      /** @description ID of the operation */
+      operation_id?: number;
+      /** @description Name of the operation */
+      operation_name?: string;
+      /** @description Type of operation defining how time and cost are calculated */
+      type?: components['schemas']['ManufacturingOperationType'];
+      /** @description ID of the resource performing the operation */
+      resource_id?: number;
+      /** @description Name of the resource */
+      resource_name?: string;
+      /** @description Parameter for calculating planned time */
+      planned_time_parameter?: number;
+      /** @description Planned time per unit */
+      planned_time_per_unit?: number;
+      /** @description Parameter for calculating cost */
+      cost_parameter?: number;
+      /** @description Hourly cost rate */
+      cost_per_hour?: number;
+    };
+    /** @description Request payload for updating a recipe row */
+    UpdateRecipeRowRequest: {
+      /** @description ID of the ingredient variant */
+      ingredient_variant_id?: number;
+      /** @description Ingredient quantity required */
+      quantity?: number;
+      /** @description Additional notes about the recipe row */
+      notes?: string;
+    };
+    /** @description A fulfillment row item specifying which order row and quantity to fulfill */
+    SalesOrderFulfillmentRowRequest: {
+      /** @description Sales order row ID */
+      sales_order_row_id?: number;
+      /** @description Quantity to fulfill */
+      quantity?: number;
+      /** @description Serial number IDs allocated to this fulfillment row. Required when the row's variant is serial-tracked; the count must equal `quantity`. */
+      serial_numbers?: number[];
+    };
+    /** @description Request payload for creating a new sales order fulfillment */
+    CreateSalesOrderFulfillmentRequest: {
+      /** @description Sales order ID */
+      sales_order_id: number;
+      /**
+       * Format: date-time
+       * @description Date when items were picked
+       */
+      picked_date?: string;
+      /** @description Fulfillment status */
+      status: components['schemas']['SalesOrderFulfillmentStatus'];
+      /** @description Currency conversion rate */
+      conversion_rate?: number;
+      /**
+       * Format: date-time
+       * @description Date of currency conversion
+       */
+      conversion_date?: string;
+      /** @description Shipment tracking number */
+      tracking_number?: string;
+      /** @description URL for tracking the shipment */
+      tracking_url?: string;
+      /** @description Shipping carrier name */
+      tracking_carrier?: string;
+      /** @description Shipping method used */
+      tracking_method?: string;
+      /** @description Fulfillment row items */
+      sales_order_fulfillment_rows: components['schemas']['SalesOrderFulfillmentRowRequest'][];
+    };
+    /** @description Request payload for updating a sales order fulfillment */
+    UpdateSalesOrderFulfillmentRequest: {
+      /**
+       * Format: date-time
+       * @description Date when items were picked
+       */
+      picked_date?: string;
+      /** @description Fulfillment status */
+      status?: components['schemas']['SalesOrderFulfillmentStatus'];
+      /** @description Currency conversion rate */
+      conversion_rate?: number;
+      /** @description ID of the packer who packed the order */
+      packer_id?: number;
+      /**
+       * Format: date-time
+       * @description Date of currency conversion
+       */
+      conversion_date?: string;
+      /** @description Shipment tracking number */
+      tracking_number?: string;
+      /** @description URL for tracking the shipment */
+      tracking_url?: string;
+      /** @description Shipping carrier name */
+      tracking_carrier?: string;
+      /** @description Shipping method used */
+      tracking_method?: string;
+    };
+    /** @description Request payload for updating a sales order shipping fee */
+    UpdateSalesOrderShippingFeeRequest: {
+      /** @description Shipping fee description */
+      description?: string;
+      /**
+       * @description Shipping fee amount. Sent as a string to preserve exact decimal
+       *     precision (Katana's wire format).
+       */
+      amount: string;
+      /** @description ID of the tax rate to apply to the shipping fee */
+      tax_rate_id?: number;
+    };
+    /** @description Request payload for updating a sales order */
+    UpdateSalesOrderRequest: {
+      /** @description Updatable only when sales order status is NOT_SHIPPED or PENDING. */
+      order_no?: string;
+      /** @description Updatable only when sales order status is NOT_SHIPPED or PENDING. */
+      customer_id?: number;
+      /**
+       * Format: date-time
+       * @description Date when the order was originally created
+       */
+      order_created_date?: string;
+      /**
+       * Format: date-time
+       * @description Updatable only when sales order status is NOT_SHIPPED or PENDING.
+       */
+      delivery_date?: string;
+      /**
+       * Format: date-time
+       * @description Sales-order-level pick date. Updatable only when sales order status
+       *     is ``NOT_SHIPPED`` or ``PENDING``.
+       *
+       *     **Cascading update:** patching this field rewrites ``picked_date``
+       *     on **every** linked fulfillment to match. For per-fulfillment pick
+       *     dates, patch
+       *     ``/sales_order_fulfillments/{id}`` directly instead.
+       */
+      picked_date?: string;
+      /** @description Updatable only when sales order status is NOT_SHIPPED or PENDING. */
+      location_id?: number;
+      /** @description When the status is omitted, NOT_SHIPPED is used as default. Use PENDING when you want to create sales order quotes. */
+      status?: components['schemas']['UpdateSalesOrderStatus'];
+      /**
+       * @description E.g. USD, EUR. All currently active currency codes in ISO 4217 format. Updatable only when sales
+       *     order status is NOT_SHIPPED or PENDING.
+       */
+      currency?: string;
+      /** @description Updatable only when sales order status is PACKED or DELIVERED, otherwise it will fail with 422. */
+      conversion_rate?: number;
+      /** @description Updatable only when sales order status is PACKED or DELIVERED, otherwise it will fail with 422. */
+      conversion_date?: string;
+      /** @description Additional notes or instructions for the sales order */
+      additional_info?: string | null;
+      /** @description Customer's reference number or purchase order number */
+      customer_ref?: string | null;
+      /** @description Shipping carrier tracking number for package tracking */
+      tracking_number?: string | null;
+      /** @description URL link to track the shipment on carrier website */
+      tracking_number_url?: string | null;
+      /**
+       * @description Custom field values for the sales order, keyed by the
+       *     definition ``id`` (UUID) — the ``id`` returned by
+       *     ``GET /custom_field_definitions``, not the field label. Each
+       *     value matches the definition's ``field_type``: string for
+       *     ``shortText`` / ``url``, number for ``number``, boolean for
+       *     ``boolean``, a ``YYYY-MM-DD`` string for ``date``, or the
+       *     integer choice ``id`` for ``singleSelect``.
+       *
+       *     On ``PATCH`` the object is **merged** with the existing values,
+       *     not replaced:
+       *
+       *     - omit the ``custom_fields`` key — existing values unchanged;
+       *     - ``{"<id>": value}`` — that key is set / overwritten, all
+       *       other keys kept;
+       *     - ``null`` — all custom field values on the order are cleared.
+       *
+       *     Keys are tenant-specific, so the schema declares
+       *     ``additionalProperties: true`` rather than enumerating them.
+       */
+      custom_fields?: {
+        [key: string]: unknown;
+      } | null;
+    };
+    /** @description Request payload for updating a sales return row */
+    UpdateSalesReturnRowRequest: {
+      /** @description Quantity being returned. Updatable only when current return status is NOT_RETURNED. */
+      quantity?: number;
+      /** @description Restock location ID. Updatable only when current return status is NOT_RETURNED or RETURNED. */
+      restock_location_id?: number;
+      /** @description Reason ID. Updatable only when current return status is NOT_RETURNED. */
+      reason_id?: number;
+      /** @description Batch transactions. Updatable only when current return status is NOT_RETURNED or RETURNED. */
+      batch_transactions?: components['schemas']['BatchTransactionRequest'][];
+    };
+    /** @description Request payload for creating serial numbers for a resource */
+    CreateSerialNumbersRequest: {
+      /** @description Resource type */
+      resource_type: components['schemas']['CreateSerialNumberResourceType'];
+      /** @description Resource ID */
+      resource_id: number;
+      /** @description List of serial numbers to create */
+      serial_numbers: string[];
+    };
+    /**
+     * @description Request payload for deleting serial numbers from a resource. The
+     *     delete is scoped to a single resource (``resource_type`` +
+     *     ``resource_id``) and a list of serial-number IDs.
+     * @example {
+     *       "resource_type": "ManufacturingOrder",
+     *       "resource_id": 3001,
+     *       "ids": [
+     *         1001,
+     *         1002
+     *       ]
+     *     }
+     */
+    DeleteSerialNumbersRequest: {
+      /** @description Resource type the serial numbers belong to */
+      resource_type: components['schemas']['SerialNumberResourceType'];
+      /** @description Resource ID the serial numbers belong to */
+      resource_id: number;
+      /** @description Serial number IDs to delete */
+      ids: number[];
+    };
+    /** @description A stock transfer row item specifying which variant and quantity to transfer */
+    StockTransferRowRequest: {
+      /** @description Product variant ID */
+      variant_id?: number;
+      /**
+       * @description Quantity to transfer, as a fixed-precision decimal string
+       *     (e.g. ``"1.0000000000"``).
+       */
+      quantity?: string;
+    };
+    /** @description Request payload for creating a new stock transfer */
+    CreateStockTransferRequest: {
+      /** @description Unique stock transfer number for tracking */
+      stock_transfer_number: string;
+      /** @description Source location ID where items are transferred from */
+      source_location_id: number;
+      /** @description Destination location ID where items are transferred to */
+      target_location_id: number;
+      /**
+       * Format: date-time
+       * @description Date when the transfer was initiated
+       */
+      transfer_date?: string;
+      /**
+       * Format: date-time
+       * @description Date when the transfer order was created
+       */
+      order_created_date?: string;
+      /**
+       * Format: date-time
+       * @description Expected arrival date at destination
+       */
+      expected_arrival_date?: string;
+      /** @description Additional notes or information about the transfer */
+      additional_info?: string;
+      /** @description Line items being transferred */
+      stock_transfer_rows: components['schemas']['StockTransferRowRequest'][];
+    };
+    /** @description Request payload for updating a stock transfer */
+    UpdateStockTransferRequest: {
+      /** @description Updated stock transfer number */
+      stock_transfer_number?: string;
+      /**
+       * Format: date-time
+       * @description Updated transfer date
+       */
+      transfer_date?: string;
+      /**
+       * Format: date-time
+       * @description Updated order creation date
+       */
+      order_created_date?: string;
+      /**
+       * Format: date-time
+       * @description Updated expected arrival date
+       */
+      expected_arrival_date?: string;
+      /** @description Updated additional notes or information */
+      additional_info?: string;
+    };
+    /** @description Request payload for updating a stock transfer status */
+    UpdateStockTransferStatusRequest: {
+      /** @description New status for the stock transfer */
+      status?: components['schemas']['StockTransferStatus'];
+    };
+    /** @description Response containing a list of locations */
+    LocationListResponse: {
+      /** @description Array of locations returned by this page of the list response */
+      data?: components['schemas']['Location'][];
+    };
+    /** @description Response containing a list of product operation rows */
+    ProductOperationRowListResponse: {
+      /** @description Array of product operation rows returned by this page of the list response */
+      data?: components['schemas']['ProductOperationRow'][];
+    };
+    /** @description An item from a sales order that is eligible for return */
+    ReturnableItem: {
+      /** @description Product variant ID */
+      variant_id: number;
+      /** @description Fulfillment row ID */
+      fulfillment_row_id: number;
+      /** @description Quantity available for return */
+      available_for_return_quantity: string;
+      /** @description Net price per unit */
+      net_price_per_unit: string;
+      /** @description Location ID */
+      location_id: number;
+      /** @description Total quantity sold */
+      quantity_sold: string;
+    };
+    /** @description A batch transaction not yet assigned to a sales return row */
+    UnassignedBatchTransaction: {
+      /** @description Batch transaction ID */
+      id?: number;
+      /** @description Batch ID */
+      batch_id?: number;
+      /** @description Transaction quantity */
+      quantity?: number;
+      /** @description Transaction status */
+      status?: string;
+    };
+    /** @description Response containing a list of unassigned batch transactions */
+    UnassignedBatchTransactionListResponse: {
+      /** @description Array of unassigned batch transactions returned by this page of the list response */
+      data?: components['schemas']['UnassignedBatchTransaction'][];
+    };
+    /** @description A reason for returning items from a sales order */
+    SalesReturnReason: {
+      /** @description Return reason ID */
+      id: number;
+      /** @description Return reason name */
+      name: string;
     };
   };
   responses: {
@@ -10242,11 +13762,11 @@ export interface components {
          * @example {
          *       "statusCode": 422,
          *       "name": "UnprocessableEntityError",
-         *       "message": "The request body is invalid.",
+         *       "message": "The request body is invalid. See error object `details` property for more info.",
          *       "code": "VALIDATION_FAILED",
          *       "details": [
          *         {
-         *           "path": ".name",
+         *           "path": ".city",
          *           "code": "maxLength",
          *           "message": "should NOT be longer than 10 characters",
          *           "info": {
@@ -10317,6 +13837,40 @@ export interface components {
         'application/json': components['schemas']['ErrorResponse'];
       };
     };
+    /**
+     * @description Precondition failed - the resource cannot be modified or deleted in its
+     *     current state. Typically returned when a delete is blocked by linked
+     *     child records (e.g. a sales order with attached return orders, or a
+     *     purchase order with received stock).
+     *
+     *     Note: 412 responses observed on these endpoints arrive wrapped in
+     *     Katana's nested ``{"error": {...}}`` envelope (see example). The
+     *     ``ErrorResponse`` schema describes the inner object; the wire payload
+     *     nests it under an ``error`` key. The client's ``unwrap()`` helper
+     *     handles both shapes transparently. Callers inspecting the raw
+     *     payload directly (via ``sync_detailed()`` / ``asyncio_detailed()``
+     *     and ``Response.content``) should expect the wrapped form.
+     */
+    PreconditionFailedError: {
+      headers: {
+        'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
+        'X-Ratelimit-Remaining': components['headers']['X-Ratelimit-Remaining'];
+        'X-Ratelimit-Reset': components['headers']['X-Ratelimit-Reset'];
+        [name: string]: unknown;
+      };
+      content: {
+        /**
+         * @example {
+         *       "error": {
+         *         "statusCode": 412,
+         *         "name": "PreconditionFailedError",
+         *         "message": "Cannot delete sales orders as sales orders have return orders."
+         *       }
+         *     }
+         */
+        'application/json': components['schemas']['ErrorResponse'];
+      };
+    };
   };
   parameters: {
     /** @description Filters results by an array of IDs. */
@@ -10337,16 +13891,10 @@ export interface components {
     extend_variant: 'product_or_material'[];
     /** @description Filters results by a location ID. */
     location_id: number;
-    /** @description Filters results by resource type. */
-    resource_type:
-      | 'PurchaseOrderRow'
-      | 'PurchaseOrderRecipeRow'
-      | 'SalesOrderRow'
-      | 'ManufacturingOrderRecipeRow'
-      | 'StockAdjustmentRow'
-      | 'StockTransferRow'
-      | 'ManufacturingOrder'
-      | 'SystemGenerated';
+    /** @description Filters inventory movements by the resource type that caused them. */
+    inventory_movement_resource_type: components['schemas']['InventoryMovementResourceTypeFilter'];
+    /** @description Filters serial numbers by the resource type they are attached to. */
+    serial_number_resource_type: components['schemas']['SerialNumberResourceType'];
     /** @description Filters results by a resource ID. */
     resource_id: number;
     /** @description Filters results by the causing order number. */
@@ -10405,8 +13953,12 @@ export interface components {
     default_supplier_id: number;
     /** @description Filters records by whether they are sellable. */
     is_sellable: boolean;
-    /** @description Filters records by whether they are batch tracked. */
-    batch_tracked: boolean;
+    /**
+     * @description Filters records by batch-tracking status. Send the literal string
+     *     ``"true"`` or ``"false"`` — Katana matches the wire value, not the JSON
+     *     boolean.
+     */
+    batch_tracked: 'true' | 'false';
     /** @description Filters records by purchase unit of measure. */
     purchase_uom: string;
     /** @description Filters records by purchase unit of measure conversion rate. */
@@ -10423,16 +13975,22 @@ export interface components {
     is_purchasable: boolean;
     /** @description Filters products by an is_auto_assembly */
     is_auto_assembly: boolean;
-    /** @description Filters products by a serial_tracked */
-    serial_tracked: boolean;
+    /**
+     * @description Filters records by serial-tracking status. Send the literal string
+     *     ``"true"`` or ``"false"`` — Katana matches the wire value, not the JSON
+     *     boolean.
+     */
+    serial_tracked: 'true' | 'false';
     /** @description Filters products by a operations_in_sequence */
     operations_in_sequence: boolean;
     /** @description Filters purchase orders by an order number */
     order_no: string;
     /** @description Filters purchase orders by an entity type */
-    entity_type: 'regular' | 'outsourced';
+    entity_type: components['schemas']['PurchaseOrderEntityType'];
+    /** @description Filters addresses by entity type (billing or shipping). */
+    address_entity_type: components['schemas']['AddressEntityType'];
     /** @description Filters purchase orders by a status */
-    po_status: 'NOT_RECEIVED' | 'PARTIALLY_RECEIVED' | 'RECEIVED';
+    po_status: 'DRAFT' | 'NOT_RECEIVED' | 'PARTIALLY_RECEIVED' | 'RECEIVED';
     /** @description Filters purchase orders by a billing status */
     billing_status: 'BILLED' | 'NOT_BILLED' | 'PARTIALLY_BILLED';
     /** @description Filters purchase orders by a currency */
@@ -10448,11 +14006,13 @@ export interface components {
     /** @description Filters purchase order additional cost rows by tax rate id */
     tax_rate_id: number;
     /** @description Filters purchase order additional cost rows by an distribution method */
-    distribution_method: 'BY_VALUE' | 'NON_DISTRIBUTED';
+    distribution_method: components['schemas']['CostDistributionMethod'];
     /** @description Filters purchase order rows by purchase order id */
     purchase_order_id: number;
     /** @description Filters manufacturing orders by a status. */
-    mo_status: 'NOT_STARTED' | 'BLOCKED' | 'IN_PROGRESS' | 'PAUSED' | 'COMPLETED';
+    manufacturing_order_status: components['schemas']['ManufacturingOrderStatus'];
+    /** @description Filters manufacturing order operation rows by a status. */
+    mo_operation_row_status: components['schemas']['ManufacturingOperationStatus'];
     /** @description Filters manufacturing orders by location. */
     manufacturing_order_id: number;
     /** @description Filters purchase order accounting metadata by received items group id */
@@ -10482,7 +14042,7 @@ export interface components {
     /** @description Filters supplier addresses by a country */
     country: string;
     /** @description Filters manufacturing orders by an ingredient availability. */
-    ingredient_availability: 'PROCESSED' | 'IN_STOCK' | 'NOT_AVAILABLE' | 'EXPECTED' | 'NO_RECIPE' | 'NOT_APPLICABLE';
+    ingredient_availability: components['schemas']['IngredientAvailability'];
     /** @description Filters tax rates by rate */
     rate: number;
     /** @description Filters tax rates by an is_default_sales */
@@ -10503,6 +14063,8 @@ export interface components {
     registered_barcode: string;
     /** @description Filters variants by supplier item codes. Returns the variants that match with any of the codes in the array. */
     supplier_item_codes: string[];
+    /** @description Filters variants by ABC inventory classification. */
+    abc_classification: components['schemas']['AbcClassification'];
     /** @description Filters webhooks by an url */
     url: string;
     /** @description Filters webhooks by enabled flag */
@@ -10514,7 +14076,7 @@ export interface components {
     /** @description Filters sales returns by an order number */
     return_order_no: string;
     /** @description Filters sales returns by a refund status */
-    refund_status: 'NOT_REFUNDED' | 'REFUNDED_ALL' | 'PARTIALLY_REFUNDED';
+    refund_status: components['schemas']['SalesReturnRefundStatus'];
     /** @description Minimum value for return_date range. Must be compatible with ISO 8601 format */
     return_date_min: string;
     /** @description Maximum value for return_date range. Must be compatible with ISO 8601 format */
@@ -10535,6 +14097,10 @@ export interface components {
     category_name: string;
     /** @description Resource identifier */
     id: number;
+    /** @description BOM row identifier (UUID) */
+    bom_row_id: string;
+    /** @description Custom field definition identifier (UUID) */
+    custom_field_definition_id: string;
     /** @description Filter by sales order ID */
     sales_order_id: number;
     /** @description Filter by customer ID */
@@ -10737,8 +14303,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        /** @description Batch id */
-        batch_id: number;
+        /** @description Resource identifier */
+        id: components['parameters']['id'];
       };
       cookie?: never;
     };
@@ -10768,6 +14334,50 @@ export interface operations {
       500: components['responses']['InternalServerError'];
     };
   };
+  getBinInventory: {
+    parameters: {
+      query?: {
+        /** @description Row granularity. Defaults to `VARIANT`. */
+        granularity?: components['schemas']['BinInventoryGranularity'];
+        /** @description Filters results by a location ID. */
+        location_id?: components['parameters']['location_id'];
+        /** @description Filters results by a valid variant id. */
+        variant_id?: components['parameters']['variant_id'];
+        /** @description Filter by bin location ID. Pass `null` to target stock with no bin assignment. */
+        bin_location_id?: string;
+        /** @description Filter by batch ID. Pass `null` to target unbatched stock. */
+        batch_id?: string;
+        /** @description Filter by serial number ID. Pass `null` to target untraced serials. */
+        serial_number_id?: string;
+        /** @description Number of records to return per page. */
+        limit?: components['parameters']['limit'];
+        /** @description Page number to return. */
+        page?: components['parameters']['page'];
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Per-bin inventory levels. */
+      200: {
+        headers: {
+          'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
+          'X-Ratelimit-Remaining': components['headers']['X-Ratelimit-Remaining'];
+          'X-Ratelimit-Reset': components['headers']['X-Ratelimit-Reset'];
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['BinInventoryListResponse'];
+        };
+      };
+      401: components['responses']['UnauthorizedError'];
+      422: components['responses']['UnprocessableEntityError'];
+      429: components['responses']['TooManyRequests'];
+      500: components['responses']['InternalServerError'];
+    };
+  };
   getAllStorageBins: {
     parameters: {
       query?: {
@@ -10788,7 +14398,12 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description List of storage bins. */
+      /**
+       * @description List of storage bins. Unlike most Katana list endpoints, this one
+       *     returns a bare JSON array on the wire rather than a `{ "data": [...] }`
+       *     envelope (verified against the live API, 2026-06-03). See `/user_info`
+       *     for the only other documented bare-array exception.
+       */
       200: {
         headers: {
           'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
@@ -10798,10 +14413,43 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['StorageBinListResponse'];
+          'application/json': components['schemas']['StorageBinResponse'][];
         };
       };
       401: components['responses']['UnauthorizedError'];
+      429: components['responses']['TooManyRequests'];
+      500: components['responses']['InternalServerError'];
+    };
+  };
+  createStorageBin: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Storage bin details */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['StorageBinCreate'];
+      };
+    };
+    responses: {
+      /** @description Storage bin created */
+      200: {
+        headers: {
+          'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
+          'X-Ratelimit-Remaining': components['headers']['X-Ratelimit-Remaining'];
+          'X-Ratelimit-Reset': components['headers']['X-Ratelimit-Reset'];
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['StorageBinResponse'];
+        };
+      };
+      400: components['responses']['BadRequestError'];
+      401: components['responses']['UnauthorizedError'];
+      422: components['responses']['UnprocessableEntityError'];
       429: components['responses']['TooManyRequests'];
       500: components['responses']['InternalServerError'];
     };
@@ -10861,13 +14509,372 @@ export interface operations {
       500: components['responses']['InternalServerError'];
     };
   };
+  getAllBinTransfers: {
+    parameters: {
+      query?: {
+        /** @description Number of records to return per page. */
+        limit?: components['parameters']['limit'];
+        /** @description Page number to return. */
+        page?: components['parameters']['page'];
+        /** @description Filters results by an array of IDs. */
+        ids?: components['parameters']['ids'];
+        /** @description Soft-deleted data is excluded from result set by default. Set to true to include it. */
+        include_deleted?: components['parameters']['include_deleted'];
+        /** @description Filter by bin transfer number. */
+        bin_transfer_number?: string;
+        /** @description Filters results by a location ID. */
+        location_id?: components['parameters']['location_id'];
+        /** @description Filter by bin transfer status. */
+        status?: components['schemas']['BinTransferStatus'];
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of bin transfers. */
+      200: {
+        headers: {
+          'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
+          'X-Ratelimit-Remaining': components['headers']['X-Ratelimit-Remaining'];
+          'X-Ratelimit-Reset': components['headers']['X-Ratelimit-Reset'];
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['BinTransferListResponse'];
+        };
+      };
+      401: components['responses']['UnauthorizedError'];
+      429: components['responses']['TooManyRequests'];
+      500: components['responses']['InternalServerError'];
+    };
+  };
+  createBinTransfer: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Bin transfer details */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateBinTransferRequest'];
+      };
+    };
+    responses: {
+      /** @description Bin transfer created successfully */
+      200: {
+        headers: {
+          'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
+          'X-Ratelimit-Remaining': components['headers']['X-Ratelimit-Remaining'];
+          'X-Ratelimit-Reset': components['headers']['X-Ratelimit-Reset'];
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['BinTransfer'];
+        };
+      };
+      400: components['responses']['BadRequestError'];
+      401: components['responses']['UnauthorizedError'];
+      422: components['responses']['UnprocessableEntityError'];
+      429: components['responses']['TooManyRequests'];
+      500: components['responses']['InternalServerError'];
+    };
+  };
+  getBinTransfer: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Resource identifier */
+        id: components['parameters']['id'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Bin transfer details */
+      200: {
+        headers: {
+          'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
+          'X-Ratelimit-Remaining': components['headers']['X-Ratelimit-Remaining'];
+          'X-Ratelimit-Reset': components['headers']['X-Ratelimit-Reset'];
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['BinTransfer'];
+        };
+      };
+      401: components['responses']['UnauthorizedError'];
+      404: components['responses']['NotFoundError'];
+      429: components['responses']['TooManyRequests'];
+      500: components['responses']['InternalServerError'];
+    };
+  };
+  deleteBinTransfer: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Resource identifier */
+        id: components['parameters']['id'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      204: components['responses']['NoContent'];
+      401: components['responses']['UnauthorizedError'];
+      404: components['responses']['NotFoundError'];
+      429: components['responses']['TooManyRequests'];
+      500: components['responses']['InternalServerError'];
+    };
+  };
+  updateBinTransfer: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Resource identifier */
+        id: components['parameters']['id'];
+      };
+      cookie?: never;
+    };
+    /** @description Bin transfer update details */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateBinTransferRequest'];
+      };
+    };
+    responses: {
+      /** @description Bin transfer updated successfully */
+      200: {
+        headers: {
+          'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
+          'X-Ratelimit-Remaining': components['headers']['X-Ratelimit-Remaining'];
+          'X-Ratelimit-Reset': components['headers']['X-Ratelimit-Reset'];
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['BinTransfer'];
+        };
+      };
+      400: components['responses']['BadRequestError'];
+      401: components['responses']['UnauthorizedError'];
+      404: components['responses']['NotFoundError'];
+      422: components['responses']['UnprocessableEntityError'];
+      429: components['responses']['TooManyRequests'];
+      500: components['responses']['InternalServerError'];
+    };
+  };
+  updateBinTransferStatus: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Resource identifier */
+        id: components['parameters']['id'];
+      };
+      cookie?: never;
+    };
+    /** @description Status update details */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateBinTransferStatusRequest'];
+      };
+    };
+    responses: {
+      /** @description Bin transfer status updated successfully */
+      200: {
+        headers: {
+          'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
+          'X-Ratelimit-Remaining': components['headers']['X-Ratelimit-Remaining'];
+          'X-Ratelimit-Reset': components['headers']['X-Ratelimit-Reset'];
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['BinTransfer'];
+        };
+      };
+      400: components['responses']['BadRequestError'];
+      401: components['responses']['UnauthorizedError'];
+      404: components['responses']['NotFoundError'];
+      422: components['responses']['UnprocessableEntityError'];
+      429: components['responses']['TooManyRequests'];
+      500: components['responses']['InternalServerError'];
+    };
+  };
+  getAllBinTransferRows: {
+    parameters: {
+      query?: {
+        /** @description Number of records to return per page. */
+        limit?: components['parameters']['limit'];
+        /** @description Page number to return. */
+        page?: components['parameters']['page'];
+        /** @description Filters results by an array of IDs. */
+        ids?: components['parameters']['ids'];
+        /** @description Soft-deleted data is excluded from result set by default. Set to true to include it. */
+        include_deleted?: components['parameters']['include_deleted'];
+        /** @description Filter by parent bin transfer ID. */
+        bin_transfer_id?: number;
+        /** @description Filters results by a valid variant id. */
+        variant_id?: components['parameters']['variant_id'];
+        /** @description Filter by source bin location ID. */
+        source_bin_location_id?: number;
+        /** @description Filter by target bin location ID. */
+        target_bin_location_id?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of bin transfer rows. */
+      200: {
+        headers: {
+          'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
+          'X-Ratelimit-Remaining': components['headers']['X-Ratelimit-Remaining'];
+          'X-Ratelimit-Reset': components['headers']['X-Ratelimit-Reset'];
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['BinTransferRowListResponse'];
+        };
+      };
+      401: components['responses']['UnauthorizedError'];
+      429: components['responses']['TooManyRequests'];
+      500: components['responses']['InternalServerError'];
+    };
+  };
+  createBinTransferRow: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Bin transfer row details */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateBinTransferRowRequest'];
+      };
+    };
+    responses: {
+      /** @description Bin transfer row created successfully */
+      200: {
+        headers: {
+          'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
+          'X-Ratelimit-Remaining': components['headers']['X-Ratelimit-Remaining'];
+          'X-Ratelimit-Reset': components['headers']['X-Ratelimit-Reset'];
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['BinTransferRow'];
+        };
+      };
+      400: components['responses']['BadRequestError'];
+      401: components['responses']['UnauthorizedError'];
+      422: components['responses']['UnprocessableEntityError'];
+      429: components['responses']['TooManyRequests'];
+      500: components['responses']['InternalServerError'];
+    };
+  };
+  getBinTransferRow: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Resource identifier */
+        id: components['parameters']['id'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Bin transfer row details */
+      200: {
+        headers: {
+          'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
+          'X-Ratelimit-Remaining': components['headers']['X-Ratelimit-Remaining'];
+          'X-Ratelimit-Reset': components['headers']['X-Ratelimit-Reset'];
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['BinTransferRow'];
+        };
+      };
+      401: components['responses']['UnauthorizedError'];
+      404: components['responses']['NotFoundError'];
+      429: components['responses']['TooManyRequests'];
+      500: components['responses']['InternalServerError'];
+    };
+  };
+  deleteBinTransferRow: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Resource identifier */
+        id: components['parameters']['id'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      204: components['responses']['NoContent'];
+      401: components['responses']['UnauthorizedError'];
+      404: components['responses']['NotFoundError'];
+      429: components['responses']['TooManyRequests'];
+      500: components['responses']['InternalServerError'];
+    };
+  };
+  updateBinTransferRow: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Resource identifier */
+        id: components['parameters']['id'];
+      };
+      cookie?: never;
+    };
+    /** @description Bin transfer row update details */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateBinTransferRowRequest'];
+      };
+    };
+    responses: {
+      /** @description Bin transfer row updated successfully */
+      200: {
+        headers: {
+          'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
+          'X-Ratelimit-Remaining': components['headers']['X-Ratelimit-Remaining'];
+          'X-Ratelimit-Reset': components['headers']['X-Ratelimit-Reset'];
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['BinTransferRow'];
+        };
+      };
+      400: components['responses']['BadRequestError'];
+      401: components['responses']['UnauthorizedError'];
+      404: components['responses']['NotFoundError'];
+      422: components['responses']['UnprocessableEntityError'];
+      429: components['responses']['TooManyRequests'];
+      500: components['responses']['InternalServerError'];
+    };
+  };
   getAllInventoryPoint: {
     parameters: {
       query?: {
         /** @description Filters results by a location ID. */
         location_id?: components['parameters']['location_id'];
-        /** @description Filters results by a valid variant id. */
-        variant_id?: components['parameters']['variant_id'];
+        /** @description Filter by one or more variant IDs. */
+        variant_id?: number[];
         /** @description Includes archived results. */
         include_archived?: components['parameters']['include_archived'];
         /** @description Array of objects to extend the response for inventory endpoints. */
@@ -10910,8 +14917,8 @@ export interface operations {
         variant_ids?: components['parameters']['variant_ids'];
         /** @description Filters results by a location ID. */
         location_id?: components['parameters']['location_id'];
-        /** @description Filters results by resource type. */
-        resource_type?: components['parameters']['resource_type'];
+        /** @description Filters inventory movements by the resource type that caused them. */
+        resource_type?: components['parameters']['inventory_movement_resource_type'];
         /** @description Filters results by a resource ID. */
         resource_id?: components['parameters']['resource_id'];
         /** @description Filters results by the causing order number. */
@@ -10962,14 +14969,14 @@ export interface operations {
       path?: never;
       cookie?: never;
     };
-    /** @description New inventory safety stock level details. */
+    /** @description Safety stock level details to set (create or update). */
     requestBody: {
       content: {
-        'application/json': components['schemas']['InventorySafetyStockLevel'];
+        'application/json': components['schemas']['CreateInventorySafetyStockLevelRequest'];
       };
     };
     responses: {
-      /** @description New inventory safety stock level created. */
+      /** @description The created or updated inventory safety stock level. */
       200: {
         headers: {
           'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
@@ -11037,9 +15044,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': {
-            data?: components['schemas']['Location'][];
-          };
+          'application/json': components['schemas']['LocationListResponse'];
         };
       };
       401: components['responses']['UnauthorizedError'];
@@ -11083,7 +15088,7 @@ export interface operations {
         /** @description Filters results by an array of IDs. */
         ids?: components['parameters']['ids'];
         /** @description Filters manufacturing orders by a status. */
-        status?: components['parameters']['mo_status'];
+        status?: components['parameters']['manufacturing_order_status'];
         /** @description Filters purchase orders by an order number */
         order_no?: components['parameters']['order_no'];
         /** @description Filters results by a location ID. */
@@ -11319,6 +15324,7 @@ export interface operations {
       204: components['responses']['NoContent'];
       401: components['responses']['UnauthorizedError'];
       404: components['responses']['NotFoundError'];
+      412: components['responses']['PreconditionFailedError'];
       422: components['responses']['UnprocessableEntityError'];
       429: components['responses']['TooManyRequests'];
       500: components['responses']['InternalServerError'];
@@ -11912,8 +15918,8 @@ export interface operations {
       query?: {
         /** @description Filters results by an array of IDs. */
         ids?: components['parameters']['ids'];
-        /** @description Filters manufacturing orders by a status. */
-        status?: components['parameters']['mo_status'];
+        /** @description Filters manufacturing order operation rows by a status. */
+        status?: components['parameters']['mo_operation_row_status'];
         /** @description Filters manufacturing orders by location. */
         manufacturing_order_id?: components['parameters']['manufacturing_order_id'];
         /** @description Number of records to return per page. */
@@ -11969,13 +15975,13 @@ export interface operations {
            *           ],
            *           "completed_by_operators": [],
            *           "active_operator_id": 1,
-           *           "planned_time_per_unit": 1,
-           *           "planned_time_parameter": 1,
-           *           "total_actual_time": 1,
-           *           "planned_cost_per_unit": 1,
-           *           "total_actual_cost": 1,
-           *           "cost_per_hour": 1,
-           *           "cost_parameter": 1,
+           *           "planned_time_per_unit": "1",
+           *           "planned_time_parameter": "1",
+           *           "total_actual_time": "1",
+           *           "planned_cost_per_unit": "1",
+           *           "total_actual_cost": "1",
+           *           "cost_per_hour": "1",
+           *           "cost_parameter": "1",
            *           "group_boundary": 1000,
            *           "is_status_actionable": true,
            *           "completed_at": "2020-10-23T10:37:05.085Z",
@@ -12037,13 +16043,13 @@ export interface operations {
            *       ],
            *       "completed_by_operators": [],
            *       "active_operator_id": 1,
-           *       "planned_time_per_unit": 1,
-           *       "planned_time_parameter": 1,
-           *       "total_actual_time": 1,
-           *       "planned_cost_per_unit": 1,
-           *       "total_actual_cost": 1,
-           *       "cost_per_hour": 1,
-           *       "cost_parameter": 1,
+           *       "planned_time_per_unit": "1",
+           *       "planned_time_parameter": "1",
+           *       "total_actual_time": "1",
+           *       "planned_cost_per_unit": "1",
+           *       "total_actual_cost": "1",
+           *       "cost_per_hour": "1",
+           *       "cost_parameter": "1",
            *       "group_boundary": 1000,
            *       "is_status_actionable": true,
            *       "completed_at": "2020-10-23T10:37:05.085Z",
@@ -12101,13 +16107,13 @@ export interface operations {
            *       ],
            *       "completed_by_operators": [],
            *       "active_operator_id": 1,
-           *       "planned_time_per_unit": 1,
-           *       "planned_time_parameter": 1,
-           *       "total_actual_time": 1,
-           *       "planned_cost_per_unit": 1,
-           *       "total_actual_cost": 1,
-           *       "cost_per_hour": 1,
-           *       "cost_parameter": 1,
+           *       "planned_time_per_unit": "1",
+           *       "planned_time_parameter": "1",
+           *       "total_actual_time": "1",
+           *       "planned_cost_per_unit": "1",
+           *       "total_actual_cost": "1",
+           *       "cost_per_hour": "1",
+           *       "cost_parameter": "1",
            *       "group_boundary": 1000,
            *       "is_status_actionable": true,
            *       "completed_at": "2020-10-23T10:37:05.085Z",
@@ -12189,13 +16195,13 @@ export interface operations {
            *       ],
            *       "completed_by_operators": [],
            *       "active_operator_id": 1,
-           *       "planned_time_per_unit": 1,
-           *       "planned_time_parameter": 1,
-           *       "total_actual_time": 1,
-           *       "planned_cost_per_unit": 1,
-           *       "total_actual_cost": 1,
-           *       "cost_per_hour": 1,
-           *       "cost_parameter": 1,
+           *       "planned_time_per_unit": "1",
+           *       "planned_time_parameter": "1",
+           *       "total_actual_time": "1",
+           *       "planned_cost_per_unit": "1",
+           *       "total_actual_cost": "1",
+           *       "cost_per_hour": "1",
+           *       "cost_parameter": "1",
            *       "group_boundary": 1000,
            *       "is_status_actionable": true,
            *       "completed_at": "2020-10-23T10:37:05.085Z",
@@ -12262,8 +16268,8 @@ export interface operations {
            *           "manufacturing_order_id": 1,
            *           "variant_id": 1,
            *           "notes": "Pay close attention to this",
-           *           "planned_quantity_per_unit": 1.2,
-           *           "total_actual_quantity": 12,
+           *           "planned_quantity_per_unit": "1.2000000000",
+           *           "total_actual_quantity": "12.0000000000",
            *           "ingredient_availability": "IN_STOCK",
            *           "ingredient_expected_date": "2021-03-18T12:33:39.957Z",
            *           "batch_transactions": [
@@ -12276,7 +16282,7 @@ export interface operations {
            *               "quantity": 4.6
            *             }
            *           ],
-           *           "cost": 50.4,
+           *           "cost": "50.4000000000",
            *           "created_at": "2021-02-18T12:33:39.957Z",
            *           "updated_at": "2021-02-18T12:33:39.957Z",
            *           "deleted_at": null
@@ -12321,8 +16327,8 @@ export interface operations {
            *       "manufacturing_order_id": 1,
            *       "variant_id": 1,
            *       "notes": "Pay close attention to this",
-           *       "planned_quantity_per_unit": 1.2,
-           *       "total_actual_quantity": 12,
+           *       "planned_quantity_per_unit": "1.2000000000",
+           *       "total_actual_quantity": "12.0000000000",
            *       "ingredient_availability": "IN_STOCK",
            *       "ingredient_expected_date": "2021-03-18T12:33:39.957Z",
            *       "batch_transactions": [
@@ -12335,7 +16341,7 @@ export interface operations {
            *           "quantity": 4.6
            *         }
            *       ],
-           *       "cost": 50.4,
+           *       "cost": "50.4000000000",
            *       "created_at": "2021-02-18T12:33:39.957Z",
            *       "updated_at": "2021-02-18T12:33:39.957Z",
            *       "deleted_at": null
@@ -12376,8 +16382,8 @@ export interface operations {
            *       "manufacturing_order_id": 1,
            *       "variant_id": 1,
            *       "notes": "Pay close attention to this",
-           *       "planned_quantity_per_unit": 1.2,
-           *       "total_actual_quantity": 12,
+           *       "planned_quantity_per_unit": "1.2000000000",
+           *       "total_actual_quantity": "12.0000000000",
            *       "ingredient_availability": "IN_STOCK",
            *       "ingredient_expected_date": "2021-03-18T12:33:39.957Z",
            *       "batch_transactions": [
@@ -12390,7 +16396,7 @@ export interface operations {
            *           "quantity": 4.6
            *         }
            *       ],
-           *       "cost": 50.4,
+           *       "cost": "50.4000000000",
            *       "created_at": "2021-02-18T12:33:39.957Z",
            *       "updated_at": "2021-02-18T12:33:39.957Z",
            *       "deleted_at": null
@@ -12455,8 +16461,8 @@ export interface operations {
            *       "manufacturing_order_id": 1,
            *       "variant_id": 1,
            *       "notes": "Pay close attention to this",
-           *       "planned_quantity_per_unit": 1.2,
-           *       "total_actual_quantity": 12,
+           *       "planned_quantity_per_unit": "1.2000000000",
+           *       "total_actual_quantity": "12.0000000000",
            *       "ingredient_availability": "IN_STOCK",
            *       "ingredient_expected_date": "2021-03-18T12:33:39.957Z",
            *       "batch_transactions": [
@@ -12469,7 +16475,7 @@ export interface operations {
            *           "quantity": 4.6
            *         }
            *       ],
-           *       "cost": 50.4,
+           *       "cost": "50.4000000000",
            *       "created_at": "2021-02-18T12:33:39.957Z",
            *       "updated_at": "2021-02-18T12:33:39.957Z",
            *       "deleted_at": null
@@ -12496,7 +16502,11 @@ export interface operations {
         default_supplier_id?: components['parameters']['default_supplier_id'];
         /** @description Filters records by whether they are sellable. */
         is_sellable?: components['parameters']['is_sellable'];
-        /** @description Filters records by whether they are batch tracked. */
+        /**
+         * @description Filters records by batch-tracking status. Send the literal string
+         *     ``"true"`` or ``"false"`` — Katana matches the wire value, not the JSON
+         *     boolean.
+         */
         batch_tracked?: components['parameters']['batch_tracked'];
         /** @description Filters records by purchase unit of measure. */
         purchase_uom?: components['parameters']['purchase_uom'];
@@ -13007,9 +17017,17 @@ export interface operations {
         is_auto_assembly?: components['parameters']['is_auto_assembly'];
         /** @description Filters records by default supplier ID. */
         default_supplier_id?: components['parameters']['default_supplier_id'];
-        /** @description Filters records by whether they are batch tracked. */
+        /**
+         * @description Filters records by batch-tracking status. Send the literal string
+         *     ``"true"`` or ``"false"`` — Katana matches the wire value, not the JSON
+         *     boolean.
+         */
         batch_tracked?: components['parameters']['batch_tracked'];
-        /** @description Filters products by a serial_tracked */
+        /**
+         * @description Filters records by serial-tracking status. Send the literal string
+         *     ``"true"`` or ``"false"`` — Katana matches the wire value, not the JSON
+         *     boolean.
+         */
         serial_tracked?: components['parameters']['serial_tracked'];
         /** @description Filters products by a operations_in_sequence */
         operations_in_sequence?: components['parameters']['operations_in_sequence'];
@@ -13067,7 +17085,7 @@ export interface operations {
            *           "is_auto_assembly": true,
            *           "type": "product",
            *           "purchase_uom": "pcs",
-           *           "purchase_uom_conversion_rate": 1,
+           *           "purchase_uom_conversion_rate": "1",
            *           "batch_tracked": true,
            *           "operations_in_sequence": false,
            *           "serial_tracked": false,
@@ -13175,7 +17193,7 @@ export interface operations {
            *       "is_auto_assembly": true,
            *       "type": "product",
            *       "purchase_uom": "pcs",
-           *       "purchase_uom_conversion_rate": 1,
+           *       "purchase_uom_conversion_rate": "1",
            *       "batch_tracked": true,
            *       "serial_tracked": false,
            *       "operations_in_sequence": false,
@@ -13272,7 +17290,7 @@ export interface operations {
            *       "is_auto_assembly": true,
            *       "type": "product",
            *       "purchase_uom": "pcs",
-           *       "purchase_uom_conversion_rate": 1,
+           *       "purchase_uom_conversion_rate": "1",
            *       "batch_tracked": false,
            *       "operations_in_sequence": false,
            *       "archived_at": "2020-10-20T10:37:05.085Z",
@@ -13408,7 +17426,7 @@ export interface operations {
            *       "is_auto_assembly": true,
            *       "type": "product",
            *       "purchase_uom": "pcs",
-           *       "purchase_uom_conversion_rate": 1,
+           *       "purchase_uom_conversion_rate": "1",
            *       "batch_tracked": true,
            *       "serial_tracked": false,
            *       "operations_in_sequence": false,
@@ -13571,7 +17589,7 @@ export interface operations {
            *               ],
            *               "purchase_order_id": 1,
            *               "purchase_uom_conversion_rate": 1.1,
-           *               "landed_cost": "45.0000000000",
+           *               "landed_cost": 45,
            *               "group_id": 11
            *             }
            *           ],
@@ -13660,7 +17678,7 @@ export interface operations {
            *           "purchase_order_id": 1,
            *           "total": 1,
            *           "total_in_base_currency": 1,
-           *           "landed_cost": "45.0000000000",
+           *           "landed_cost": 45,
            *           "group_id": 11
            *         }
            *       ]
@@ -13745,7 +17763,7 @@ export interface operations {
            *           ],
            *           "purchase_order_id": 1,
            *           "purchase_uom_conversion_rate": 1.1,
-           *           "landed_cost": "45.0000000000",
+           *           "landed_cost": 45,
            *           "group_id": 11
            *         }
            *       ],
@@ -13793,6 +17811,7 @@ export interface operations {
       };
       401: components['responses']['UnauthorizedError'];
       404: components['responses']['NotFoundError'];
+      412: components['responses']['PreconditionFailedError'];
       429: components['responses']['TooManyRequests'];
       500: components['responses']['InternalServerError'];
     };
@@ -14152,6 +18171,8 @@ export interface operations {
         purchase_order_id?: components['parameters']['purchase_order_id'];
         /** @description Filters results by a valid variant id. */
         variant_id?: components['parameters']['variant_id'];
+        /** @description Filters results by a location ID. */
+        location_id?: components['parameters']['location_id'];
         /** @description Filters purchase order additional cost rows by tax rate id */
         tax_rate_id?: components['parameters']['tax_rate_id'];
         /** @description Filters purchase order additional cost rows by group id */
@@ -15042,6 +19063,8 @@ export interface operations {
         registered_barcode?: components['parameters']['registered_barcode'];
         /** @description Filters variants by supplier item codes. Returns the variants that match with any of the codes in the array. */
         supplier_item_codes?: components['parameters']['supplier_item_codes'];
+        /** @description Filters variants by ABC inventory classification. */
+        abc_classification?: components['parameters']['abc_classification'];
         /** @description Array of objects to extend the response for variant endpoints. */
         extend?: components['parameters']['extend_variant'];
         /** @description Soft-deleted data is excluded from result set by default. Set to true to include it. */
@@ -15112,7 +19135,7 @@ export interface operations {
            *             "is_purchasable": true,
            *             "type": "product",
            *             "purchase_uom": "pcs",
-           *             "purchase_uom_conversion_rate": 1,
+           *             "purchase_uom_conversion_rate": "1",
            *             "batch_tracked": false,
            *             "variants": [
            *               {
@@ -15289,7 +19312,7 @@ export interface operations {
            *         "is_purchasable": true,
            *         "type": "product",
            *         "purchase_uom": "pcs",
-           *         "purchase_uom_conversion_rate": 1,
+           *         "purchase_uom_conversion_rate": "1",
            *         "batch_tracked": false,
            *         "variants": [
            *           {
@@ -15451,7 +19474,7 @@ export interface operations {
     /** @description Linked variant default storage bin details */
     requestBody: {
       content: {
-        'application/json': components['schemas']['VariantDefaultStorageBinLink'];
+        'application/json': components['schemas']['VariantDefaultStorageBinLink'][];
       };
     };
     responses: {
@@ -15853,20 +19876,11 @@ export interface operations {
       content: {
         /**
          * @example {
-         *       "customer_id": 12345,
          *       "sales_order_id": 67890,
-         *       "order_no": "RET-001",
          *       "return_location_id": 1,
-         *       "currency": "USD",
-         *       "additional_info": "Items damaged during shipping",
-         *       "sales_return_rows": [
-         *         {
-         *           "variant_id": 11111,
-         *           "quantity": 2,
-         *           "return_reason_id": 1,
-         *           "notes": "Defective items"
-         *         }
-         *       ]
+         *       "order_no": "RET-001",
+         *       "order_created_date": "2023-10-10T10:00:00Z",
+         *       "additional_info": "Items damaged during shipping"
          *     }
          */
         'application/json': components['schemas']['CreateSalesReturnRequest'];
@@ -16049,23 +20063,12 @@ export interface operations {
     /** @description Sales return row details */
     requestBody: {
       content: {
-        'application/json': {
-          /** @description Sales return ID */
-          sales_return_id: number;
-          /** @description Product variant ID */
-          variant_id: number;
-          /** @description Quantity being returned */
-          quantity: number;
-          /** @description Reason for return */
-          reason?: string;
-          /** @description Additional notes */
-          notes?: string;
-        };
+        'application/json': components['schemas']['CreateSalesReturnRowRequest'];
       };
     };
     responses: {
       /** @description Sales return row created successfully */
-      201: {
+      200: {
         headers: {
           'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
           'X-Ratelimit-Remaining': components['headers']['X-Ratelimit-Remaining'];
@@ -16154,14 +20157,7 @@ export interface operations {
     /** @description Sales return row update details */
     requestBody: {
       content: {
-        'application/json': {
-          /** @description Quantity being returned */
-          quantity?: number;
-          /** @description Reason for return */
-          reason?: string;
-          /** @description Additional notes */
-          notes?: string;
-        };
+        'application/json': components['schemas']['UpdateSalesReturnRowRequest'];
       };
     };
     responses: {
@@ -16206,18 +20202,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': {
-            data?: {
-              /** @description Batch transaction ID */
-              id?: number;
-              /** @description Batch ID */
-              batch_id?: number;
-              /** @description Transaction quantity */
-              quantity?: number;
-              /** @description Transaction status */
-              status?: string;
-            }[];
-          };
+          'application/json': components['schemas']['UnassignedBatchTransactionListResponse'];
         };
       };
       401: components['responses']['UnauthorizedError'];
@@ -16244,12 +20229,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': {
-            /** @description Return reason ID */
-            id: number;
-            /** @description Return reason name */
-            name: string;
-          }[];
+          'application/json': components['schemas']['SalesReturnReason'][];
         };
       };
       401: components['responses']['UnauthorizedError'];
@@ -16274,12 +20254,12 @@ export interface operations {
         updated_at_max?: components['parameters']['updated_at_max'];
         /** @description Filter by ingredient variant ID */
         ingredient_variant_id?: components['parameters']['ingredient_variant_id'];
-        /** @description Filter by product variant IDs (comma-separated) */
-        product_variant_ids?: string;
+        /** @description Filters recipes by an array of product variant IDs. */
+        product_variant_ids?: number[];
         /** @description Filters variants by a product id */
         product_id?: components['parameters']['product_id'];
-        /** @description Filter by recipe row ID */
-        recipe_row_id?: number;
+        /** @description Filter by recipe row ID (UUID). */
+        recipe_row_id?: string;
       };
       header?: never;
       path?: never;
@@ -16346,6 +20326,34 @@ export interface operations {
       500: components['responses']['InternalServerError'];
     };
   };
+  deleteRecipe: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Resource identifier */
+        id: components['parameters']['id'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Recipe deleted successfully */
+      204: {
+        headers: {
+          'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
+          'X-Ratelimit-Remaining': components['headers']['X-Ratelimit-Remaining'];
+          'X-Ratelimit-Reset': components['headers']['X-Ratelimit-Reset'];
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      401: components['responses']['UnauthorizedError'];
+      404: components['responses']['NotFoundError'];
+      429: components['responses']['TooManyRequests'];
+      500: components['responses']['InternalServerError'];
+    };
+  };
   deleteRecipeRow: {
     parameters: {
       query?: never;
@@ -16387,12 +20395,7 @@ export interface operations {
     /** @description Recipe row update details */
     requestBody: {
       content: {
-        'application/json': {
-          /** @description Ingredient quantity required */
-          quantity?: number;
-          /** @description Additional notes about the recipe row */
-          notes?: string;
-        };
+        'application/json': components['schemas']['UpdateRecipeRowRequest'];
       };
     };
     responses: {
@@ -16412,6 +20415,32 @@ export interface operations {
       401: components['responses']['UnauthorizedError'];
       404: components['responses']['NotFoundError'];
       422: components['responses']['UnprocessableEntityError'];
+      429: components['responses']['TooManyRequests'];
+      500: components['responses']['InternalServerError'];
+    };
+  };
+  getUserInfo: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Current user information */
+      200: {
+        headers: {
+          'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
+          'X-Ratelimit-Remaining': components['headers']['X-Ratelimit-Remaining'];
+          'X-Ratelimit-Reset': components['headers']['X-Ratelimit-Reset'];
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UserInfo'];
+        };
+      };
+      401: components['responses']['UnauthorizedError'];
       429: components['responses']['TooManyRequests'];
       500: components['responses']['InternalServerError'];
     };
@@ -16662,16 +20691,21 @@ export interface operations {
         currency?: components['parameters']['currency'];
         /** @description Filter by source */
         source?: string;
-        /** @description Filter by ecommerce store name */
+        /** @description Filter by storefront host or slug (e.g. `acme.myshopify.com`) */
         ecommerce_store_name?: string;
-        /** @description Filter by ecommerce order ID */
+        /** @description Filter by the source platform's order identifier */
         ecommerce_order_id?: string;
-        /** @description Filter by ecommerce order type */
+        /** @description Filter by source ecommerce platform identifier (e.g. `shopify`) */
         ecommerce_order_type?: string;
         /** @description Filters manufacturing orders by an ingredient availability. */
         ingredient_availability?: components['parameters']['ingredient_availability'];
         /** @description Filters sales order rows by product availability */
-        product_availability?: 'IN_STOCK' | 'EXPECTED' | 'PICKED' | 'NOT_AVAILABLE' | 'NOT_APPLICABLE';
+        product_availability?:
+          | 'IN_STOCK'
+          | 'EXPECTED'
+          | 'PICKED'
+          | 'NOT_AVAILABLE'
+          | 'NOT_APPLICABLE';
       };
       header?: never;
       path?: never;
@@ -16772,6 +20806,7 @@ export interface operations {
       204: components['responses']['NoContent'];
       401: components['responses']['UnauthorizedError'];
       404: components['responses']['NotFoundError'];
+      412: components['responses']['PreconditionFailedError'];
       429: components['responses']['TooManyRequests'];
       500: components['responses']['InternalServerError'];
     };
@@ -16789,48 +20824,7 @@ export interface operations {
     /** @description Sales order update details */
     requestBody: {
       content: {
-        'application/json': {
-          /** @description Updatable only when sales order status is NOT_SHIPPED or PENDING. */
-          order_no?: string;
-          /** @description Updatable only when sales order status is NOT_SHIPPED or PENDING. */
-          customer_id?: number;
-          /**
-           * Format: date-time
-           * @description Date when the order was originally created
-           */
-          order_created_date?: string;
-          /**
-           * Format: date-time
-           * @description Updatable only when sales order status is NOT_SHIPPED or PENDING.
-           */
-          delivery_date?: string;
-          /**
-           * Format: date-time
-           * @description Updatable only when sales order status is NOT_SHIPPED or PENDING.
-           */
-          picked_date?: string;
-          /** @description Updatable only when sales order status is NOT_SHIPPED or PENDING. */
-          location_id?: number;
-          /**
-           * @description When the status is omitted, NOT_SHIPPED is used as default. Use PENDING when you want to create sales order quotes.
-           * @enum {string}
-           */
-          status?: 'NOT_SHIPPED' | 'PENDING' | 'PACKED' | 'DELIVERED';
-          /** @description E.g. USD, EUR. All currently active currency codes in ISO 4217 format. Updatable only when sales order status is NOT_SHIPPED or PENDING. */
-          currency?: string;
-          /** @description Updatable only when sales order status is PACKED or DELIVERED, otherwise it will fail with 422. */
-          conversion_rate?: number;
-          /** @description Updatable only when sales order status is PACKED or DELIVERED, otherwise it will fail with 422. */
-          conversion_date?: string;
-          /** @description Additional notes or instructions for the sales order */
-          additional_info?: string | null;
-          /** @description Customer's reference number or purchase order number */
-          customer_ref?: string | null;
-          /** @description Shipping carrier tracking number for package tracking */
-          tracking_number?: string | null;
-          /** @description URL link to track the shipment on carrier website */
-          tracking_number_url?: string | null;
-        };
+        'application/json': components['schemas']['UpdateSalesOrderRequest'];
       };
     };
     responses: {
@@ -16842,10 +20836,46 @@ export interface operations {
           'X-Ratelimit-Reset': components['headers']['X-Ratelimit-Reset'];
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['SalesOrder'];
+        };
       };
       401: components['responses']['UnauthorizedError'];
       404: components['responses']['NotFoundError'];
+      422: components['responses']['UnprocessableEntityError'];
+      429: components['responses']['TooManyRequests'];
+      500: components['responses']['InternalServerError'];
+    };
+  };
+  searchSalesOrders: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Structured filter body. See the schema for the field allowlist, operators, and caps. */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SalesOrderSearchRequest'];
+      };
+    };
+    responses: {
+      /** @description Matching sales orders */
+      200: {
+        headers: {
+          'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
+          'X-Ratelimit-Remaining': components['headers']['X-Ratelimit-Remaining'];
+          'X-Ratelimit-Reset': components['headers']['X-Ratelimit-Reset'];
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['SalesOrderListResponse'];
+        };
+      };
+      400: components['responses']['BadRequestError'];
+      401: components['responses']['UnauthorizedError'];
+      422: components['responses']['UnprocessableEntityError'];
       429: components['responses']['TooManyRequests'];
       500: components['responses']['InternalServerError'];
     };
@@ -16871,20 +20901,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': {
-            /** @description Product variant ID */
-            variant_id: number;
-            /** @description Fulfillment row ID */
-            fulfillment_row_id: number;
-            /** @description Quantity available for return */
-            available_for_return_quantity: string;
-            /** @description Net price per unit */
-            net_price_per_unit: string;
-            /** @description Location ID */
-            location_id: number;
-            /** @description Total quantity sold */
-            quantity_sold: string;
-          }[];
+          'application/json': components['schemas']['ReturnableItem'][];
         };
       };
       401: components['responses']['UnauthorizedError'];
@@ -17041,6 +21058,99 @@ export interface operations {
         content: {
           'application/json': components['schemas']['Customer'];
         };
+      };
+      401: components['responses']['UnauthorizedError'];
+      404: components['responses']['NotFoundError'];
+      422: components['responses']['UnprocessableEntityError'];
+      429: components['responses']['TooManyRequests'];
+      500: components['responses']['InternalServerError'];
+    };
+  };
+  getDemandForecasts: {
+    parameters: {
+      query: {
+        /** @description ID of variant for which to retrieve demand forecast for. */
+        variant_id: number;
+        /** @description ID of location for which to retrieve variant demand forecast for. */
+        location_id: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Planned demand forecast for variant in location. */
+      200: {
+        headers: {
+          'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
+          'X-Ratelimit-Remaining': components['headers']['X-Ratelimit-Remaining'];
+          'X-Ratelimit-Reset': components['headers']['X-Ratelimit-Reset'];
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DemandForecastResponse'];
+        };
+      };
+      401: components['responses']['UnauthorizedError'];
+      429: components['responses']['TooManyRequests'];
+      500: components['responses']['InternalServerError'];
+    };
+  };
+  createDemandForecast: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Planned demand forecast for variant in location for specified periods. */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateDemandForecastRequest'];
+      };
+    };
+    responses: {
+      /** @description Planned demand forecast added for variant in location for specified periods. */
+      204: {
+        headers: {
+          'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
+          'X-Ratelimit-Remaining': components['headers']['X-Ratelimit-Remaining'];
+          'X-Ratelimit-Reset': components['headers']['X-Ratelimit-Reset'];
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      401: components['responses']['UnauthorizedError'];
+      404: components['responses']['NotFoundError'];
+      422: components['responses']['UnprocessableEntityError'];
+      429: components['responses']['TooManyRequests'];
+      500: components['responses']['InternalServerError'];
+    };
+  };
+  clearDemandForecast: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Clear planned demand forecast for variant in location for specified periods. */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ClearDemandForecastRequest'];
+      };
+    };
+    responses: {
+      /** @description Planned demand forecast cleared for variant in location for specified periods. */
+      204: {
+        headers: {
+          'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
+          'X-Ratelimit-Remaining': components['headers']['X-Ratelimit-Remaining'];
+          'X-Ratelimit-Reset': components['headers']['X-Ratelimit-Reset'];
+          [name: string]: unknown;
+        };
+        content?: never;
       };
       401: components['responses']['UnauthorizedError'];
       404: components['responses']['NotFoundError'];
@@ -17251,23 +21361,12 @@ export interface operations {
     /** @description Stock transfer details */
     requestBody: {
       content: {
-        'application/json': {
-          /** @description Source location ID */
-          from_location_id: number;
-          /** @description Destination location ID */
-          to_location_id: number;
-          /** @description Product variant ID */
-          variant_id: number;
-          /** @description Quantity to transfer */
-          quantity: number;
-          /** @description Transfer notes */
-          notes?: string;
-        };
+        'application/json': components['schemas']['CreateStockTransferRequest'];
       };
     };
     responses: {
       /** @description Stock transfer created successfully */
-      201: {
+      200: {
         headers: {
           'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
           'X-Ratelimit-Remaining': components['headers']['X-Ratelimit-Remaining'];
@@ -17326,12 +21425,7 @@ export interface operations {
     /** @description Stock transfer update details */
     requestBody: {
       content: {
-        'application/json': {
-          /** @description Quantity to transfer */
-          quantity?: number;
-          /** @description Transfer notes */
-          notes?: string;
-        };
+        'application/json': components['schemas']['UpdateStockTransferRequest'];
       };
     };
     responses: {
@@ -17368,13 +21462,7 @@ export interface operations {
     /** @description Status update details */
     requestBody: {
       content: {
-        'application/json': {
-          /**
-           * @description New status for the stock transfer
-           * @enum {string}
-           */
-          status: 'pending' | 'in_transit' | 'completed' | 'cancelled';
-        };
+        'application/json': components['schemas']['UpdateStockTransferStatusRequest'];
       };
     };
     responses: {
@@ -17418,7 +21506,12 @@ export interface operations {
         /** @description Filters sales order rows by manufacturing order ID */
         linked_manufacturing_order_id?: number;
         /** @description Filters sales order rows by product availability */
-        product_availability?: 'IN_STOCK' | 'EXPECTED' | 'PICKED' | 'NOT_AVAILABLE' | 'NOT_APPLICABLE';
+        product_availability?:
+          | 'IN_STOCK'
+          | 'EXPECTED'
+          | 'PICKED'
+          | 'NOT_AVAILABLE'
+          | 'NOT_APPLICABLE';
         /** @description Array of objects to extend the response for sales order row endpoints. */
         extend?: components['parameters']['extend_sales_order_row'];
         /** @description Soft-deleted data is excluded from result set by default. Set to true to include it. */
@@ -17479,6 +21572,38 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['SalesOrderRow'];
+        };
+      };
+      401: components['responses']['UnauthorizedError'];
+      422: components['responses']['UnprocessableEntityError'];
+      429: components['responses']['TooManyRequests'];
+      500: components['responses']['InternalServerError'];
+    };
+  };
+  searchSalesOrderRows: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Structured filter body. See the schema for the field allowlist, operators, and caps. */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SalesOrderRowSearchRequest'];
+      };
+    };
+    responses: {
+      /** @description Matching sales order rows */
+      200: {
+        headers: {
+          'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
+          'X-Ratelimit-Remaining': components['headers']['X-Ratelimit-Remaining'];
+          'X-Ratelimit-Reset': components['headers']['X-Ratelimit-Reset'];
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['SalesOrderRowListResponse'];
         };
       };
       401: components['responses']['UnauthorizedError'];
@@ -17591,8 +21716,8 @@ export interface operations {
         limit?: components['parameters']['limit'];
         /** @description Page number to return. */
         page?: components['parameters']['page'];
-        /** @description Filters purchase orders by an entity type */
-        entity_type?: components['parameters']['entity_type'];
+        /** @description Filters addresses by entity type (billing or shipping). */
+        entity_type?: components['parameters']['address_entity_type'];
         /** @description Filters results by an array of IDs. */
         ids?: components['parameters']['ids'];
         /** @description Filters sales order rows by an array of sales order IDs */
@@ -17812,19 +21937,12 @@ export interface operations {
     /** @description Sales order fulfillment details */
     requestBody: {
       content: {
-        'application/json': {
-          /** @description Sales order ID */
-          sales_order_id: number;
-          /** @description Shipment tracking number */
-          tracking_number?: string;
-          /** @description Additional notes for the fulfillment */
-          notes?: string;
-        };
+        'application/json': components['schemas']['CreateSalesOrderFulfillmentRequest'];
       };
     };
     responses: {
       /** @description Sales order fulfillment created successfully */
-      201: {
+      200: {
         headers: {
           'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
           'X-Ratelimit-Remaining': components['headers']['X-Ratelimit-Remaining'];
@@ -17913,12 +22031,7 @@ export interface operations {
     /** @description Sales order fulfillment update details */
     requestBody: {
       content: {
-        'application/json': {
-          /** @description Shipment tracking number */
-          tracking_number?: string;
-          /** @description Additional notes for the fulfillment */
-          notes?: string;
-        };
+        'application/json': components['schemas']['UpdateSalesOrderFulfillmentRequest'];
       };
     };
     responses: {
@@ -17949,8 +22062,8 @@ export interface operations {
         limit?: components['parameters']['limit'];
         /** @description Page number to return. */
         page?: components['parameters']['page'];
-        /** @description Filters purchase orders by an entity type */
-        entity_type?: components['parameters']['entity_type'];
+        /** @description Filters addresses by entity type (billing or shipping). */
+        entity_type?: components['parameters']['address_entity_type'];
         /** @description Filters results by an array of IDs. */
         ids?: components['parameters']['ids'];
         /** @description Filters customer addresses by an array of customer IDs */
@@ -18073,21 +22186,7 @@ export interface operations {
     /** @description Customer address update details */
     requestBody: {
       content: {
-        'application/json': {
-          /** @enum {string} */
-          entity_type?: 'billing' | 'shipping';
-          first_name?: string | null;
-          last_name?: string | null;
-          company?: string | null;
-          phone?: string | null;
-          line_1?: string | null;
-          line_2?: string | null;
-          city?: string | null;
-          state?: string | null;
-          zip?: string | null;
-          country?: string | null;
-          is_default?: boolean;
-        };
+        'application/json': components['schemas']['UpdateCustomerAddressRequest'];
       };
     };
     responses: {
@@ -18099,7 +22198,9 @@ export interface operations {
           'X-Ratelimit-Reset': components['headers']['X-Ratelimit-Reset'];
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['CustomerAddress'];
+        };
       };
       401: components['responses']['UnauthorizedError'];
       404: components['responses']['NotFoundError'];
@@ -18156,12 +22257,7 @@ export interface operations {
       content: {
         /**
          * @example {
-         *       "name": "VIP Customer Pricing",
-         *       "currency": "USD",
-         *       "is_default": false,
-         *       "markup_percentage": 15,
-         *       "start_date": "2023-01-01T00:00:00.000Z",
-         *       "end_date": "2023-12-31T23:59:59.999Z"
+         *       "name": "VIP Customer Pricing"
          *     }
          */
         'application/json': components['schemas']['CreatePriceListRequest'];
@@ -18345,9 +22441,13 @@ export interface operations {
         /**
          * @example {
          *       "price_list_id": 12345,
-         *       "variant_id": 67890,
-         *       "price": 29.99,
-         *       "currency": "USD"
+         *       "price_list_rows": [
+         *         {
+         *           "variant_id": 67890,
+         *           "adjustment_method": "fixed",
+         *           "amount": 29.99
+         *         }
+         *       ]
          *     }
          */
         'application/json': components['schemas']['CreatePriceListRowRequest'];
@@ -18530,7 +22630,11 @@ export interface operations {
         /**
          * @example {
          *       "price_list_id": 12345,
-         *       "customer_id": 67890
+         *       "price_list_customers": [
+         *         {
+         *           "customer_id": 67890
+         *         }
+         *       ]
          *     }
          */
         'application/json': components['schemas']['CreatePriceListCustomerRequest'];
@@ -18723,7 +22827,18 @@ export interface operations {
       };
     };
     responses: {
-      204: components['responses']['NoContent'];
+      /** @description Returns the created BOM row with its server-assigned id, rank, and timestamps. */
+      200: {
+        headers: {
+          'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
+          'X-Ratelimit-Remaining': components['headers']['X-Ratelimit-Remaining'];
+          'X-Ratelimit-Reset': components['headers']['X-Ratelimit-Reset'];
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['BomRow'];
+        };
+      };
       401: components['responses']['UnauthorizedError'];
       422: components['responses']['UnprocessableEntityError'];
       429: components['responses']['TooManyRequests'];
@@ -18756,8 +22871,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        /** @description Resource identifier */
-        id: components['parameters']['id'];
+        /** @description BOM row identifier (UUID) */
+        id: components['parameters']['bom_row_id'];
       };
       cookie?: never;
     };
@@ -18784,8 +22899,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        /** @description Resource identifier */
-        id: components['parameters']['id'];
+        /** @description BOM row identifier (UUID) */
+        id: components['parameters']['bom_row_id'];
       };
       cookie?: never;
     };
@@ -18831,7 +22946,7 @@ export interface operations {
         /** @description Filters stocktakes by stocktake number */
         stocktake_number?: string;
         /** @description Filters stocktakes by stock adjustment ID */
-        stock_adjustment_id?: number;
+        stock_adjustment_id?: string;
         /** @description Minimum creation date (ISO 8601 format). */
         created_at_min?: components['parameters']['created_at_min'];
         /** @description Maximum creation date (ISO 8601 format). */
@@ -19112,8 +23227,8 @@ export interface operations {
   getAllSerialNumbers: {
     parameters: {
       query?: {
-        /** @description Filters results by resource type. */
-        resource_type?: components['parameters']['resource_type'];
+        /** @description Filters serial numbers by the resource type they are attached to. */
+        resource_type?: components['parameters']['serial_number_resource_type'];
         /** @description Filters results by a resource ID. */
         resource_id?: components['parameters']['resource_id'];
         /** @description Number of records to return per page. */
@@ -19154,27 +23269,15 @@ export interface operations {
     /** @description Serial number creation details */
     requestBody: {
       content: {
-        'application/json': {
-          /**
-           * @description Resource type
-           * @enum {string}
-           */
-          resource_type:
-            | 'ManufacturingOrder'
-            | 'Production'
-            | 'StockAdjustmentRow'
-            | 'StockTransferRow'
-            | 'PurchaseOrderRow'
-            | 'SalesOrderRow';
-          /** @description Resource ID */
-          resource_id: number;
-          /** @description List of serial numbers to create */
-          serial_numbers: string[];
-        };
+        'application/json': components['schemas']['CreateSerialNumbersRequest'];
       };
     };
     responses: {
-      /** @description Serial numbers created successfully */
+      /**
+       * @description Serial numbers created / transferred — partial failure is
+       *     possible. Inspect ``successful`` and ``failed`` arrays in the
+       *     response body to determine which strings landed.
+       */
       200: {
         headers: {
           'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
@@ -19183,7 +23286,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['SerialNumberListResponse'];
+          'application/json': components['schemas']['CreateSerialNumbersResponse'];
         };
       };
       400: components['responses']['BadRequestError'];
@@ -19200,9 +23303,18 @@ export interface operations {
       path?: never;
       cookie?: never;
     };
-    requestBody?: never;
+    /** @description Serial number deletion details */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['DeleteSerialNumbersRequest'];
+      };
+    };
     responses: {
-      /** @description Serial numbers deleted successfully */
+      /**
+       * @description Serial numbers deleted successfully. Returned for every
+       *     well-formed request (valid auth, valid JSON body) regardless
+       *     of whether the supplied ids actually exist.
+       */
       204: {
         headers: {
           'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
@@ -19212,9 +23324,38 @@ export interface operations {
         };
         content?: never;
       };
-      400: components['responses']['BadRequestError'];
       401: components['responses']['UnauthorizedError'];
-      404: components['responses']['NotFoundError'];
+      429: components['responses']['TooManyRequests'];
+      500: components['responses']['InternalServerError'];
+    };
+  };
+  getSerialNumbersStockAlt: {
+    parameters: {
+      query?: {
+        /** @description Number of records to return per page. */
+        limit?: components['parameters']['limit'];
+        /** @description Page number to return. */
+        page?: components['parameters']['page'];
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of serial number stock */
+      200: {
+        headers: {
+          'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
+          'X-Ratelimit-Remaining': components['headers']['X-Ratelimit-Remaining'];
+          'X-Ratelimit-Reset': components['headers']['X-Ratelimit-Reset'];
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['SerialNumberStockListResponse'];
+        };
+      };
+      401: components['responses']['UnauthorizedError'];
       429: components['responses']['TooManyRequests'];
       500: components['responses']['InternalServerError'];
     };
@@ -19237,7 +23378,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['SerialNumberStock'][];
+          'application/json': components['schemas']['SerialNumberStockListResponse'];
         };
       };
       401: components['responses']['UnauthorizedError'];
@@ -19275,7 +23416,7 @@ export interface operations {
     parameters: {
       query?: {
         /** @description Filters operators by their working area */
-        working_area?: string;
+        working_area?: components['schemas']['OperatorWorkingArea'];
         /** @description Filters results by a resource ID. */
         resource_id?: components['parameters']['resource_id'];
         /** @description Number of records to return per page. */
@@ -19298,7 +23439,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['Operator'][];
+          'application/json': components['schemas']['OperatorListResponse'];
         };
       };
       401: components['responses']['UnauthorizedError'];
@@ -19332,6 +23473,179 @@ export interface operations {
       500: components['responses']['InternalServerError'];
     };
   };
+  getAllCustomFieldDefinitions: {
+    parameters: {
+      query?: {
+        /** @description Number of records to return per page. */
+        limit?: components['parameters']['limit'];
+        /** @description Page number to return. */
+        page?: components['parameters']['page'];
+        /** @description Minimum creation date (ISO 8601 format). */
+        created_at_min?: components['parameters']['created_at_min'];
+        /** @description Maximum creation date (ISO 8601 format). */
+        created_at_max?: components['parameters']['created_at_max'];
+        /** @description Minimum update date (ISO 8601 format). */
+        updated_at_min?: components['parameters']['updated_at_min'];
+        /** @description Maximum update date (ISO 8601 format). */
+        updated_at_max?: components['parameters']['updated_at_max'];
+        /** @description Filters definitions by their display label */
+        label?: string;
+        /** @description Filters definitions by their field_type */
+        field_type?: string;
+        /** @description Filters definitions by the resource entity_type they target */
+        entity_type?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of custom field definitions */
+      200: {
+        headers: {
+          'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
+          'X-Ratelimit-Remaining': components['headers']['X-Ratelimit-Remaining'];
+          'X-Ratelimit-Reset': components['headers']['X-Ratelimit-Reset'];
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CustomFieldDefinitionListResponse'];
+        };
+      };
+      401: components['responses']['UnauthorizedError'];
+      429: components['responses']['TooManyRequests'];
+      500: components['responses']['InternalServerError'];
+    };
+  };
+  createCustomFieldDefinition: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Custom field definition details */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateCustomFieldDefinitionRequest'];
+      };
+    };
+    responses: {
+      /** @description Custom field definition created successfully */
+      200: {
+        headers: {
+          'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
+          'X-Ratelimit-Remaining': components['headers']['X-Ratelimit-Remaining'];
+          'X-Ratelimit-Reset': components['headers']['X-Ratelimit-Reset'];
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CustomFieldDefinition'];
+        };
+      };
+      400: components['responses']['BadRequestError'];
+      401: components['responses']['UnauthorizedError'];
+      422: components['responses']['UnprocessableEntityError'];
+      429: components['responses']['TooManyRequests'];
+      500: components['responses']['InternalServerError'];
+    };
+  };
+  getCustomFieldDefinition: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Custom field definition identifier (UUID) */
+        id: components['parameters']['custom_field_definition_id'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Custom field definition retrieved successfully */
+      200: {
+        headers: {
+          'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
+          'X-Ratelimit-Remaining': components['headers']['X-Ratelimit-Remaining'];
+          'X-Ratelimit-Reset': components['headers']['X-Ratelimit-Reset'];
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CustomFieldDefinition'];
+        };
+      };
+      401: components['responses']['UnauthorizedError'];
+      404: components['responses']['NotFoundError'];
+      429: components['responses']['TooManyRequests'];
+      500: components['responses']['InternalServerError'];
+    };
+  };
+  deleteCustomFieldDefinition: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Custom field definition identifier (UUID) */
+        id: components['parameters']['custom_field_definition_id'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Custom field definition deleted successfully */
+      204: {
+        headers: {
+          'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
+          'X-Ratelimit-Remaining': components['headers']['X-Ratelimit-Remaining'];
+          'X-Ratelimit-Reset': components['headers']['X-Ratelimit-Reset'];
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      401: components['responses']['UnauthorizedError'];
+      404: components['responses']['NotFoundError'];
+      429: components['responses']['TooManyRequests'];
+      500: components['responses']['InternalServerError'];
+    };
+  };
+  updateCustomFieldDefinition: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Custom field definition identifier (UUID) */
+        id: components['parameters']['custom_field_definition_id'];
+      };
+      cookie?: never;
+    };
+    /** @description Custom field definition update details */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateCustomFieldDefinitionRequest'];
+      };
+    };
+    responses: {
+      /** @description Custom field definition updated successfully */
+      200: {
+        headers: {
+          'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
+          'X-Ratelimit-Remaining': components['headers']['X-Ratelimit-Remaining'];
+          'X-Ratelimit-Reset': components['headers']['X-Ratelimit-Reset'];
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CustomFieldDefinition'];
+        };
+      };
+      400: components['responses']['BadRequestError'];
+      401: components['responses']['UnauthorizedError'];
+      404: components['responses']['NotFoundError'];
+      422: components['responses']['UnprocessableEntityError'];
+      429: components['responses']['TooManyRequests'];
+      500: components['responses']['InternalServerError'];
+    };
+  };
   createInventoryReorderPoint: {
     parameters: {
       query?: never;
@@ -19342,21 +23656,12 @@ export interface operations {
     /** @description Inventory reorder point details */
     requestBody: {
       content: {
-        'application/json': {
-          /** @description Product variant ID */
-          variant_id: number;
-          /** @description Location ID */
-          location_id: number;
-          /** @description Minimum stock level that triggers reorder */
-          reorder_point: number;
-          /** @description Quantity to reorder when reorder point is reached */
-          reorder_quantity?: number;
-        };
+        'application/json': components['schemas']['CreateInventoryReorderPointRequest'];
       };
     };
     responses: {
       /** @description Inventory reorder point created successfully */
-      201: {
+      200: {
         headers: {
           'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
           'X-Ratelimit-Remaining': components['headers']['X-Ratelimit-Remaining'];
@@ -19433,19 +23738,12 @@ export interface operations {
     /** @description Outsourced purchase order recipe row details */
     requestBody: {
       content: {
-        'application/json': {
-          /** @description Outsourced purchase order ID */
-          outsourced_purchase_order_id: number;
-          /** @description Recipe row ID */
-          recipe_row_id: number;
-          /** @description Quantity required */
-          quantity: number;
-        };
+        'application/json': components['schemas']['CreateOutsourcedPurchaseOrderRecipeRowRequest'];
       };
     };
     responses: {
       /** @description Outsourced purchase order recipe row created successfully */
-      201: {
+      200: {
         headers: {
           'X-Ratelimit-Limit': components['headers']['X-Ratelimit-Limit'];
           'X-Ratelimit-Remaining': components['headers']['X-Ratelimit-Remaining'];
@@ -19534,10 +23832,7 @@ export interface operations {
     /** @description Outsourced purchase order recipe row update details */
     requestBody: {
       content: {
-        'application/json': {
-          /** @description Quantity required */
-          quantity?: number;
-        };
+        'application/json': components['schemas']['UpdateOutsourcedPurchaseOrderRecipeRowRequest'];
       };
     };
     responses: {
@@ -19637,20 +23932,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': {
-            data?: {
-              /** @description Product operation row ID */
-              id?: number;
-              /** @description Product ID */
-              product_id?: number;
-              /** @description Operation ID */
-              operation_id?: number;
-              /** @description Operation sequence */
-              sequence?: number;
-              /** @description Operation notes */
-              notes?: string;
-            }[];
-          };
+          'application/json': components['schemas']['ProductOperationRowListResponse'];
         };
       };
       401: components['responses']['UnauthorizedError'];
@@ -19668,67 +23950,7 @@ export interface operations {
     /** @description New product operation row details */
     requestBody: {
       content: {
-        'application/json': {
-          /**
-           * @description Existing production operation lines are kept by default,
-           *     and new lines will be added after the existing product operations.
-           *     Set to false to delete all existing product operation lines for related products.
-           */
-          keep_current_rows?: boolean;
-          rows: {
-            product_variant_id: number;
-            /** @description If operation ID is used to map the operation, then operation_name is ignored. */
-            operation_id?: number;
-            /**
-             * @description If operation name is used to map the operation then,
-             *     we match to the existing operations by name. If a match is not found, a new one is created.
-             */
-            operation_name?: string;
-            /** @description If resource ID is used to map the resource, then resource_name is ignored. */
-            resource_id?: number;
-            /**
-             * @description If resource name is used to map the resource then we match to the existing resources by name.
-             *     If a match is not found, a new one is created.
-             */
-            resource_name?: string;
-            /**
-             * @description Different operation types allows you to use different cost calculations depending on the type of product operation
-             *     Process: The process operation type is best for when products are individually built and time is the main driver of cost.
-             *     Setup: The setup operation type is best for setting up a machine for production where the production quantity doesn't affect cost.
-             *     Per unit: The per unit operation type is best when cost of time isn't a factor, but only the quantity of product made.
-             *     Fixed cost: The fixed cost operation type is useful for adding the expected extra costs that go into producing a product.
-             * @default process
-             * @enum {string}
-             */
-            type?: 'process' | 'setup' | 'perUnit' | 'fixed';
-            /**
-             * @description The expected cost of an operation, either total or per hour/unit of product (based on type). Total cost of the operation on a manufacturing order is calculated as follows:
-             *     process: cost = cost_parameter x planned_time_parameter (in hours) x product quantity
-             *     setup: cost = cost_parameter x planned_time_parameter (in hours)
-             *     perUnit: cost = cost_parameter x product quantity
-             *     fixed: cost = cost_parameter
-             */
-            cost_parameter?: number;
-            /**
-             * @deprecated
-             * @description (This field is deprecated in favor of cost_parameter) The expected cost of an
-             *     operation, either total or per hour/unit of product (based on type). Total cost
-             *     of the operation on a manufacturing order is calculated as follows:
-             *     process: cost = cost_parameter x planned_time_parameter (in hours) x product quantity
-             *     setup: cost = cost_parameter x planned_time_parameter (in hours)
-             *     perUnit: cost = cost_parameter x product quantity
-             *     fixed: cost = cost_parameter
-             */
-            cost_per_hour?: number;
-            /** @description The planned duration of an operation, in seconds, to either manufacture one unit of a product or complete a manufacturing order (based on type). */
-            planned_time_parameter?: number;
-            /**
-             * @deprecated
-             * @description (This field is deprecated in favor of planned_time_parameter) The planned duration of an operation, in seconds, to either manufacture one unit of a product or complete a manufacturing order (based on type).
-             */
-            planned_time_per_unit?: number;
-          }[];
-        };
+        'application/json': components['schemas']['CreateProductOperationRowsRequest'];
       };
     };
     responses: {
@@ -19789,12 +24011,7 @@ export interface operations {
     /** @description Product operation row update details */
     requestBody: {
       content: {
-        'application/json': {
-          /** @description Operation sequence */
-          sequence?: number;
-          /** @description Operation notes */
-          notes?: string;
-        };
+        'application/json': components['schemas']['UpdateProductOperationRowRequest'];
       };
     };
     responses: {
@@ -19807,18 +24024,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': {
-            /** @description Product operation row ID */
-            id?: number;
-            /** @description Product ID */
-            product_id?: number;
-            /** @description Operation ID */
-            operation_id?: number;
-            /** @description Operation sequence */
-            sequence?: number;
-            /** @description Operation notes */
-            notes?: string;
-          };
+          'application/json': components['schemas']['ProductOperationRow'];
         };
       };
       400: components['responses']['BadRequestError'];
@@ -19920,7 +24126,7 @@ export interface operations {
         /**
          * @example {
          *       "sales_order_id": 12345,
-         *       "amount": 15.99,
+         *       "amount": "15.99",
          *       "description": "Standard shipping"
          *     }
          */
@@ -20026,15 +24232,7 @@ export interface operations {
     /** @description Shipping fee update details */
     requestBody: {
       content: {
-        'application/json': {
-          /**
-           * Format: float
-           * @description Shipping fee amount
-           */
-          amount?: number;
-          /** @description Shipping fee description */
-          description?: string;
-        };
+        'application/json': components['schemas']['UpdateSalesOrderShippingFeeRequest'];
       };
     };
     responses: {
@@ -20585,6 +24783,3 @@ export interface operations {
     };
   };
 }
-type WithRequired<T, K extends keyof T> = T & {
-  [P in K]-?: T[P];
-};

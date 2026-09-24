@@ -8,7 +8,7 @@ Focused package — `katanaClient`, `ConfigProvider`, generated OpenAPI types, c
 
 - **`katanaClient`** — typed wrappers over the Katana MRP v1 REST API: products, variants, inventory, BOM rows, manufacturing orders, stock transfers, customers, sales orders. Intelligent URL-length batching, retry with exponential backoff, pagination helpers.
 - **`ConfigProvider`** — seam between the toolkit and your project's property storage. Ships with `PropertiesServiceConfigProvider` (for GAS `PropertiesService`) and `StaticConfigProvider` (for tests).
-- **`katana.generated.d.ts`** — TypeScript types generated from the official Katana OpenAPI spec.
+- **`katana.generated.d.ts`** — TypeScript types generated from the official Katana OpenAPI spec (vendored at `spec/katana-openapi.yaml`).
 - **`bomDiff`** — compute a row-by-row diff between existing and desired BOM rows for review before sync.
 
 ## Install
@@ -71,6 +71,19 @@ import { compareBomRows } from '@dougborg/katana-sheets-toolkit/bomDiff';
 import { RETRY_CONSTANTS } from '@dougborg/katana-sheets-toolkit/constants';
 import type { components } from '@dougborg/katana-sheets-toolkit/katana.generated';
 ```
+
+## Regenerating types
+
+The OpenAPI spec is vendored at `spec/katana-openapi.yaml` so the committed types always match a known spec version. To update:
+
+```bash
+npm run fetch:spec      # pull latest spec from katana-openapi-client (main)
+npm run generate:types  # regenerate src/katana.generated.d.ts from the vendored spec
+# or both at once:
+npm run generate
+```
+
+Commit the updated `spec/katana-openapi.yaml` and `src/katana.generated.d.ts` together.
 
 ## Related packages
 
