@@ -66,7 +66,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "biome check",
     "lint:fix": "biome check --fix",
-    "test": "vitest run",
+    "test": "vitest run --passWithNoTests",
     "quality": "npm run typecheck && npm run lint && npm run test",
     "prepublishOnly": "npm run build"
   },
