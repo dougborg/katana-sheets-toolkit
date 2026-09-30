@@ -52,12 +52,13 @@
     "@types/google-apps-script": "^1.0.0 || ^2.0.0"
   },
   "dependencies": {
-    "@dougborg/gas-utils": "^0.1.0",
-    "@dougborg/gas-sheets-orm": "^0.1.0"
+    "@dougborg/gas-sheets-orm": "^0.1.0",
+    "@dougborg/gas-utils": "^0.1.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.13",
     "@types/google-apps-script": "^2.0.0",
+    "openapi-typescript": "^7.13.0",
     "typescript": "^6.0.0",
     "vitest": "^4.0.0"
   },
@@ -68,7 +69,8 @@
     "lint:fix": "biome check --fix",
     "test": "vitest run --passWithNoTests",
     "quality": "npm run typecheck && npm run lint && npm run test",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "generate:katana": "openapi-typescript https://raw.githubusercontent.com/dougborg/katana-openapi-client/main/docs/katana-openapi.yaml -o src/katana.generated.d.ts && biome format --write src/katana.generated.d.ts"
   },
   "overrides": {
     "typescript": "$typescript"
