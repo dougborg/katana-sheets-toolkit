@@ -3964,7 +3964,14 @@ export interface components {
      *     server-computed; clients should not attempt to set them.
      * @enum {string}
      */
-    SalesOrderStatus: 'NOT_SHIPPED' | 'PENDING' | 'PARTIALLY_PACKED' | 'PARTIALLY_DELIVERED' | 'PACKED' | 'DELIVERED';
+    SalesOrderStatus:
+      | 'NOT_SHIPPED'
+      | 'PENDING'
+      | 'READY_FOR_FULFILLMENT'
+      | 'PARTIALLY_PACKED'
+      | 'PARTIALLY_DELIVERED'
+      | 'PACKED'
+      | 'DELIVERED';
     /**
      * @description Production status of a sales order
      * @enum {string}
@@ -3998,7 +4005,7 @@ export interface components {
      * @description Allowed status values when updating a sales order
      * @enum {string}
      */
-    UpdateSalesOrderStatus: 'NOT_SHIPPED' | 'PENDING' | 'PACKED' | 'DELIVERED';
+    UpdateSalesOrderStatus: 'NOT_SHIPPED' | 'PENDING' | 'READY_FOR_FULFILLMENT' | 'PACKED' | 'DELIVERED';
     /**
      * @description Status of a stock transfer. Note the camelCase ``inTransit``.
      * @enum {string}
@@ -6401,6 +6408,7 @@ export interface components {
     CreateSerialNumberFailedItem: {
       /** @description The input serial-number string that failed. */
       serial_number: string;
+      /** @description Reason this serial number could not be created. */
       reason: components['schemas']['CreateSerialNumberFailureReason'];
     };
     /**
@@ -9172,6 +9180,7 @@ export interface components {
       | 'sales_order.approved'
       | 'sales_order.updated'
       | 'sales_order.deleted'
+      | 'sales_order.ready_for_fulfillment'
       | 'sales_order.packed'
       | 'sales_order.delivered'
       | 'sales_order.invoiced'
@@ -9446,6 +9455,7 @@ export interface components {
       event?:
         | 'sales_order.created'
         | 'sales_order.approved'
+        | 'sales_order.ready_for_fulfillment'
         | 'sales_order.packed'
         | 'sales_order.delivered'
         | 'sales_order.invoiced'
@@ -10871,6 +10881,7 @@ export interface components {
      *     }
      */
     CustomerSearchRequest: {
+      /** @description Filter conditions used to select matching customers. */
       filter?: components['schemas']['CustomerSearchFilter'];
       /**
        * @description Sort directive(s). Each entry is ``<field> ASC|DESC``
@@ -10907,6 +10918,7 @@ export interface components {
      *     }
      */
     VariantSearchRequest: {
+      /** @description Filter conditions used to select matching variants. */
       filter?: components['schemas']['VariantSearchFilter'];
       /**
        * @description Sort directive(s). Each entry is ``<field> ASC|DESC``
@@ -10953,6 +10965,7 @@ export interface components {
      *     }
      */
     ManufacturingOrderSearchRequest: {
+      /** @description Filter conditions used to select matching manufacturing orders. */
       filter?: components['schemas']['ManufacturingOrderSearchFilter'];
       /**
        * @description Sort directive(s). Each entry is ``<field> ASC|DESC``
@@ -10991,6 +11004,7 @@ export interface components {
      *     }
      */
     PurchaseOrderSearchRequest: {
+      /** @description Filter conditions used to select matching purchase orders. */
       filter?: components['schemas']['PurchaseOrderSearchFilter'];
       /**
        * @description Sort directive(s). Each entry is ``<field> ASC|DESC``
@@ -11046,6 +11060,7 @@ export interface components {
      *     }
      */
     SalesOrderSearchRequest: {
+      /** @description Filter conditions used to select matching sales orders. */
       filter?: components['schemas']['SalesOrderSearchFilter'];
       /**
        * @description Sort directive(s). Each entry is ``<field> ASC|DESC``
@@ -11181,6 +11196,7 @@ export interface components {
      *     }
      */
     SalesOrderRowSearchRequest: {
+      /** @description Filter conditions used to select matching sales order rows. */
       filter?: components['schemas']['SalesOrderRowSearchFilter'];
       /**
        * @description Sort directive(s). Each entry is ``<field> ASC|DESC``
@@ -14139,6 +14155,10 @@ export interface components {
       notes?: string;
       /** @description Batch allocation transactions for this ingredient */
       batch_transactions?: components['schemas']['BatchTransactionRequest'][];
+      /** @description Custom field values keyed by definition ID. Accepts an object or null, not the legacy field_name/field_value array. Availability and supported definitions depend on the account. */
+      custom_fields?: {
+        [key: string]: unknown;
+      } | null;
     };
     /** @description Request payload for updating an outsourced purchase order recipe row */
     UpdateOutsourcedPurchaseOrderRecipeRowRequest: {
@@ -14150,6 +14170,10 @@ export interface components {
       notes?: string;
       /** @description Batch allocation transactions for this ingredient */
       batch_transactions?: components['schemas']['BatchTransactionRequest'][];
+      /** @description Custom field values keyed by definition ID. Accepts an object or null, not the legacy field_name/field_value array. Availability and supported definitions depend on the account. */
+      custom_fields?: {
+        [key: string]: unknown;
+      } | null;
     };
     /** @description A single product operation row item in a bulk create request */
     CreateProductOperationRowItem: {
@@ -14351,7 +14375,7 @@ export interface components {
       order_created_date?: string;
       /**
        * Format: date-time
-       * @description Updatable only when sales order status is NOT_SHIPPED or PENDING.
+       * @description Updatable in all sales order statuses except DELIVERED.
        */
       delivery_date?: string;
       /**
