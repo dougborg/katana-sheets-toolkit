@@ -1,6 +1,6 @@
 {
   "name": "@dougborg/katana-sheets-toolkit",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Katana MRP API client and Google Sheets integration bindings for Google Apps Script projects.",
   "type": "module",
   "exports": {
