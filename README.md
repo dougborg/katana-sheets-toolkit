@@ -4,9 +4,17 @@ Katana MRP API client and Google Sheets integration bindings for Google Apps Scr
 
 Focused package — `katanaClient`, `ConfigProvider`, generated OpenAPI types, constants, and BOM diff utilities. Built on [`@dougborg/gas-utils`](https://www.npmjs.com/package/@dougborg/gas-utils) (logging / feedback) and [`@dougborg/gas-sheets-orm`](https://www.npmjs.com/package/@dougborg/gas-sheets-orm) (sheet ORM), which you'll typically install alongside.
 
+## What can you build with it?
+
+- **Custom reports and inventory lookups** — fetch products, variants, and inventory for SKU lists, then use those results in your own Sheets reports.
+- **BOM maintenance workflows** — compare existing and proposed BOM rows for review, then use the BOM create, update, and delete helpers in your sync workflow.
+- **Catalog automation** — create products and materials, or update variants from data you manage in Sheets.
+
+This is a developer library for Apps Script/TypeScript projects. You write the sheet layout, menus, triggers, and workflow logic; the toolkit provides Katana API calls and BOM comparison helpers.
+
 ## Features
 
-- **`katanaClient`** — typed wrappers over the Katana MRP v1 REST API: products, variants, inventory, BOM rows, manufacturing orders, stock transfers, customers, sales orders. Intelligent URL-length batching, retry with exponential backoff, pagination helpers.
+- **`katanaClient`** — dedicated helpers for products, materials, variants, inventory, and BOM rows, plus a generic `katanaSmartFetch` wrapper for other Katana MRP v1 REST endpoints. Intelligent URL-length batching, retry with exponential backoff, pagination helpers.
 - **`ConfigProvider`** — seam between the toolkit and your project's property storage. Ships with `PropertiesServiceConfigProvider` (for GAS `PropertiesService`) and `StaticConfigProvider` (for tests).
 - **`katana.generated.d.ts`** — TypeScript types generated from the official Katana OpenAPI spec (vendored at `spec/katana-openapi.yaml`).
 - **`bomDiff`** — compute a row-by-row diff between existing and desired BOM rows for review before sync.
@@ -19,6 +27,8 @@ npm install @dougborg/katana-sheets-toolkit @dougborg/gas-utils @dougborg/gas-sh
 
 Peer dependency: `@types/google-apps-script` (tested against `^1` and `^2`).
 
+The package exports TypeScript source. Use a build setup that bundles npm dependencies and transpiles TypeScript for Google Apps Script before deployment. API calls use Apps Script globals such as `UrlFetchApp` and `Utilities`.
+
 ## Quick start
 
 1. Register your config provider at module load:
@@ -29,12 +39,14 @@ import { PropertiesServiceConfigProvider, setConfigProvider } from '@dougborg/ka
 
 setConfigProvider(
   new PropertiesServiceConfigProvider({
+    locationIdProperty: 'KATANA_LOCATION_ID',
     defaultLocationId: 160411 // your Katana warehouse / location ID
   })
 );
 ```
 
 Store your Katana API key in Script Properties under `KATANA_API_KEY`.
+Optionally set `KATANA_LOCATION_ID` there to override the constructor's default location. `batchFetchInventoryByVariantIds` filters results to the configured location.
 
 2. Call the API:
 
@@ -46,23 +58,32 @@ import { batchFetchVariantsBySkus, fetchProductWithVariants } from '@dougborg/ka
 const variants = batchFetchVariantsBySkus(['SKU-001', 'SKU-002', 'SKU-003']);
 
 // Fetch a product with all its variants.
-const product = fetchProductWithVariants(12345);
+const product = fetchProductWithVariants('12345');
 ```
 
 3. Diff BOM rows before sync:
 
 ```ts
-import { compareBomRows, printBomDiff } from '@dougborg/katana-sheets-toolkit/bomDiff';
+import { type BomRow, compareBomRows, printBomDiff } from '@dougborg/katana-sheets-toolkit/bomDiff';
 
-const diff = compareBomRows(existing, desired);
-printBomDiff(diff); // console table
+// Example current and proposed rows; supply your own Katana/sheet data.
+const existing: BomRow[] = [
+  { product_item_id: 12345, product_variant_id: 23456, ingredient_variant_id: 34567, quantity: 2 }
+];
+const desired: BomRow[] = [{ ...existing[0], quantity: 3 }];
+const ingredientBySku = { 'PART-001': { id: 34567 } };
+
+const diff = compareBomRows(existing, desired, ingredientBySku);
+printBomDiff(diff, 'SKU-001', ingredientBySku); // console table
 ```
+
+Comparison is position-by-position, so put both lists in the intended row order first. These helpers report differences; they do not write changes to Katana.
 
 ## Subpath imports
 
 ```ts
 // Root barrel
-import { batchFetchVariantsBySkus, PropertiesServiceConfigProvider, setConfigProvider } from '@dougborg/katana-sheets-toolkit';
+import { batchFetchVariantsBySkus, PropertiesServiceConfigProvider } from '@dougborg/katana-sheets-toolkit';
 
 // Tree-shaken subpaths
 import { fetchProductWithVariants } from '@dougborg/katana-sheets-toolkit/katana';
