@@ -57,6 +57,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.13",
+    "@dougborg/gas-test-utils": "^0.1.0",
     "@types/google-apps-script": "^2.0.0",
     "openapi-typescript": "7.13.0",
     "prettier": "3.9.9",
@@ -65,10 +66,10 @@
   },
   "scripts": {
     "build": "tsc",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --project tests/tsconfig.json",
     "lint": "biome check",
     "lint:fix": "biome check --fix",
-    "test": "vitest run --passWithNoTests",
+    "test": "vitest run",
     "quality": "npm run typecheck && npm run lint && npm run test",
     "prepublishOnly": "npm run build",
     "fetch:spec": "curl -fsSL https://raw.githubusercontent.com/dougborg/katana-openapi-client/main/docs/katana-openapi.yaml -o spec/katana-openapi.yaml",

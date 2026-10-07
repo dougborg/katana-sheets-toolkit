@@ -6,7 +6,7 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["src/**/*.ts", "!!**/dist", "!!**/*.generated.d.ts"]
+    "includes": ["src/**/*.ts", "tests/**/*.ts", "vitest.config.ts", "!!**/dist", "!!**/*.generated.d.ts"]
   },
   "formatter": {
     "indentStyle": "space",
